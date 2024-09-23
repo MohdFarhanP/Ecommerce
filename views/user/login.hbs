@@ -1,0 +1,46 @@
+{{!-- login page --}}
+
+<link rel="stylesheet" href="/styles/user/login.css">
+<div class="container-fluid m-3"></div>
+    <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
+</div>
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <div class="card" id="card">
+                <div>
+                    <h3 class="text-center mt-5">Login</h3>
+                </div>
+                <div class="d-flex justify-content-around mt-5">
+                    <a href="#"><h5 class="text-left">Login</h5></a>
+                    <a href="#"><h5 class="text-right">Signup</h5></a>
+                </div>
+                <span id="msg" hidden>{{msg}}</span>
+                <div class="card-body mt-3">
+                    <form class="login" id="loginform" action="/user/login" method="post">
+                        <div class="mb-3">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Enter password">
+                        </div>
+                        <p class="ms-2"><a href="#">Forgot Password?</a></p>
+
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                            <button type="submit" class="btn btn-dark text-white">Login</button>
+                        </div>
+
+                        <p class="text-center mt-2">Or login with</p>
+                        <div class="text-center">
+                            <a href="#" class="btn btn-google btn-sm"><i class="fab fa-google"></i></a>
+                            <a href="#" class="btn btn-facebook btn-sm"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="btn btn-apple btn-sm"><i class="fab fa-apple"></i></a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/javaScript/user/login.js"></script>

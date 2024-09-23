@@ -1,41 +1,44 @@
 {{!-- login page  --}}
 
-<link rel="stylesheet" href="/styles/login.css">
-
-<div class="container">
-	<div class="screen">
-		<div class="screen__content">
-
-			<form class="login" id="loginform" action="/admin/login" method="post">
-				<div class="login__field">
-					<i class="login__icon fas fa-user"></i>
-					<input type="text" id="name" class="login__input" name="name" placeholder="User name / Email">
-				</div>
-				<div class="login__field">
-					<i class="login__icon fas fa-lock"></i>
-					<input type="password" id="password" class="login__input" name="password" placeholder="Password">
-				</div>
-				<button class="button login__submit" type="submit">
-					<span class="button__text">Log In Now</span>
-					<i class="button__icon fas fa-chevron-right"></i>
-				</button>				
-			</form>
-			<div class="social-login">
-				<h3>log in via</h3>
-				<div class="social-icons">
-					<a href="#" class="social-login__icon fab fa-instagram"></a>
-					<a href="#" class="social-login__icon fab fa-facebook"></a>
-					<a href="#" class="social-login__icon fab fa-twitter"></a>
-				</div>
-			</div>
-		</div>
-		<div class="screen__background">
-			<span class="screen__background__shape screen__background__shape4"></span>
-			<span class="screen__background__shape screen__background__shape3"></span>		
-			<span class="screen__background__shape screen__background__shape2"></span>
-			<span class="screen__background__shape screen__background__shape1"></span>
-		</div>		
-	</div>
+<link rel="stylesheet" href="/styles/admin/login.css">
+<div class="container-fluid m-3"></div>
+    <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
 </div>
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <div class="card" id="card">
+                <div>
+                    <h3 class="text-center mt-5">Login</h3>
+                </div>
+				<span id="msg" hidden>{{msg}}</span>
+                <div class="card-body mt-5">
+                    <form class="login" id="loginform" action="/admin/login" method="post">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="name"  name="userName" placeholder="Admin name">
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+                        </div>
+                        <p class="ms-2"><a href="#">Forgot Password?</a></p>
 
-<script src="/javaScript/login.js"></script>
+                        <div class="d-grid gap-2 col-6 mx-auto"> 
+                            <button type="submit" class="btn btn-dark text-white">Login</button>
+                        </div>
+                        
+                        <p class="text-center mt-2">Or login with</p>
+                        <div class="text-center">
+                            <a href="#" class="btn btn-google btn-sm"><i class="fab fa-google"></i></a>
+                            <a href="#" class="btn btn-facebook btn-sm"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="btn btn-apple btn-sm"><i class="fab fa-apple"></i></a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/javaScript/admin/login.js"></script>
