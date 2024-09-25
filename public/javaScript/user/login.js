@@ -25,8 +25,8 @@
   const msg = document.getElementById('msg').textContent;
   if(msg){
     Swal.fire({
-        position: "top-end",
-        icon: "success",
+        position: "center",
+        icon: "error",
         title: msg,
         showConfirmButton: false,
         timer: 1500

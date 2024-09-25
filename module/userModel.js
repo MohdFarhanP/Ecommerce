@@ -4,7 +4,8 @@ const userSchema = mongoose.Schema({
     userName:String,
     email:String,
     password:String,
-    verified:Boolean
+    googleId:String,
+    facebookId:String,
 });
 
 module.exports = mongoose.model('user',userSchema)

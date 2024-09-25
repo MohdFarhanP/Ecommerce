@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./config/passport');
 const express = require('express');
 const app = express();
 const exphbs = require('express-handlebars');
@@ -8,15 +9,20 @@ const nocache = require("nocache");
 const connectDb = require("./db/connect")
 const adminRouter = require('./routes/admin')
 const userRouter = require('./routes/user');
+const authRouter = require('./routes/auth');
 const { error } = require('console');
 const session = require('express-session');
+const passport = require('passport');
 
 app.use(session({
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET, 
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }, 
+  cookie: { secure: false } 
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.set('views',path.join(__dirname,'views'));
 app.set('view engine','hbs');
@@ -34,7 +40,8 @@ app.engine('hbs', exphbs.engine({
   }));
 
   app.use('/admin',adminRouter);
-  app.use('/user',userRouter)
+  app.use('/user',userRouter);
+  app.use('/auth',authRouter);
   
   connectDb();
 
