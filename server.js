@@ -24,6 +24,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 app.set('views',path.join(__dirname,'views'));
 app.set('view engine','hbs');
 app.use(express.static(path.join(__dirname,'public')));
@@ -36,11 +37,15 @@ app.engine('hbs', exphbs.engine({
     extname: 'hbs',
     defaultLayout: 'main',
     layoutsDir: path.join(__dirname, 'views/layouts'),
-    partialsDir: path.join(__dirname, 'views/partials')
+    partialsDir: path.join(__dirname, 'views/partials'),
+    runtimeOptions: {
+      allowProtoPropertiesByDefault: true,
+      allowProtoMethodsByDefault: true,
+  },
   }));
 
   app.use('/admin',adminRouter);
-  app.use('/user',userRouter);
+  app.use('/user',userRouter);  
   app.use('/auth',authRouter);
   
   connectDb();

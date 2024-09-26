@@ -54,12 +54,15 @@ const loginBtn = async (req, res) => {
     const exist = await User.findOne({email,});
     if(!exist)
         {
-            return res.render('user/login',{msg:'user not exist'});
+            return res.render('user/login',{err:'user not exist'});
     }else{
         const pass = await bcrypt.compare(password,exist.password);
-        if(!pass){
-            return res.render('user/login',{msg:'incorrect password'});
-        }else{
+        if(!pass) return res.render('user/login',{err:'incorrect password'});
+        if(exist.isBlocked){
+            return res.render('user/login',{err:'you are blocked'})
+        }
+        else{
+            req.session.user = true;
             return res.redirect('/user/home');
         }
     }

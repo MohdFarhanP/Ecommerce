@@ -1,77 +1,90 @@
 <link rel="stylesheet" href="/styles/users.css">
 
-    <div class="container-fluid mt-3">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 mt-3 ">
-                <h3 id="head">WATCH <span style="color: #ffac33;">LY</span></h3>
-                <nav class="nav flex-column mt-4">
-                     <a href="#" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
-                    <a href="#" class="btn mbtn btn-outline-warning mb-2 active">USERS</a>
-                    <a href="#" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
-                    <a href="#" class="btn mbtn btn-outline-warning mb-2">ORDERS</a>
-                    <a href="#" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
-                    <a href="#" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
-                    <a href="#" class="btn mbtn btn-outline-warning mb-2">SALES</a>
-                </nav>
+<div class="container-fluid mt-3">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2">
+            <div class="container-fluid m-3">
+                <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
+            </div>
+            <nav class="nav flex-column mt-5">
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2 active">USERS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">CATEGORIES</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">ORDERS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">SALES</a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10">
+            <!-- Header -->
+            <div class="row dashboard-header mt-5">
+                <div class="col-md-12">
+                    <h1 class="text-center">ADMIN DASHBOARD</h1>
+                </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-md-10">
-                <!-- Header -->
-                <div class="row dashboard-header">
-                    <div class="col-md-12">
-                        <h1 class="text-center">ADMIN DASHBOARD</h1>
-                    </div>
+            <!-- Search and Dropdown -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" id="searchUser" placeholder="Search for users...">
                 </div>
-
-                <!-- Search and Dropdown -->
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" id="searchUser" placeholder="Search for users...">
-                    </div>
-                    <div class="col-md-4">
-                        <select class="form-select">
-                            <option >Filter by</option>
-                            <option value="1">Date Registered</option>
-                            <option value="2">Name</option>
-                            <option value="3">Email</option>
-                        </select>
-                    </div>
+                <div class="col-md-4">
+                    <select class="form-select">
+                        <option>Filter by</option>
+                        <option value="1">Date Registered</option>
+                        <option value="2">Name</option>
+                        <option value="3">Email</option>
+                    </select>
                 </div>
+            </div>
 
-                <!-- Table -->
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <div class="table-wrapper">
-                            <table class="table table-striped table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Phone</th>
-                                        <th>Email Address</th>
-                                        <th>Reg At</th>
-                                        <th>View</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="userTable">
-                                    <tr>
-                                        <td>#99435fre34df4</td>
-                                        <td>Mohammed Farhan</td>
-                                        <td>8113097762</td>
-                                        <td>mf0990@gmail.com</td>
-                                        <td>06/05/2025</td>
-                                        <td><a href="#" class="btn btn-warning">View More</a></td>
-                                    </tr>
-                                   
-                                </tbody>
-                            </table>
-                        </div>
+            <!-- Table -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="table-wrapper">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email Address</th>
+                                    <th>Reg At</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTable">
+                                {{#each data}}
+                                <tr>
+                                    <td>{{_id}}</td>
+                                    <td>{{userName}}</td>
+                                    <td>{{email}}</td>
+                                    <td>{{createdAt}}</td>
+                                    <td>{{#if isBlocked}}Blocked{{else}}Active{{/if}}</td>
+                                    <td>
+                                        {{#if isBlocked}}
+                                        <form action="/admin/unblock/{{_id}}" method="POST">
+                                            <button class="btn btn-warning" type="submit">Unblock</button>
+                                        </form>
+                                        {{else}}
+                                        <form action="/admin/block/{{_id}}" method="POST">
+                                            <button class="btn btn-warning" type="submit">Block</button>
+                                        </form>
+                                        {{/if}}
+                                    </td>
+                                </tr>
+                                {{/each}}
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-
+</div>

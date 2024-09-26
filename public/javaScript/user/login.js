@@ -23,11 +23,21 @@
   });
   
   const msg = document.getElementById('msg').textContent;
+  const error = document.getElementById('err').textContent;
   if(msg){
     Swal.fire({
         position: "center",
-        icon: "error",
+        icon: "success",
         title: msg,
+        showConfirmButton: false,
+        timer: 1500
+      });
+  }
+  if(error){
+    Swal.fire({
+        position: "center",
+        icon: "error",
+        title: error,
         showConfirmButton: false,
         timer: 1500
       });
