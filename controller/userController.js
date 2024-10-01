@@ -5,13 +5,17 @@ const { template } = require('handlebars');
 const path = require('path');
 const { emit } = require('process');
 require('dotenv').config();
+const Products = require('../module/products');
+const Category = require('../module/categoryModel');
+const Review = require('../module/reviewModel');
+const categoryModel = require('../module/categoryModel');
 
-let transporter; 
+let transporter;
 
 // Immediately invoked function to set up nodemailer and handlebars
 (async () => {
     try {
-        const hbs = await import('nodemailer-express-handlebars'); 
+        const hbs = await import('nodemailer-express-handlebars');
 
         // Setup nodemailer transport
         transporter = nodemailer.createTransport({
@@ -43,25 +47,24 @@ let transporter;
 })();
 
 const homePage = (req, res) => {
-    
+
     res.render('user/home');
 }
 const loginPage = (req, res) => {
     res.render('user/login');
 }
 const loginBtn = async (req, res) => {
-    const { email,password } = req.body;
-    const exist = await User.findOne({email,});
-    if(!exist)
-        {
-            return res.render('user/login',{err:'user not exist'});
-    }else{
-        const pass = await bcrypt.compare(password,exist.password);
-        if(!pass) return res.render('user/login',{err:'incorrect password'});
-        if(exist.isBlocked){
-            return res.render('user/login',{err:'you are blocked'})
+    const { email, password } = req.body;
+    const exist = await User.findOne({ email, });
+    if (!exist) {
+        return res.render('user/login', { err: 'user not exist' });
+    } else {
+        const pass = await bcrypt.compare(password, exist.password);
+        if (!pass) return res.render('user/login', { err: 'incorrect password' });
+        if (exist.isBlocked) {
+            return res.render('user/login', { err: 'you are blocked' })
         }
-        else{
+        else {
             req.session.user = true;
             return res.redirect('/user/home');
         }
@@ -89,7 +92,7 @@ const signupBtn = async (req, res) => {
             req.session.otp = otp;
             req.session.email = email;
             req.session.otpTimestamp = Date.now();
-           
+
             const mailOptions = {
                 from: process.env.EMAIL,
                 to: email,
@@ -107,7 +110,7 @@ const signupBtn = async (req, res) => {
                     res.redirect('/user/otp')
                 }
             });
-            
+
         } else {
             return res.render('user/signup', { msg: 'user already exists' });
         }
@@ -120,23 +123,23 @@ const otpPage = (req, res) => {
 }
 
 const verifyOtp = async (req, res) => {
-    try{
-    const userOtp = req.body.otp;
-    const otpAge = Date.now() - req.session.otpTimestamp;
-    const otpExp = 1 * 60 * 1000;
+    try {
+        const userOtp = req.body.otp;
+        const otpAge = Date.now() - req.session.otpTimestamp;
+        const otpExp = 1 * 60 * 1000;
 
-    if (otpAge > otpExp) {
-        return res.render('user/otp', { error: "OTP expired please requast a new one." });
-    }
+        if (otpAge > otpExp) {
+            return res.render('user/otp', { error: "OTP expired please requast a new one." });
+        }
 
-    if (userOtp === req.session.otp.toString()) {
-        return res.render('user/login', { msg: "User created successfully" });
-    } else {
-        return res.render('user/otp', { error: "Invalid OTP please try again" });
+        if (userOtp === req.session.otp.toString()) {
+            return res.render('user/login', { msg: "User created successfully" });
+        } else {
+            return res.render('user/otp', { error: "Invalid OTP please try again" });
+        }
+    } catch (error) {
+        console.error("verifing error", error);
     }
-}catch(error){
-    console.error("verifing error",error);
-}
 }
 
 const resendOtp = (req, res) => {
@@ -166,6 +169,106 @@ const resendOtp = (req, res) => {
 
     });
 }
+const ProductList = async (req, res) => {
+    try {
+
+        const products = await Products.find({});
+
+        res.render('user/ProductList', { products });
+    } catch (err) {
+        console.log(err);
+    }
+
+}
+const filterProducts = async (req, res) => {
+    try {
+
+        const { brands, displayTypes, colors } = req.body;
+        const minPrice = parseInt(req.body.minPrice, 10);
+        const maxPrice = parseInt(req.body.maxPrice, 10);
+
+
+        const query = {
+            productPrice: { $gte: minPrice, $lte: maxPrice },
+            isDeleted: false
+        };
+
+        let categoryIds = [];
+        if (brands.length > 0 || displayTypes.length > 0 || colors.length > 0) {
+            const categoryQuary = {};
+            if (brands.length > 0) {
+                categoryQuary.brandName = { $in: brands };
+            }
+
+            if (displayTypes.length > 0) {
+                categoryQuary.displayType = { $in: displayTypes };
+            }
+
+            if (colors.length > 0) {
+                categoryQuary.bandColor = { $in: colors };
+            }
+
+            const matchingCategories = await Category.find(categoryQuary);
+            categoryIds = matchingCategories.map(category => category._id);
+        }
+
+        if (categoryIds.length > 0) {
+            query.category = { $in: categoryIds };
+        }
+
+
+        const filteredProducts = await Products.find(query).populate('category');
+
+        res.json(filteredProducts);
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+const productPage = async (req, res) => {
+    try {
+
+        const currentProductId = req.params.id;
+        const product = await Products.findById(currentProductId);
+        const reviews = await Review.find();    
+        const priceRange = 0.7 * product.productPrice;
+        
+        const relatedProducts = await Products.find({
+           
+            productPrice: {
+                $gte: product.productPrice - priceRange,
+                $lte: product.productPrice + priceRange
+            },
+            _id: { $ne: currentProductId },
+            isDeleted: false
+        }).limit(4);
+
+        
+
+        res.render('user/singleProduct', { product, relatedProducts,reviews });
+    } catch (err) {
+        console.log('fetching related products:',err);
+        res.status(500).json({error:"An error occured while fetching related products"});
+    }
+}
+const review = async (req,res) => {
+    try{
+        const {customerName,email,rating,comment} = req.body;
+        const productid = req.params.id;
+
+        const newReview = await Review({
+            productId:productid,
+            customerName,
+            email,
+            rating,
+            comment,
+        });
+        await newReview.save();
+        res.redirect(`/user/singleProduct/${productid}`);
+    }catch(err){
+
+    }
+}
 module.exports = {
     homePage,
     loginPage,
@@ -174,5 +277,9 @@ module.exports = {
     signupBtn,
     otpPage,
     verifyOtp,
-    resendOtp
+    resendOtp,
+    ProductList,
+    filterProducts,
+    productPage,
+    review
 }

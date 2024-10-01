@@ -35,7 +35,7 @@ a{
  
 }
 .bgcolor{
-    background-color: rgba(236, 236, 236, 0.586);
+    background-color: #eaeaea;
 }
 .align1{
     margin-top: 1rem;
@@ -50,7 +50,7 @@ a{
     color: #ffac33;
 }
 .size2{
-    width: 40rem;
+    width: 40.5rem;
     height: 20rem;
 }
 .bgStyle{
@@ -76,6 +76,11 @@ a{
 .product-card{
     border-radius: 0.5rem;
 }
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+    transform: translateY(-5px); 
+    transition: all 0.3s ease;
+  }
 .star{
     color: #ffac33;
 }

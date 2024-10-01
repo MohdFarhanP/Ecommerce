@@ -10,6 +10,13 @@ router.get('/users',adminController.usersPage);
 router.post('/unblock/:id',adminController.unblockUser);
 router.post('/block/:id',adminController.blockUser);
 router.get('/category',adminController.categoryPage);
-router.post('/addCategory',adminController.addCategory)
-router.post('/editCategory',adminController.editCategory)
+router.post('/addCategory',adminController.addCategory);
+router.post('/editCategory',adminController.editCategory);
+router.post('/deleteCategory',adminController.deleteCategory);
+router.get('/products',adminController.productPage);
+router.post('/addProduct',adminController.upload.array("images",3),adminController.addProduct);
+router.post('/editProduct',adminController.upload.array("images",3),adminController.editProduct);
+router.post('/deleteProduct',adminController.deleteProduct)
+
+
 module.exports = router;

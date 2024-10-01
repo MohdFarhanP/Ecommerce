@@ -1,0 +1,181 @@
+<link rel="stylesheet" href="/styles/admin/products.css">
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2">
+            <div class="container-fluid m-3">
+                <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
+            </div>
+            <nav class="nav flex-column mt-5">
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2 ">USERS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2 active">PRODUCTS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2 ">CATEGORIES</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">ORDERS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">SALES</a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10">
+            <!-- Header -->
+            <div class="row dashboard-header mt-5">
+                <div class="col-md-12">
+                    <h1 class="text-center">ADMIN DASHBOARD</h1>
+                </div>
+            </div>
+
+            <!-- Search and Dropdown -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" id="searchUser" placeholder="Search for users...">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select">
+                        <option>Filter by</option>
+                        <option value="1">Date Registered</option>
+                        <option value="2">Name</option>
+                        <option value="3">Email</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <button type="submit" id="addbtn" class="btn btn-success m-2"
+                        onclick="showAddProduct()">AddUser</button>
+                    <div class="table-wrapper">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Image</th>
+                                    <th>ProductName</th>
+                                    <th>Stock</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th colspan="2" class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productTable">
+                                {{#each products}}
+                                <tr>
+                                    <td>{{_id}}</td>
+                                    <td>
+                                        <!-- Display the first image from the array of images -->
+                                        <img src="/uploads/{{images.[0]}}" alt="Product Image" width="50" height="50">
+                                    </td>
+                                    <td>{{productName}}</td>
+                                    <td>{{productStock}}</td>
+                                    <td>₹{{productPrice}}</td>
+                                    <td>{{#if isDeleted}}Deleted{{else}}Active{{/if}}</td>
+
+                                    <td class="align-middle text-center">
+
+                                        <button type="button" class="btn btn-warning btn-sm"
+                                            onclick="showEditProduct('{{productName}}','{{productStock}}','{{productPrice}}','{{images}}','{{_id}}')">Edit</button>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <!-- Soft Delete Form -->
+                                        <form action="/admin/deleteProduct" method="post"
+                                            onsubmit="return confirm('Are you sure you want to delete this product?')">
+                                            <input type="hidden" name="id" value="{{_id}}">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {{!-- Add Product --}}
+            <div class="card bg-light mb-3 w-50 mx-auto d-none" id="addProduct">
+                <div class="card-header text-center d-flex justify-content-between">
+                    Add Product
+                    <button type="button" onclick="hideAddProduct()" class="close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="Name" placeholder="Product Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" class="form-control" name="Stock" placeholder="Stock" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" class="form-control" name="Price" placeholder="Price" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="file" class="form-control" name="images" multiple required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="categories">Categories</label>
+                            <select class="form-control" id="categories" name="categories" multiple required>
+                                {{#each categories}}
+                                <option value="{{_id}}">{{brandName}} - {{displayType}} - {{bandColor}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success">Add Product</button>
+                        </div>
+            </div>
+            </form>
+        </div>
+      
+        {{!-- Edit Product --}}
+        <div class="card bg-light mb-3 w-50 mx-auto d-none" id="editProduct">
+            <div class="card-header text-center d-flex justify-content-between">
+                Edit Product
+                <button type="button" onclick="hideEditProduct()" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/admin/editProduct" method="post" enctype="multipart/form-data">
+                <div class="card-body">
+                    <input type="text" id="productId" name="id" hidden>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="productName" id="productName"
+                            placeholder="Product Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="number" class="form-control" name="productStock" id="productStock"
+                            placeholder="Stock" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="number" class="form-control" name="productPrice" id="productPrice"
+                            placeholder="Price" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="file" class="form-control" name="images" id="productImages" multiple>
+                    </div>
+                    <div class="form-group mb-3">
+                            <label for="categories">Categories</label>
+                            <select class="form-control" id="categories" name="categories" multiple required>
+                                {{#each categories}}
+                                <option value="{{_id}}">{{brandName}} - {{displayType}} - {{bandColor}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-warning">Save Changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {{!-- / Edit Product --}}
+    </div>
+</div>
+</div>
+
+
+
+<script src="/javaScript/admin/products.js"></script>

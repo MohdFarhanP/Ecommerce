@@ -28,6 +28,8 @@ app.use(passport.session());
 app.set('views',path.join(__dirname,'views'));
 app.set('view engine','hbs');
 app.use(express.static(path.join(__dirname,'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
@@ -42,6 +44,11 @@ app.engine('hbs', exphbs.engine({
       allowProtoPropertiesByDefault: true,
       allowProtoMethodsByDefault: true,
   },
+  helpers: {
+    formatDate: function (date) {
+        return new Date(date).toLocaleDateString(); // Formats the date
+    }
+}
   }));
 
   app.use('/admin',adminRouter);

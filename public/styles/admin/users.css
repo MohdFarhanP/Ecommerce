@@ -20,7 +20,7 @@ body {
     color: #fff;
 }
 .dashboard-header {
-    margin-top: 1rem;
+    margin-top: rem;
 }
 .card {
     border-radius: 0.5rem;
@@ -33,6 +33,5 @@ body {
     margin-left: 2.5rem;
 }
 .mbtn{
-    margin-top: 1.6rem;
-    
+    margin-top: .9rem;   
 }

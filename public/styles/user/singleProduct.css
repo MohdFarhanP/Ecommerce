@@ -1,0 +1,108 @@
+
+/* productImage */
+#containerOne{
+    margin-top: 5rem;
+}
+.col-md-8{
+    padding-left: 2rem;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+  }
+
+/* whishIcon */
+.wish-icon {
+
+    margin-left: 4rem;
+    color: rgba(190, 190, 190, 0.847);
+    position: relative;
+    user-select: none; 
+}
+.clicked {
+    color: rgba(255, 58, 58, 0.822);
+}
+
+/* starRating */
+.star-rating .fas {
+    color: rgb(255, 191, 0);
+  }
+  
+  .star-rating .far {
+    color: gray;
+  }
+
+  .star-rating i {
+    margin-right: 0.3rem;
+  }
+
+
+  .price{
+    color: #ffac33;
+  }
+  .medmHr{
+    margin-right: 4rem;
+    margin-top: 2rem;
+  }
+
+  /* Color Variant Card */
+  .colorVariatCard{
+    width: 4rem;
+    height: 4rem;
+    margin-right: 2rem;
+    margin-top: 1rem;
+  }
+  .multipleImage{
+    width: 6rem;
+    height: 6rem;
+    margin-right: 2rem;
+    margin-top: 1rem;
+  }
+
+
+
+  /* Quatity */
+
+  .quantity {
+    margin-top: 1rem;
+    align-items: center;
+  }
+  
+  .quantity-btn {
+    border-radius: 3px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .quantity-btn:hover {
+    background-color: #e2e6ea;
+  }
+  
+  #product-quantity {
+    width: 3rem;
+    text-align: center;
+    border: 1px solid #ddd;
+    padding: 5px;
+  }
+
+  /* button */
+
+  .btn{
+    border: 1px solid #ffac33 ;
+    color: #ffac33;
+    border-radius: 18px;
+    margin-right: 1rem;
+  }
+  .btn:hover{
+    background-color: #ffac33;
+    color: #ffffff;
+  }
+  .btndiv{
+    margin-top: 1rem;
+  }
+  
