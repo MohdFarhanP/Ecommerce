@@ -80,7 +80,7 @@ const signupPage = (req, res) => {
 const signupBtn = async (req, res) => {
     try {
         const { userName, email, password } = req.body;
-        const exist = await User.findOne({ userName, email });
+        const exist = await User.findOne({  email });
         if (!exist) {
             const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = await new User({
@@ -111,7 +111,8 @@ const signupBtn = async (req, res) => {
                     console.log("Error sending OTP emil", error);
                 } else {
                     console.log("OTP email send:", info.response);
-                    res.redirect('/user/otp')
+                    const remainTime = 60;
+                    res.render('user/otp',{remainTime});
                 }
             });
 
@@ -136,10 +137,12 @@ const verifyOtp = async (req, res) => {
             return res.render('user/otp', { error: "OTP expired please requast a new one." });
         }
 
-        if (userOtp === req.session.otp.toString()) {
-            return res.render('user/login', { msg: "User created successfully" });
+        const remainTime = Math.floor(Math.max(0, otpExp - otpAge)/1000);
+        const existOtp = req.session.otp.toString();
+        if (userOtp === existOtp) {
+            return res.render('user/home', { msg: "User created successfully" });
         } else {
-            return res.render('user/otp', { error: "Invalid OTP please try again" });
+            return res.render('user/otp', { error: "Invalid OTP please try again",remainTime });
         }
     } catch (error) {
         console.error("verifing error", error);
@@ -168,7 +171,9 @@ const resendOtp = (req, res) => {
             console.log("Error sending OTP emil", error);
         } else {
             console.log("Resend OTP send:", info.response);
-            res.render('user/otp')
+            const remainTime =  60;
+            res.render('user/otp',{remainTime});
+            
         }
 
     });

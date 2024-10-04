@@ -1,32 +1,42 @@
-{{!-- login page --}}
+
 
 <link rel="stylesheet" href="/styles/user/otp.css">
 
 <div class="container-fluid m-3 shadow-navbar">
 <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
 </div>
+
 <div class="container">
     <div class="row justify-content-center mt-5">
         <div class="col-md-4">
             <div class="card" id="card">
+                
                 <div>
                     <h3 class="text-center mt-5">OTP</h3>
                 </div>
-                <p id="timer" class="text-center">OTP will expire in <span id="countdown">60</span> seconds.</p>
+                
+                <p id="timer" class="text-center">OTP will expire in <span id="countdown">{{remainTime }}</span> seconds.</p>
+                
                 <p class=" text-center mt-3">Please Enter your OTP</p>
+                
                 <span id="error" hidden>{{error}}</span>
+                
                 <div class="card-body mt-1">
                     <form class="login" id="loginform" action="/user/verifyOtp" method="post">
+                
                         <div class="mb-3">
                             <input type="text" class="form-control" id="otp" name="otp">
                         </div>    
+                
                         <div class="d-grid gap-2 col-6 mx-auto mb-2">
                             <button type="submit" class="btn btn-dark text-white">Verify OTP</button>
                         </div>
                         </form>
-                        <form action="/user/resendOtp" method="POST">
+                
+                        <form action="/user/resendOtp" method="POST" id="resendOtpForm" hidden>
                             <button class="btn" type="submit">Resend OTP</button>
                         </form>
+                
                         <p class="ms-3 ">
                             <a href="/user/signup" class="text-white"><i class="fa-solid fa-chevron-left"></i>back to signup page </a>
                         </p>

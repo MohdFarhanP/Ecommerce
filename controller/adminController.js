@@ -70,6 +70,7 @@ const categoryPage = async (req, res) => {
 const addCategory = async (req, res) => {
     try {
         const { brandName, displayType, bandColor } = req.body;
+        console.log(req.body)
         const newCategory = await new Category({
             brandName,
             displayType,

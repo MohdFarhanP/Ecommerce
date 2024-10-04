@@ -1,5 +1,4 @@
 
-	 document.addEventListener('DOMContentLoaded', function() {
      document.getElementById('signupForm').addEventListener('submit', (event) => {
         event.preventDefault(); 
 
@@ -49,7 +48,7 @@
         }
         return true;
     }
-  });
+
   
   const msg = document.getElementById('msg').textContent;
   if(msg){
