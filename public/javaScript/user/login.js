@@ -11,7 +11,7 @@
 
 
     function formValidate() {
-        let name = document.getElementById('email').value;
+        let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
 
         if (password == ''|| email == '') {
@@ -42,3 +42,19 @@
         timer: 1500
       });
   }
+
+  document.getElementById('demoLogin').addEventListener('click', function() {
+    fetch('/user/demoLogin', {
+        method: 'POST',
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = '/user/home'; 
+        } else {
+            console.error('Demo login failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error during demo login:', error);
+    });
+});

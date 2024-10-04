@@ -14,7 +14,7 @@ passport.use(new GoogleStrategy({
             if (existUser) {
                 return done(null, existUser);
             } else {
-                const newUser = new User({
+                const newUser = await new User({
                     googleId: profile.id,
                     userName: profile.displayName,
                     email: profile.emails[0].value
@@ -34,7 +34,7 @@ passport.use(new GoogleStrategy({
         clientID:process.env.FACEBOOK_APP_ID,
         clientSecret:process.env.FACEBOOK_APP_SECRET,
         callbackURL:'/auth/facebook/callback',
-        profileFields:["id","displayName","email"]
+        profileFields:["id","displayName","email"], 
 
     },
     async(accessToken,refreshToken,profile,done)=>{
@@ -43,12 +43,12 @@ passport.use(new GoogleStrategy({
             if(existUser){
                 return done(null,existUser);
             }else{
-                const newUser = new User({
+                const newUser = await new User({
                     facebookId:profile.id,
                     userName:profile.displayName,
                     email:profile.emails ? profile.emails[0].value : 'No Public email'
                 });
-                const savedUser = newUser.save();
+                const savedUser = await newUser.save();
                 return done(null,savedUser);
             }
         }catch(err){

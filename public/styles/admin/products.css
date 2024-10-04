@@ -24,3 +24,29 @@
 .mbtn {
     margin-top: .9rem;
 }
+#imagePreviewContainer {
+    display: flex;             /* Use flexbox for layout */
+    flex-wrap: wrap;          /* Allow wrapping to next line */
+    justify-content: center;   /* Center images horizontally */
+    align-items: center;       /* Center images vertically */
+    gap: 10px;                /* Adjust the gap between images */
+}
+
+#imagePreviewContainer img {
+    margin: 0;                /* Remove default margin */
+    padding: 0;               /* Remove default padding */
+    max-width: 200px;         /* Set a max width to prevent overflow */
+    max-height: 200px;        /* Set a max height to prevent overflow */
+    border: none;             /* Remove any borders */
+    display: block;           /* Ensure no extra space below images */
+}
+
+.modal-content {
+    padding: 20px;            /* Adjust padding in modal */
+    max-width: 100%;          /* Prevent modal from being too wide */
+}
+
+.modal-body {
+    padding: 0;               /* Remove padding in modal body */
+}
+    

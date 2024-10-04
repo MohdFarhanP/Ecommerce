@@ -14,6 +14,17 @@ const productSchema = mongoose.Schema({
         ref:'Category',
     }],
     description:String,
+    highlights: { 
+        brand: String,
+        model: String,
+        caseMaterial: String,
+        dialColor: String,
+        waterResistance: String,
+        movementType: String,
+        bandMaterial: String,
+        features: [String], 
+        warranty: String,
+    },
 });
 
 module.exports = mongoose.model("Products",productSchema);

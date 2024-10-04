@@ -9,9 +9,9 @@
             </div>
             <nav class="nav flex-column mt-5">
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
-                <a href="#" class="btn mbtn btn-outline-warning mb-2 ">USERS</a>
-                <a href="#" class="btn mbtn btn-outline-warning mb-2 active">PRODUCTS</a>
-                <a href="#" class="btn mbtn btn-outline-warning mb-2 ">CATEGORIES</a>
+                <a href="/admin/users" class="btn mbtn btn-outline-warning mb-2 ">USERS</a>
+                <a href="/admin/products" class="btn mbtn btn-outline-warning mb-2 active">PRODUCTS</a>
+                <a href="/admin/category" class="btn mbtn btn-outline-warning mb-2 ">CATEGORIES</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">ORDERS</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
@@ -46,8 +46,8 @@
             <!-- Table -->
             <div class="row mt-4">
                 <div class="col-md-12">
-                    <button type="submit" id="addbtn" class="btn btn-success m-2"
-                        onclick="showAddProduct()">AddUser</button>
+                    <button type="button" class="btn btn-success m-2" data-bs-toggle="modal"
+                        data-bs-target="#addProductModal">Add</button>
                     <div class="table-wrapper">
                         <table class="table table-striped table-bordered">
                             <thead>
@@ -76,8 +76,11 @@
 
                                     <td class="align-middle text-center">
 
-                                        <button type="button" class="btn btn-warning btn-sm"
-                                            onclick="showEditProduct('{{productName}}','{{productStock}}','{{productPrice}}','{{images}}','{{_id}}')">Edit</button>
+                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#editProductModal"
+                                            onclick='showEditProduct("{{productName}}", "{{productStock}}", "{{productPrice}}","{{description}}","{{_id}}")'>Edit
+                                        </button>
+
                                     </td>
                                     <td class="align-middle text-center">
                                         <!-- Soft Delete Form -->
@@ -95,85 +98,231 @@
                 </div>
             </div>
             {{!-- Add Product --}}
-            <div class="card bg-light mb-3 w-50 mx-auto d-none" id="addProduct">
-                <div class="card-header text-center d-flex justify-content-between">
-                    Add Product
-                    <button type="button" onclick="hideAddProduct()" class="close" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+
+            <div class="modal fade" id="addProductModal" data-bs-backdrop="static" data-bs-keyboard="false"
+                tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Product</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/admin/addProduct" method="post" id="form1" enctype="multipart/form-data">
+                                <div class="card-body">
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="productName"
+                                            placeholder="Product Name" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="number" class="form-control" name="productStock"
+                                            placeholder="Stock" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="number" class="form-control" name="productPrice"
+                                            placeholder="Price" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <textarea class="form-control" name="description" placeholder="Description"
+                                            id="exampleFormControlTextarea1" rows="3" required></textarea>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="categories">Categories</label>
+                                        <select class="form-control" id="categories" name="category" multiple required>
+                                            {{#each categories}}
+                                            <option value="{{_id}}">{{brandName}} - {{displayType}} - {{bandColor}}
+                                            </option>
+                                            {{/each}}
+                                        </select>
+                                    </div>
+
+                                    <h6>Product Highlights</h6>
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="highlights[brand]"
+                                            placeholder="Brand" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="highlights[model]"
+                                            placeholder="Model" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="highlights[caseMaterial]"
+                                            placeholder="Case Material" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="highlights[dialColor]"
+                                            placeholder="Dial Color" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="highlights[waterResistance]"
+                                            placeholder="Water Resistance (e.g., 50 meters)" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="highlights[movementType]"
+                                            placeholder="Movement Type (e.g., Automatic)" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="highlights[bandMaterial]"
+                                            placeholder="Band Material" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="features">Features</label>
+                                        <input type="text" class="form-control" name="highlights[features]"
+                                            placeholder="Enter features (comma separated)">
+                                        <div class="form-text">Example: Chronograph, Date Display, Tachymeter</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="highlights[warranty]"
+                                            placeholder="Warranty (e.g., 2 years)" required>
+                                    </div>
+
+                                    <h6>Images</h6>
+                                    
+                                    <div class="mb-3">
+                                        <input type="file" class="form-control" id="imageInput" accept="image/*"
+                                            multiple required>
+                                    </div>
+
+                                    <div id="imagePreviewContainer"></div>
+
+                                    <div class="text-center">
+                                        <button type="button" id="addProduct" class="btn btn-success">Add Product</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
                 </div>
-                <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" name="Name" placeholder="Product Name" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="number" class="form-control" name="Stock" placeholder="Stock" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="number" class="form-control" name="Price" placeholder="Price" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="file" class="form-control" name="images" multiple required>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="categories">Categories</label>
-                            <select class="form-control" id="categories" name="categories" multiple required>
-                                {{#each categories}}
-                                <option value="{{_id}}">{{brandName}} - {{displayType}} - {{bandColor}}</option>
-                                {{/each}}
-                            </select>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-success">Add Product</button>
-                        </div>
             </div>
-            </form>
-        </div>
-      
-        {{!-- Edit Product --}}
-        <div class="card bg-light mb-3 w-50 mx-auto d-none" id="editProduct">
-            <div class="card-header text-center d-flex justify-content-between">
-                Edit Product
-                <button type="button" onclick="hideEditProduct()" class="close" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="/admin/editProduct" method="post" enctype="multipart/form-data">
-                <div class="card-body">
-                    <input type="text" id="productId" name="id" hidden>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" name="productName" id="productName"
-                            placeholder="Product Name" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="number" class="form-control" name="productStock" id="productStock"
-                            placeholder="Stock" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="number" class="form-control" name="productPrice" id="productPrice"
-                            placeholder="Price" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="file" class="form-control" name="images" id="productImages" multiple>
-                    </div>
-                    <div class="form-group mb-3">
-                            <label for="categories">Categories</label>
-                            <select class="form-control" id="categories" name="categories" multiple required>
-                                {{#each categories}}
-                                <option value="{{_id}}">{{brandName}} - {{displayType}} - {{bandColor}}</option>
-                                {{/each}}
-                            </select>
+
+
+
+            {{!-- Edit Product --}}
+            <div class="modal fade" id="editProductModal" data-bs-backdrop="static" data-bs-keyboard="false"
+                tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="editProductLabel">Edit Product</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-warning">Save Changes</button>
+                        <div class="modal-body">
+                            <form action="/admin/editProduct" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="id" id="product-id">
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="productName" id="product-name"
+                                        placeholder="Product Name" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="number" class="form-control" name="productStock" id="product-stock"
+                                        placeholder="Stock" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="number" class="form-control" name="productPrice" id="product-price"
+                                        placeholder="Price" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <textarea class="form-control" name="description" id="product-description"
+                                        placeholder="Description" rows="3" required></textarea>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="categories">Categories</label>
+                                    <select class="form-control" id="product-categories" name="category" multiple
+                                        required>
+                                        {{#each categories}}
+                                        <option value="{{_id}}">{{brandName}} - {{displayType}} - {{bandColor}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+
+                                <h6>Product Highlights</h6>
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="highlights[brand]"
+                                        id="highlight-brand" placeholder="Brand" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="highlights[model]"
+                                        id="highlight-model" placeholder="Model" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="highlights[caseMaterial]"
+                                        id="highlight-caseMaterial" placeholder="Case Material" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="highlights[dialColor]"
+                                        id="highlight-dialColor" placeholder="Dial Color" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="highlights[waterResistance]"
+                                        id="highlight-waterResistance" placeholder="Water Resistance" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="highlights[movementType]"
+                                        id="highlight-movementType" placeholder="Movement Type" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="highlights[bandMaterial]"
+                                        id="highlight-bandMaterial" placeholder="Band Material" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="features">Features</label>
+                                    <input type="text" class="form-control" name="highlights[features]"
+                                        id="highlight-features" placeholder="Enter features (comma separated)">
+                                    <div class="form-text">Example: Chronograph, Date Display, Tachymeter</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="highlights[warranty]"
+                                        id="highlight-warranty" placeholder="Warranty" required>
+                                </div>
+
+                                <h6>Images</h6>
+                                <div class="image-preview mb-3" id="product-images"></div>
+
+                                <div class="mb-3">
+                                    <input type="file" class="form-control" name="images" id="image-upload" multiple>
+                                </div>
+
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </form>
+            </div>
+
+
+
         </div>
-        {{!-- / Edit Product --}}
     </div>
-</div>
 </div>
 
 

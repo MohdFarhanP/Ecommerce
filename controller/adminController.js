@@ -16,9 +16,9 @@ const loadLogin = (req, res) => {
 };
 const loginBtn = async (req, res) => {
     try {
-        const { userName, password, email } = req.body;
+        const { password, email } = req.body;
 
-        const adminExist = await Admin.findOne({ userName, email });
+        const adminExist = await Admin.findOne({ email });
         if (!adminExist) {
             return res.render("admin/login", { msg: 'admin not found' });
         }
@@ -33,6 +33,10 @@ const loginBtn = async (req, res) => {
         console.error(error)
     }
 };
+const logoutBtn = async (req,res) => {
+    req.session.admin = null;
+    res.redirect('/admin/login');
+}
 const usersPage = async (req, res) => {
     try {
         const users = await User.find({});
@@ -113,72 +117,99 @@ const productPage = async (req,res)=>{
     res.render('admin/products',{products,categories});
 
     }catch(err){
-        console.log("product listing error",{products})
+        console.log("product listing error",{err})
     }
 };
-const addProduct = async(req,res)=>{
-    try{
+const addProduct = async (req, res) => {
+    try {
+        const { productName, productStock, productPrice, description, category, highlights } = req.body;
+       
+        if (!highlights) {
+            console.log("Highlights are undefined:", req.body);
+        }
+        
         if (!req.files || req.files.length < 3) {
             return res.status(400).send('Please upload at least 3 images.');
         }
+
         const images = [];
-        for(let file of req.files){
+        for (const file of req.files) {
             const newImgName = `${Date.now()}-${file.originalname}`;
             await sharp(file.buffer)
-            .resize(1000,1000)
-            .toFile(`./uploads/${newImgName}`);
+                .resize(500, 500) // Resize image if necessary
+                .toFile(`./uploads/${newImgName}`);
             images.push(newImgName);
         }
-
-        const {Name,Stock,Price,categories} = req.body;
-
-        const newProduct = await new Products({
-            productName:Name,
-            productStock:Stock,
-            productPrice:Price,
-            images:images,
-            category:categories,
+  
+        const newProduct = new Products({
+            productName,
+            productStock,
+            productPrice,
+            images, // Array of image filenames
+            category,
+            description,
+            highlights: {
+                brand: highlights.brand,
+                model: highlights.model,
+                caseMaterial: highlights.caseMaterial,
+                dialColor: highlights.dialColor,
+                waterResistance: highlights.waterResistance,
+                movementType: highlights.movementType,
+                bandMaterial: highlights.bandMaterial,
+                features: highlights.features.split(','),
+                warranty: highlights.warranty
+            }
         });
+
         await newProduct.save();
         res.redirect('/admin/products');
-    }catch(err){
-        console.log('error on adding products',err);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
     }
-    
 };
 const editProduct = async (req,res) =>{
     try {
-        const { productName, productStock, productPrice, id,categories } = req.body;
-        console.log(req.body)
+        const { productName, productStock, productPrice, id, categories, description, highlights } = req.body;
         const product = await Products.findById(id);
+        if (!product) {
+            return res.status(404).send('Product not found');
+        }
+    
+        product.productName = productName;
+        product.productStock = productStock;
+        product.productPrice = productPrice;
+        product.description = description; 
+        product.category = categories;
+    
         
-                product.productName = productName;
-                product.productStock = productStock;
-                product.productPrice = productPrice;
-                product.category = categories
-                
-                const images = [];
-                if (req.files && req.files.length > 0) {
-                    for (let file of req.files) {
-
-                        const newImgName = `${Date.now()}-${file.originalname}`;
-        
-                        await sharp(file.buffer)
-                            .resize(500, 500)  
-                            .toFile(path.join(__dirname, '../uploads/', newImgName));
-
-                        images.push(newImgName);
-                    }
-
-                    product.images = images;
+        if (req.files && req.files.length > 0) {
+            const images = [];
+            for (let file of req.files) {
+                try {
+                    const newImgName = `${Date.now()}-${file.originalname}`;
+                    await sharp(file.buffer)
+                        .resize(500, 500)
+                        .toFile(path.join(__dirname, '../uploads/', newImgName));
+    
+                    images.push(newImgName);
+                } catch (imgErr) {
+                    console.error('Error processing image:', imgErr);
                 }
+            }
+            product.images = images;
+        }
+    
         
-                await product.save();
-
+        if (highlights) {
+            product.highlights = highlights; 
+        }
+    
+        await product.save();
         res.redirect('/admin/products');
-
     } catch (err) {
-        console.log('error on the edit products', err);
+        console.error('Error on the edit products', err);
+        res.status(500).send('Internal Server Error');
     }
 };
 const deleteProduct = async (req,res) =>{
@@ -205,5 +236,6 @@ module.exports = {
     addProduct,
     upload,
     editProduct,
-    deleteProduct
+    deleteProduct,
+    logoutBtn,
 }

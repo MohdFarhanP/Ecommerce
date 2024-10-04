@@ -1,19 +1,19 @@
 #head{
     text-decoration: none;
 }
+.shadow-navbar {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    z-index: 1000; 
+    position: relative;
+
+}
+ 
 .htxt {
     
     color: rgb(255, 187, 60);
     width: 20rem;
     height: 5rem;
     
-}
-a{
-    text-decoration: none;
-}
-.a:active{
-    background-color: #ffac33;
-    color: #fff;
 }
 .heading{
     width: 30rem;
@@ -100,3 +100,12 @@ a{
     color: #ffac33;
 }
 
+a {
+    text-decoration: none; 
+    color: inherit;        
+  }
+  
+  a:hover {
+    text-decoration: none;
+  }
+  

@@ -11,10 +11,10 @@
 
 
     function formValidate() {
-        let name = document.getElementById('name').value;
+        let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
 
-        if (name == '' || password == ''|| email == '') {
+        if ( password == ''|| email == '') {
             Swal.fire('All fields are required');
             return false;
         }

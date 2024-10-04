@@ -54,12 +54,13 @@ const loginPage = (req, res) => {
     res.render('user/login');
 }
 const loginBtn = async (req, res) => {
-    const { email, password } = req.body;
+    try{
+        const { email, password } = req.body;
     const exist = await User.findOne({ email, });
     if (!exist) {
         return res.render('user/login', { err: 'user not exist' });
     } else {
-        const pass = await bcrypt.compare(password, exist.password);
+        const pass = await bcrypt.compare(password,exist.password);
         if (!pass) return res.render('user/login', { err: 'incorrect password' });
         if (exist.isBlocked) {
             return res.render('user/login', { err: 'you are blocked' })
@@ -69,6 +70,9 @@ const loginBtn = async (req, res) => {
             return res.redirect('/user/home');
         }
     }
+    }catch(err){
+        console.log("login erro ",err)}
+    
 }
 const signupPage = (req, res) => {
     res.render('user/signup')
@@ -172,7 +176,7 @@ const resendOtp = (req, res) => {
 const ProductList = async (req, res) => {
     try {
 
-        const products = await Products.find({});
+        const products = await Products.find({isDeleted:false});
 
         res.render('user/ProductList', { products });
     } catch (err) {
@@ -229,12 +233,29 @@ const productPage = async (req, res) => {
     try {
 
         const currentProductId = req.params.id;
+      
         const product = await Products.findById(currentProductId);
-        const reviews = await Review.find();    
+        
+        const reviews = await Review.find({productId:currentProductId});
+       
         const priceRange = 0.7 * product.productPrice;
         
+        
+
+        const getProductRatingSummary = async (ProductId) => {
+            const reviews = await Review.find({ productId:ProductId });
+            const totalReviews = reviews?.length || 0;
+            const averageRating = totalReviews > 0 ? reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews : 0 ;
+
+            return {
+                averageRating: averageRating.toFixed(1),
+                totalReviews,
+            };
+        };
+        const ratingSummary = await getProductRatingSummary(currentProductId);
+
         const relatedProducts = await Products.find({
-           
+
             productPrice: {
                 $gte: product.productPrice - priceRange,
                 $lte: product.productPrice + priceRange
@@ -243,21 +264,25 @@ const productPage = async (req, res) => {
             isDeleted: false
         }).limit(4);
 
-        
-
-        res.render('user/singleProduct', { product, relatedProducts,reviews });
+        res.render('user/singleProduct', {
+            product,
+            relatedProducts,
+            reviews,
+            averageRating: ratingSummary.averageRating,
+            totalReviews: ratingSummary.totalReviews,
+        });
     } catch (err) {
-        console.log('fetching related products:',err);
-        res.status(500).json({error:"An error occured while fetching related products"});
+        console.log('fetching related products:', err);
+        res.status(500).json({ error: "An error occured while fetching related products" });
     }
 }
-const review = async (req,res) => {
-    try{
-        const {customerName,email,rating,comment} = req.body;
+const review = async (req, res) => {
+    try {
+        const { customerName, email, rating, comment } = req.body;
         const productid = req.params.id;
 
         const newReview = await Review({
-            productId:productid,
+            productId: productid,
             customerName,
             email,
             rating,
@@ -265,10 +290,32 @@ const review = async (req,res) => {
         });
         await newReview.save();
         res.redirect(`/user/singleProduct/${productid}`);
-    }catch(err){
+    } catch (err) {
 
     }
 }
+const logoutbtn = (req,res) =>{
+    req.session.user = null;
+    res.redirect('/user/login')
+
+}
+const demoLogin = async (req,res)=>{
+    try {
+        const demoUser = await User.findOne({ email: 'demo@yourapp.com' });
+
+        if (!demoUser) {
+            return res.status(400).send('Demo user not available');
+        }
+
+        req.session.user = { id: demoUser._id, email: demoUser.email };
+
+        return res.redirect('/user/home');
+    } catch (err) {
+        console.error("Demo login error: ", err);
+        return res.status(500).send('Internal Server Error');
+    }
+};
+
 module.exports = {
     homePage,
     loginPage,
@@ -281,5 +328,7 @@ module.exports = {
     ProductList,
     filterProducts,
     productPage,
-    review
+    review,
+    logoutbtn,
+    demoLogin,
 }
