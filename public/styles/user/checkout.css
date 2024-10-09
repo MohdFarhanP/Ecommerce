@@ -1,0 +1,64 @@
+#head {
+    text-decoration: none;
+}
+.shadow-navbar {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    position: relative;
+}
+.address-list {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px 0;
+}
+
+.address-card {
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+    width: 280px; /* Increased width to make the card larger */
+    height: auto; /* Allow height to adjust based on content */
+    margin-right: 15px; /* Space between cards */
+    padding: 15px; /* Padding for better spacing inside card */
+    border: 1px solid #ddd; /* Border for card */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #fff; /* Background color for card */
+    display: inline-block;
+    white-space: normal; /* Ensure content wraps inside the card */
+}
+
+.address-card span {
+    display: block; /* Each span should appear on its own line */
+    margin-bottom: 5px; /* Add spacing between lines */
+}
+
+.address-card.selected {
+    box-shadow: 0 0 10px rgba(255, 166, 0, 0.5); /* Highlight selected card */
+    border-color: rgb(255, 179, 0);
+}
+
+.address-card:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.address-list::-webkit-scrollbar {
+    height: 8px;
+}
+
+.address-list::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+    border-radius: 10px;
+}
+
+.address-list::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+.custom-radio:checked {
+    background-color: orange;
+    border-color: orange;
+}
+.custom-radio {
+    accent-color: orange; 
+    cursor: pointer;
+}

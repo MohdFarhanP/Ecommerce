@@ -57,10 +57,34 @@ const unblockUser = async (req, res) => {
 const blockUser = async (req, res) => {
     try {
         const userId = req.params.id;
+
+        console.log("Current online users:", onlineUsers);
         await User.findByIdAndUpdate(userId, { isBlocked: true });
+
+        
+        
+        const userSocketId = onlineUsers[userId];  
+        console.log(`User Socket ID for ${userId}:`, userSocketId); 
+
+        
+        if (userSocketId) {
+            
+            if (io) { 
+                io.to(userSocketId).emit('userBlocked', {
+                    message: 'You have been blocked by the admin.'
+                });
+                console.log(`User ${userId} has been notified about blocking.`);
+            } else {
+                console.error('Socket IO instance is undefined'); 
+            }
+        } else {
+            console.log(`User with ID ${userId} is not connected.`); 
+        }
+
         res.redirect('/admin/users');
     } catch (err) {
-        res.status(500).send('error on Bloking user')
+        console.error(err);
+        res.status(500).send('Error blocking user');
     }
 };
 const categoryPage = async (req, res) => {
@@ -222,6 +246,9 @@ const deleteProduct = async (req,res) =>{
         console.log('error on deleting product');
     }
      
+};
+const orders = (req,res)=>{
+    res.render('admin/order')
 }
 module.exports = {
     loadLogin,
@@ -239,4 +266,5 @@ module.exports = {
     editProduct,
     deleteProduct,
     logoutBtn,
+    orders
 }

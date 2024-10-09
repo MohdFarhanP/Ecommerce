@@ -1,12 +1,12 @@
-// Retrieve the countdown value as an integer
+
 let countdown = parseInt(document.getElementById('countdown').textContent, 10); // Use textContent
 
-// Check if the countdown is a valid number
 if (isNaN(countdown)) {
     console.error('Countdown is not a number');
 } else {
-    console.log(countdown); // For debugging
+    console.log(countdown);
 
+    
     const timer = setInterval(() => {
         countdown--;
         document.getElementById('countdown').innerText = countdown;

@@ -15,7 +15,7 @@ const categorySchema = new mongoose.Schema({
     },
     isDelete:{
         type:Boolean,
-        default:false,
+        default:false,  
     }
 
 });

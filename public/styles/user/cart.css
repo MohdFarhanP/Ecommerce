@@ -1,0 +1,37 @@
+#head{
+    text-decoration: none;
+}
+.shadow-navbar {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    z-index: 1000; 
+    position: relative;
+
+}
+.quantity {
+    margin-top: 1rem;
+    align-items: center;
+  }
+  
+  .quantity-btn {
+    border-radius: 3px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .quantity-btn:hover {
+    background-color: #e2e6ea;
+  }
+  
+  #product-quantity {
+    width: 3rem;
+    text-align: center;
+    border: 1px solid #ddd;
+    padding: 5px;
+  }
+  .scroll-container{
+    max-height: 27rem;
+     overflow-y: auto;
+  }

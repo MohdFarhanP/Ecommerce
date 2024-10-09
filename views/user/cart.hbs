@@ -1,0 +1,162 @@
+<link rel="stylesheet" href="/styles/user/cart.css">
+<header>
+    <nav class="navbar navbar-expand-lg  shadow-navbar">
+        <div class="container-fluid py-auto px-auto ">
+            <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/orders">Orders</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page"
+                            href="/user/ProductList">Products</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page"
+                            href="/user/contactus">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/Aboutus">About
+                            us</a></li>
+                </ul>
+
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i
+                                class="fa-solid fa-magnifying-glass"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i
+                                class="fa-regular fa-heart"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/userProfile"><i
+                                class="fa-regular fa-user"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/logOut"><i
+                                class="fa-solid fa-cart-shopping"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h5 class="mb-4 mt-4">1 item Added</h5>
+
+            <div class="scroll-container">
+                {{#each cartItems}}
+                <div class="card mb-3">
+                    <div class="row g-0">
+                        <div class="col-4 col-md-2">
+                            <img src="/uploads/{{this.product.images.[0]}}" class="img-fluid rounded-start" alt="Product Image">
+                        </div>
+                        <div class="col-8 col-md-10">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                    <h6 class="card-title mb-0">{{this.product.productName}}</h6>
+                                    <h5 class="ms-md-5 text-end text-md-start">₹{{this.product.productPrice}}</h5>
+                                </div>
+                                <p class="card-text">{{this.product.description}}</p>
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                    <div class="quantity d-flex align-items-center mb-2">
+                                        <button class="quantity-btn minus btn btn-outline-secondary btn-sm">-</button>
+                                        <input type="number" id="product-quantity" value="{{this.quantity}}" min="1"
+                                            class="form-control form-control-sm mx-2" style="width: 60px;">
+                                        <button class="quantity-btn plus btn btn-outline-secondary btn-sm">+</button>
+                                    </div>
+                                    <div class="remove-item d-flex align-items-center ms-3">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                        <small class="ms-1 text-danger">Remove</small>
+                                    </div>
+                                    <p class="card-text mt-2 mt-md-0"><small class="text-body-secondary">Ships on
+                                            Wednesday 3 March</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <div class="col-md-4 mt-5">
+            <div class="card p-3 shadow p-3 mb-5 ms-4 me-4">
+                <div class="card-body">
+                    <h5 class="card-title">Order Summary</h5>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between flex-wrap mt-4">
+                        <div>
+                            <h6 class="card-subtitle mb-3 text-body-secondary">Order Total</h6>
+                            <h6 class="card-subtitle mb-3 text-body-secondary">Delivery Charges</h6>
+                        </div>
+                        <div class="text-end">
+                            <h6 class="card-subtitle mb-3"><small>₹34343</small></h6>
+                            <h6 class="card-subtitle mb-3"><small>₹25403</small></h6>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <p class="mb-0"><strong>Total</strong></p>
+                        <p class="mb-0"><strong>₹8943</strong></p>
+                    </div>
+
+                    <div class="d-flex justify-content-center my-4">
+                        <button class="btn btn-outline-warning w-75 w-md-50">Checkout</button>
+                    </div>
+
+                    <hr>
+
+                    <strong>Coupon Code</strong>
+                    <div class="mt-2">
+                        <input type="text" class="form-control" placeholder="Enter your coupon code">
+                        <button class="btn btn-success mt-2 w-100">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+    <h5 class="mb-4 mt-4">Available Coupons</h5>
+
+    <div class="col-md-3">
+        <div class="card border-warning mb-3">
+            <div class="card-body text-center">
+                <h4 class="card-title text-warning">₹1000 OFF</h4>
+                <p class="card-text">On all orders with a minimum order value of ₹5000</p>
+                <button class="btn btn-outline-warning btn-sm">Apply Coupon</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-success mb-3">
+            <div class="card-body text-center">
+                <h4 class="card-title text-success">20% OFF</h4>
+                <p class="card-text">Get 20% off on electronics. Minimum order ₹3000</p>
+                <button class="btn btn-outline-success btn-sm">Apply Coupon</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-primary mb-3">
+            <div class="card-body text-center">
+                <h4 class="card-title text-primary">Free Shipping</h4>
+                <p class="card-text">Avail free shipping on all orders above ₹2000</p>
+                <button class="btn btn-outline-primary btn-sm">Apply Coupon</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-danger mb-3">
+            <div class="card-body text-center">
+                <h4 class="card-title text-danger">₹500 OFF</h4>
+                <p class="card-text">Flat ₹500 off on your first order. No minimum purchase</p>
+                <button class="btn btn-outline-danger btn-sm">Apply Coupon</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script src="/javaScript/user/cart.js"></script>

@@ -7,6 +7,7 @@ const userSchema = mongoose.Schema({
     password:String,
     googleId:String,
     facebookId:String,
+    addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
     isBlocked:{
         type:Boolean,
         default:false,
