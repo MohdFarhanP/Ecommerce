@@ -25,6 +25,26 @@ const productSchema = mongoose.Schema({
         features: [String], 
         warranty: String,
     },
+    maxQtyPerPerson: {
+        type: Number,
+        default: 5 
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now, 
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false, 
+    },
+    averageRating: {
+        type: Number,
+        default: 0,
+    },
+    popularity: {
+        type: Number,
+        default: 0,
+    },
 });
 
 module.exports = mongoose.model("Products",productSchema);

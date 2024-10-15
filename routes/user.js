@@ -34,10 +34,15 @@ router.post('/editAddress/:id',userAuth.checkSession,userController.editAddress)
 router.post('/deleteAddress/:id',userAuth.checkSession,userController.deleteAddress)
 router.post('/setDefaultAddress',userAuth.checkSession,userController.setDefaultAddress)
 router.get('/orders', userAuth.checkSession, userController.orders);
+router.post('/placeOrder',userAuth.checkSession,userController.placeOrder);
+router.post('/cancelProduct',userAuth.checkSession,userController.cancelProduct)
 
 // Shopping and checkout (session required)
 router.get('/cart', userAuth.checkSession, userController.cart);
-router.post('/addToCart',userAuth.checkSession,userController.addToCart)
+router.post('/addToCart',userAuth.checkSession,userController.addToCart);
+router.post('/removeCartItem/:id',userAuth.checkSession,userController.removeCartItem);
+router.post('/updateCartQuantity',userAuth.checkSession,userController.updateCartQuantity)
+router.post('/checkoutbtn',userAuth.checkSession,userController.checkoutbtn)
 router.get('/checkout', userAuth.checkSession, userController.checkout);
 
 // Blocked page for users who are blocked

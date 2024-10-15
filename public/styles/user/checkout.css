@@ -16,8 +16,8 @@
 .address-card {
     cursor: pointer;
     transition: box-shadow 0.3s ease;
-    width: 280px; /* Increased width to make the card larger */
-    height: auto; /* Allow height to adjust based on content */
+    min-width: 20rem;
+    min-height: 17.5rem;
     margin-right: 15px; /* Space between cards */
     padding: 15px; /* Padding for better spacing inside card */
     border: 1px solid #ddd; /* Border for card */

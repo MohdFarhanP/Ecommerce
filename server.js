@@ -11,8 +11,8 @@ const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
 const session = require('express-session');
 const passport = require('passport');
-const http = require('http');
-const server = http.createServer(app);
+const { format } = require('date-fns');
+
 
 
 const sessionMiddleware = session({
@@ -45,7 +45,6 @@ app.engine('hbs', exphbs.engine({
         allowProtoMethodsByDefault: true,
     },
     helpers: {
-        formatDate: (date) => new Date(date).toLocaleDateString(),
         compare: (index, rating) => index < rating,
         multiply: (value1, value2) => value1 * value2,
         range: (start, end) => Array.from({ length: (end - start + 1) }, (_, i) => i + start),
@@ -55,27 +54,28 @@ app.engine('hbs', exphbs.engine({
         mod: (a, b) => a % b,
         floor: (num) => Math.floor(num),
         add: (a, b) => a + b,
+        formatDate:(date, formatString) => { return format(new Date(date), formatString); }
     }
 }));
 
 
-app.use('/admin', adminRouter); 
-app.use('/user', userRouter);
-app.use('/auth', authRouter);
+app.use('/', adminRouter); 
+app.use('/', userRouter);
+app.use('/', authRouter);
 
-app.use((req, res, next) => {
-    res.status(404).render('404');
-});
+// app.use((req, res, next) => {
+//     res.status(404).render('404');
+// });
 
 
 connectDb();
 
 
-server.listen(process.env.PORT || 3001, (error) => {
+app.listen(process.env.PORT, (error) => {
     if (error) {
         console.log("Server port error", error);
     } else {
-        console.log(`Server running on port ${process.env.PORT || 3001}`);
+        console.log(`Server running on port ${process.env.PORT}`);
     }
 });
 

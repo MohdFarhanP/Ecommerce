@@ -4,14 +4,15 @@ const categorySchema = new mongoose.Schema({
     brandName:{
         type:String,
         unique:true,
+        required:true,
     },
     displayType:{
         type:String,
-        unique:true,
+        required:true,
     },
     bandColor:{
         type:String,
-        unique:true,
+        required:true,
     },
     isDelete:{
         type:Boolean,

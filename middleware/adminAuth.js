@@ -2,13 +2,13 @@ const checkSession = (req, res, next) => {
     if (req.session.admin) {
         next()
     } else {
-        res.redirect('/admin/login')
+        res.redirect('/adminLogin')
     }
 }
 
 const isLogin = (req, res, next) => {
     if (req.session.admin) {
-        res.redirect('/admin/users')
+        res.redirect('/users')
     } else {
         next()
     }

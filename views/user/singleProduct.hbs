@@ -7,11 +7,11 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/home">Home</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/orders">Orders</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/ProductList">Products</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/contactus">Contact</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/Aboutus">About us</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a></li>
         </ul>
 
         <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
@@ -57,8 +57,8 @@
       <div class="col-md-7">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/user/home">Home</a></li>
-            <li class="breadcrumb-item"><a href="/user/ProductList">Products</a></li>
+            <li class="breadcrumb-item"><a href="/home">Home</a></li>
+            <li class="breadcrumb-item"><a href="/ProductList">Products</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{product.productName}}</li>
           </ol>
         </nav>
@@ -101,7 +101,7 @@
         {{else}}
         <p class="out-of-stock">Sold Out</p>
         {{/if}}
-
+        <h4 class='text-danger'>{{msg}}</h4>
         {{#unless product.productStock}}
         <p class="h6">This item is currently out of Stock</p>
         <div class="soldoutemail d-flex">
@@ -144,14 +144,14 @@
           </div>
 
           <h6 class="mt-3">Quantity:</h6>
-          <form action="/user/addToCart" method="POST" id="addToCartForm">
+          <form action="/addToCart" method="POST" id="addToCartForm">
             <input type="hidden" name="productId" value="{{product._id}}">
             <div class="quantity">
               <button type="button" class="quantity-btn minus">-</button>
               <input type="number" name="quantity" id="product-quantity" value="1" min="1">
               <button type="button" class="quantity-btn plus">+</button>
             </div>
-              <button type="submit" class="btn btn-outline-warning mt-3">Add to cart</button>
+            <button type="submit" class="btn btn-outline-warning mt-3">Add to cart</button>
           </form>
           <button class="btn btn-outline-warning mt-2 ">Buy</button>
         </div>
@@ -168,7 +168,7 @@
           {{#each relatedProducts}}
           <div class="col-md-3 mb-4">
             <div class="card h-100">
-              <a href="/user/singleProduct/{{_id}}">
+              <a href="/singleProduct/{{_id}}">
                 <img src="/uploads/{{images.[0]}}" class="card-img-top" alt="Product Image">
               </a>
               <div class="card-body">
@@ -229,7 +229,7 @@
 
       <div class="col-md-6">
         <h5>Submit Your Review</h5>
-        <form action="/user/singleProduct/{{product._id}}/review" method="POST">
+        <form action="/singleProduct/{{product._id}}/review" method="POST">
           <div class="form-group">
             <label for="customerName">Name:</label>
             <input type="text" class="form-control" id="customerName" name="customerName">

@@ -13,13 +13,17 @@
                     <h3 class="text-center mt-5">Login</h3>
                 </div>
                 <div class="d-flex justify-content-around mt-5">
-                    <a href="/user/login"><h5 class="text-left">Login</h5></a>
-                    <a href="/user/signup"><h5 class="text-right">Signup</h5></a>
+                    <a href="/login">
+                        <h5 class="text-left">Login</h5>
+                    </a>
+                    <a href="/signup">
+                        <h5 class="text-right">Signup</h5>
+                    </a>
                 </div>
                 <span id="msg" hidden>{{msg}}</span>
                 <span id="err" hidden>{{err}}</span>
                 <div class="card-body mt-3">
-                    <form class="login" id="loginform" action="/user/login" method="post">
+                    <form class="login" id="loginform" action="/login" method="post">
                         <div class="mb-3">
                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
                         </div>
@@ -28,7 +32,7 @@
                                 placeholder="Enter password">
                         </div>
                         <p class="ms-2"><a href="#">Forgot Password?</a></p>
-                        
+
                         <div class="d-flex gap-2 col-6 mx-auto">
                             <button type="submit" class="btn btn-dark text-white">Login</button>
                             <button type="button" id="demoLogin" class="btn btn-light">Demo Login</button>
@@ -37,7 +41,8 @@
                         <p class="text-center mt-2">Or login with</p>
                         <div class="text-center">
                             <a href="/auth/google" class="btn btn-google btn-sm"><i class="fab fa-google"></i></a>
-                            <a href="/auth/facebook" class="btn btn-facebook btn-sm"><i class="fab fa-facebook-f"></i></a>
+                            <a href="/auth/facebook" class="btn btn-facebook btn-sm"><i
+                                    class="fab fa-facebook-f"></i></a>
                         </div>
                     </form>
                 </div>

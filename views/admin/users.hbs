@@ -9,10 +9,11 @@
             </div>
             <nav class="nav flex-column mt-5">
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
-                <a href="/admin/users" class="btn mbtn btn-outline-warning mb-2 active">USERS</a>
-                <a href="/admin/products" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
-                <a href="/admin/category" class="btn mbtn btn-outline-warning mb-2">CATEGORIES</a>
-                <a href="#" class="btn mbtn btn-outline-warning mb-2">ORDERS</a>
+                <a href="/users" class="btn mbtn btn-outline-warning mb-2 active">USERS</a>
+                <a href="/products" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
+                <a href="/category" class="btn mbtn btn-outline-warning mb-2">CATEGORIES</a>
+                <a href="/orders" class="btn mbtn btn-outline-warning mb-2">ORDERS</a>
+                <a href="/inventory" class="btn mbtn btn-outline-warning mb-2">INVENTORY</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">SALES</a>
@@ -64,15 +65,15 @@
                                     <td>{{_id}}</td>
                                     <td>{{userName}}</td>
                                     <td>{{email}}</td>
-                                    <td>{{createdAt}}</td>
+                                    <td>{{formatDate createdAt 'dd/MM/yyyy'}}</td>
                                     <td>{{#if isBlocked}}Blocked{{else}}Active{{/if}}</td>
                                     <td>
                                         {{#if isBlocked}}
-                                        <form action="/admin/unblock/{{_id}}" method="POST">
+                                        <form action="/unblock/{{_id}}" method="POST">
                                             <button class="btn btn-warning" type="submit">Unblock</button>
                                         </form>
                                         {{else}}
-                                        <form action="/admin/block/{{_id}}" method="POST">
+                                        <form action="/block/{{_id}}" method="POST">
                                             <button class="btn btn-warning" type="submit">Block</button>
                                         </form>
                                         {{/if}}

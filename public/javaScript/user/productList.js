@@ -22,36 +22,34 @@ document.getElementById('applyFilter').addEventListener('click', () => {
 
   const minPrice = document.getElementById('minPrice').value;
   const maxPrice = document.getElementById('maxPrice').value;
-
   const selectedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(input => input.value);
-
   const selectedDisplayTypes = Array.from(document.querySelectorAll('.display-type-filter:checked')).map(input => input.value);
-
   const selectedColors = Array.from(document.querySelectorAll('.color-filter:checked')).map(input => input.value);
-
-
+  const showOutOfStock = document.getElementById('showOutOfStock').checked;
+  const sortCriteria = document.getElementById('sortCriteria').value; 
 
   fetch('/user/filterProducts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      minPrice,
-      maxPrice,
-      brands: selectedBrands,
-      displayTypes: selectedDisplayTypes,
-      colors: selectedColors
-    })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+          minPrice,
+          maxPrice,
+          brands: selectedBrands,
+          displayTypes: selectedDisplayTypes,
+          colors: selectedColors,
+          showOutOfStock,
+          sortCriteria 
+      })
   })
-
-    .then(response => response.json())
-    .then(filteredProducts => {
-      // Render the filtered products dynamically
+  .then(response => response.json())
+  .then(filteredProducts => {
       renderProducts(filteredProducts);
-    });
+  });
 });
+
 function renderProducts(products) {
   const productContainer = document.getElementById('product-container');
-  productContainer.innerHTML = ''; // Clear previous products
+  productContainer.innerHTML = ''; 
 
   products.forEach(product => {
     const productHTML = ` 
@@ -66,12 +64,15 @@ function renderProducts(products) {
               <i class="fa-solid fa-heart wish-icon"></i>
             </div>  
             <p class="card-text text-warning">₹${product.productPrice}</p>
+             <form action="/user/addToCart" method="POST" class="d-inline">
+                <input type="hidden" name="productId" value="${product._id}">
+                <input type="number" name="quantity" value="1" min="1" hidden>
             <a href="#" class="btn btn-outline-warning">Add to Cart</a>
+            </form>
           </div>
-          
         </div>
       </div>
     `;
-    productContainer.innerHTML += productHTML; // Append new product to the container
+    productContainer.innerHTML += productHTML;
   });
 }

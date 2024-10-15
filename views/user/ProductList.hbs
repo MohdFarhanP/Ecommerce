@@ -7,11 +7,11 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/home">Home</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/orders">Orders</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/ProductList">Products</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/contactus">Contact</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/user/Aboutus">About us</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a></li>
         </ul>
 
         <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
@@ -78,6 +78,32 @@
           <li><input type="checkbox" value="Green" class="color-filter"> Green</li>
         </ul>
       </div>
+      <div class="filter-section">
+        <h6>Product Availability</h6>
+        <ul class="list-unstyled">
+          <li>
+            <input type="checkbox" id="showOutOfStock" class="availability-filter"> Show Out of Stock Products
+          </li>
+        </ul>
+      </div>
+      <div class="filter-section mb-3">
+        <h6>Sort By</h6>
+        <div class="input-group">
+          <select id="sortCriteria" class="form-select">
+            <option value="popularity">Popularity</option>
+            <option value="priceLowToHigh">Price: Low to High</option>
+            <option value="priceHighToLow">Price: High to Low</option>
+            <option value="averageRating">Average Ratings</option>
+            <option value="featured">Featured</option>
+            <option value="newArrivals">New Arrivals</option>
+            <option value="aToZ">A-Z</option>
+            <option value="zToA">Z-A</option>
+          </select>
+          <label class="input-group-text" for="sortCriteria">
+            <i class="bi bi-sort-alpha-down"></i> <!-- Bootstrap Icons for visual enhancement -->
+          </label>
+        </div>
+      </div>
       <button type="submit" class="btn btn-outline-warning mt-3" id="applyFilter">Filter</button>
     </aside>
 
@@ -85,7 +111,7 @@
     <main class="col-md-10 mx-auto">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/user/home">Home</a></li>
+          <li class="breadcrumb-item"><a href="/home">Home</a></li>
           <li class="breadcrumb-item active">Products</li>
         </ol>
       </nav>
@@ -96,7 +122,7 @@
         {{#each products}}
         <div class="col-md-4 mb-4">
           <div class="card h-100">
-            <a href="/user/singleProduct/{{_id}}">
+            <a href="/singleProduct/{{_id}}">
               <img src="/uploads/{{images.[0]}}" class="card-img-top" alt="Product Image">
             </a>
             <div class="card-body">
@@ -105,7 +131,7 @@
                 <i class="fa-solid fa-heart wish-icon"></i>
               </div>
               <p class="card-text text-warning">₹{{productPrice}}</p>
-              <form action="/user/addToCart" method="POST" class="d-inline">
+              <form action="/addToCart" method="POST" class="d-inline">
                 <input type="hidden" name="productId" value="{{_id}}">
                 <input type="number" name="quantity" value="1" min="1" hidden>
                 <button type="submit" class="btn btn-outline-warning">Add to Cart</button>

@@ -7,12 +7,12 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" href="/user/home">Home</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/user/orders">Orders</a>
+                    <li class="nav-item"><a class="nav-link active" href="/home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/orders">Orders</a>
                     </li>
-                    <li class="nav-item"><a class="nav-link active" href="/user/ProductList">Products</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/user/contactus">Contact</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/user/Aboutus">About
+                    <li class="nav-item"><a class="nav-link active" href="/ProductList">Products</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/contactus">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/Aboutus">About
                             us</a></li>
                 </ul>
 
@@ -21,7 +21,7 @@
                                 class="fa-solid fa-magnifying-glass"></i></a></li>
                     <li class="nav-item"><a class="nav-link active" href="#"><i class="fa-regular fa-heart"></i></a>
                     </li>
-                    <li class="nav-item"><a class="nav-link active" href="/user/logOut"><i
+                    <li class="nav-item"><a class="nav-link active" href="/logOut"><i
                                 class="fa-regular fa-user"></i></a></li>
                     <li class="nav-item"><a class="nav-link active" href="#"><i
                                 class="fa-solid fa-cart-shopping"></i></a></li>
@@ -55,17 +55,17 @@
         <div class="col-md-10 mt-4  mb-5 pb-4 bg1 pe-5 ps-5">
             <div class="row d-flex justify-content-center mt-4">
                 <div class="col-md-3">
-                    <a href="/user/userProfile">
+                    <a href="/userProfile">
                         <button class="btn mbtn btn-outline-warning w-100 ">Update User</button>
                     </a>
                 </div>
                 <div class="col-md-3">
-                    <a href="/user/passwordUpdate">
+                    <a href="/passwordUpdate">
                         <button class="btn mbtn btn-outline-warning w-100">Password</button>
                     </a>
                 </div>
                 <div class="col-md-3">
-                    <a href="/user/address">
+                    <a href="/address">
                         <button class="btn mbtn btn-outline-warning w-100 active">Address</button>
                     </a>
                 </div>
@@ -81,7 +81,8 @@
                     <p>Please select one address to set your address </p>
                     {{#each addresses }}
                     <div class="col-sm-12 col-md-4 mb-3">
-                        <div class="card text-left p-3 {{#if isDefault}} active{{/if}}" onclick="selectCard(this,'{{_id}}')">
+                        <div class="card text-left p-3 {{#if isDefault}} active{{/if}}"
+                            onclick="selectCard(this,'{{_id}}')">
                             <span><strong>First Name:</strong> {{firstName}}</span>
                             <span><strong>Last Name:</strong> {{lastName}}</span>
                             <span><strong>Email:</strong> {{email}}</span>
@@ -92,9 +93,11 @@
                             <span><strong>Country:</strong> {{country}}</span>
                             <div class="d-flex justify-content-between mt-3">
                                 <button type="button" class="btn btn-outline-warning w-50 me-1" data-bs-toggle="modal"
-                                    data-bs-target="#editAddress" onclick="populateEditModal('{{this.id}}', '{{firstName}}', '{{lastName}}', '{{email}}', '{{mobile}}', '{{addressLine}}', '{{city}}', '{{pinCode}}', '{{country}}')">Edit</button>
+                                    data-bs-target="#editAddress"
+                                    onclick="populateEditModal('{{this.id}}', '{{firstName}}', '{{lastName}}', '{{email}}', '{{mobile}}', '{{addressLine}}', '{{city}}', '{{pinCode}}', '{{country}}')">Edit</button>
                                 <button type="button" class="btn btn-outline-danger w-50 ms-1" data-bs-toggle="modal"
-                                    data-bs-target="#deleteAddress" onclick="setDeleteAddress('{{this.id}}')">Delete</button>
+                                    data-bs-target="#deleteAddress"
+                                    onclick="setDeleteAddress('{{this.id}}')">Delete</button>
                             </div>
                         </div>
                     </div>
@@ -135,7 +138,7 @@
                         <div class="modal-body">
                             <div class=" row mt-2">
                                 <div class="col-md-12 me-2 ">
-                                    <form action="/user/addAddress" method="post">
+                                    <form action="/addAddress" method="post">
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">First Name:</label>
@@ -180,7 +183,8 @@
                                             </div>
                                             <div class="col">
                                                 <label for="dropdown" class="form-label">Country</label>
-                                                <select class="form-select" name="country" id="dropdown" aria-label="Select option">
+                                                <select class="form-select" name="country" id="dropdown"
+                                                    aria-label="Select option">
                                                     <option disabled selected>Select the Country</option>
                                                     <option value="India">India</option>
                                                     <option value="USA">USA</option>
@@ -189,7 +193,8 @@
                                             </div>
                                         </div>
                                         <div class="row d-flex justify-content-center">
-                                            <button type="submit" class="btn btn-outline-warning mt-5 w-75 ">Save Address</button>
+                                            <button type="submit" class="btn btn-outline-warning mt-5 w-75 ">Save
+                                                Address</button>
                                         </div>
                                     </form>
                                 </div>
@@ -210,7 +215,8 @@
                         <div class="modal-body">
                             <div class=" row mt-2">
                                 <div class="col-md-12 me-2 ">
-                                    <form action="/user/editAddress" method="post">
+                                    <form action="/editAddress" method="post">
+
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">First Name:</label>
@@ -218,38 +224,39 @@
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Last name:</label>
-                                                <input type="text"  name="lastName" class="form-control">
+                                                <input type="text" name="lastName" class="form-control">
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">Email Address:</label>
-                                                <input type="text"  name="email" class="form-control">
+                                                <input type="text" name="email" class="form-control">
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Mobail Number:</label>
-                                                <input type="text"  name="mobile" class="form-control">
+                                                <input type="text" name="mobile" class="form-control">
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">Address:</label>
-                                                <input type="text"  name="addressLine" class="form-control">
+                                                <input type="text" name="addressLine" class="form-control">
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Town/City:</label>
-                                                <input type="text"  name="city" class="form-control">
+                                                <input type="text" name="city" class="form-control">
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">Pin Code:</label>
-                                                <input type="text"  name="pinCode" class="form-control">
+                                                <input type="text" name="pinCode" class="form-control">
                                             </div>
                                             <div class="col">
                                                 <label for="dropdown" class="form-label">Country</label>
-                                                <select class="form-select" name="country" id="dropdown" aria-label="Select option">
-                                                    <option disabled selected>Select a Country</option>
+                                                <select class="form-select" name="country" id="dropdown"
+                                                    aria-label="Select option">
+                                                    <option disabled selected></option>
                                                     <option value="India">India</option>
                                                     <option value="USA">USA</option>
                                                     <option value="UAE">UAE</option>
