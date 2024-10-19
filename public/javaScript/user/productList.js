@@ -28,7 +28,7 @@ document.getElementById('applyFilter').addEventListener('click', () => {
   const showOutOfStock = document.getElementById('showOutOfStock').checked;
   const sortCriteria = document.getElementById('sortCriteria').value; 
 
-  fetch('/user/filterProducts', {
+  fetch('/filterProducts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -55,7 +55,7 @@ function renderProducts(products) {
     const productHTML = ` 
       <div class="col-md-4 mb-4">
         <div class="card h-100">
-          <a href="/user/singleProduct/${product._id}">
+          <a href="/singleProduct/${product._id}">
             <img src="/uploads/${product.images[0]}" class="card-img-top" alt="${product.productName}">
           </a>
           <div class="card-body">

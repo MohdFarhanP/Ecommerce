@@ -32,6 +32,12 @@ function formValidate() {
     }
     return true;
 }
+const err = document.getElementById('editPasswordError').textContent.trim();;
+if (err){
+    document.getElementById('editPasswordError').style.display ="block";
+}else{
+    document.getElementById('editPasswordError').style.display ="none";
+}
 const msg = document.getElementById('msg').value;
 if(msg){
   Swal.fire({

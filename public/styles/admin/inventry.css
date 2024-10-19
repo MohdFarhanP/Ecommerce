@@ -1,4 +1,7 @@
 
+body {
+    font-family: Arial, sans-serif;
+}
 .sidebar {
     background-color: #f8f9fa;
     padding: 1rem;
@@ -16,49 +19,24 @@
     background-color: #ffac33;
     color: #fff;
 }
-
+.dashboard-header {
+    margin-top: 1rem;
+}
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 .table-wrapper {
     overflow-x: auto;
 }
-
-.mbtn {
-    margin-top: .9rem;
+#head{
+    margin-left: 2.5rem;
 }
-#imagePreviewContainer {
-    display: flex;             
-    flex-wrap: wrap;         
-    justify-content: center;   
-    align-items: center;       
-    gap: 10px;                
+.mbtn{
+    margin-top: .9rem;   
 }
 
-#imagePreviewContainer img {
-    margin: 0;               
-    padding: 0;              
-    max-width: 200px;        
-    max-height: 200px;        
-    border: none;             
-    display: block;        
-}
 
-.modal-content {
-    padding: 20px;            
-    max-width: 100%;         
-}
-
-.modal-body {
-    padding: 0;              
-}
-.product-images{
-    display: flex;
-    justify-content: space-around;
-}
-.image-wrapper{
-    width: 15rem;
-    height: 15rem;
-    margin: 5px;
-}
-    
 /*  pagination color */
 .custom-pagination .page-link {
     background-color: #fff;
@@ -80,3 +58,4 @@
   .custom-pagination .active {
     background-color: #ff8c00;
   }
+  

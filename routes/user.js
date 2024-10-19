@@ -14,12 +14,15 @@ router.get('/otp', userAuth.isLogin, userController.otpPage);
 router.post('/verifyOtp', userAuth.isLogin, userController.verifyOtp);
 router.post('/resendOtp', userController.resendOtp);
 router.post('/demoLogin', userController.demoLogin);
+router.get('/authPrompt',userController.authPromptPage);
+router.get('/search',userController.search)
 
 // Protected routes (session required)
-router.get('/home', userAuth.checkSession, userController.homePage);
-router.get('/ProductList', userAuth.checkSession, userController.ProductList);
-router.post('/filterProducts', userAuth.checkSession, userController.filterProducts);
-router.get('/singleProduct/:id', userAuth.checkSession, userController.productPage);
+router.get('/',userController.gestUser)
+router.get('/home', userController.homePage);
+router.get('/ProductList', userController.ProductList);
+router.post('/filterProducts', userController.filterProducts);
+router.get('/singleProduct/:id', userController.productPage);
 router.post('/singleProduct/:id/review', userAuth.checkSession, userController.review);
 router.get('/logOut', userAuth.checkSession, userController.logoutbtn);
 
@@ -34,8 +37,10 @@ router.post('/editAddress/:id',userAuth.checkSession,userController.editAddress)
 router.post('/deleteAddress/:id',userAuth.checkSession,userController.deleteAddress)
 router.post('/setDefaultAddress',userAuth.checkSession,userController.setDefaultAddress)
 router.get('/orders', userAuth.checkSession, userController.orders);
+router.get('/orderDetails/:orderId/:productId',userAuth.checkSession,userController.orderDetails)
 router.post('/placeOrder',userAuth.checkSession,userController.placeOrder);
-router.post('/cancelProduct',userAuth.checkSession,userController.cancelProduct)
+router.get('/orderSuccess/:orderId',userAuth.checkSession,userController.orderSuccess)
+router.post('/cancelProduct',userAuth.checkSession,userController.cancelProduct);
 
 // Shopping and checkout (session required)
 router.get('/cart', userAuth.checkSession, userController.cart);
@@ -44,6 +49,12 @@ router.post('/removeCartItem/:id',userAuth.checkSession,userController.removeCar
 router.post('/updateCartQuantity',userAuth.checkSession,userController.updateCartQuantity)
 router.post('/checkoutbtn',userAuth.checkSession,userController.checkoutbtn)
 router.get('/checkout', userAuth.checkSession, userController.checkout);
+router.get("/whishList",userAuth.checkSession,userController.whishlist);
+router.post("/wishlistAdd", userAuth.checkSession, userController.addWhishlist);
+router.post("/wishlistRemove", userAuth.checkSession, userController.removeWhishList);
+
+
+
 
 // Blocked page for users who are blocked
 router.get('/blocked', userController.blocked);

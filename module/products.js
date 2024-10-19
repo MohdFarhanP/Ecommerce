@@ -27,7 +27,9 @@ const productSchema = mongoose.Schema({
     },
     maxQtyPerPerson: {
         type: Number,
-        default: 5 
+        default:  function() {
+            return Math.min(Math.floor(this.productStock / 5), 10);
+        }
     },
     createdAt: {
         type: Date,

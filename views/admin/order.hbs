@@ -12,7 +12,7 @@
                 <a href="/users" class="btn mbtn btn-outline-warning mb-2 ">USERS</a>
                 <a href="/products" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
                 <a href="/category" class="btn mbtn btn-outline-warning mb-2 ">CATEGORIES</a>
-                <a href="/orders" class="btn mbtn btn-outline-warning mb-2 active">ORDERS</a>
+                <a href="/ordersList" class="btn mbtn btn-outline-warning mb-2 active">ORDERS</a>
                 <a href="/inventory" class="btn mbtn btn-outline-warning mb-2">INVENTORY</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
@@ -116,7 +116,32 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- Pagination Controls -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center pages custom-pagination">
+                            {{#if (gt currentPage 1)}}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{sub currentPage 1}}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {{/if}}
 
+                            {{#each (range 1 totalPages)}}
+                            <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                                <a class="page-link" href="?page={{this}}">{{this}}</a>
+                            </li>
+                            {{/each}}
+
+                            {{#if (lt currentPage totalPages)}}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{add currentPage 1}}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            {{/if}}
+                        </ul>
+                    </nav>
 
                 </div>
             </div>

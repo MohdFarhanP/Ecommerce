@@ -1,16 +1,31 @@
 const User = require('../module/userModel')
 
-const checkSession = (req,res,next)=>{
-    if(req.session.userId){
+const checkSession = async (req, res, next) => {
+    try {
+        const userId = req.session.userId;
+
+        if (!userId) {
+            return res.redirect('/authPrompt'); 
+        }
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.redirect('/authPrompt'); 
+        }
+
+        if (user.isBlocked) {
+            return res.redirect('/blocked');  
+        }
         next();
-    }else{
-        res.redirect("/user/login");
+    } catch (err) {
+        console.error('Error in checkSession middleware:', err);
+        res.redirect('/error');  
     }
 };
-
 const isLogin = (req,res,next)=>{
     if(req.session.userId){
-        res.redirect('/user/home');
+        res.redirect('/home');
     }else{
         next();
     }

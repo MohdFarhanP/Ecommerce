@@ -36,3 +36,25 @@ body {
     margin-top: .9rem;
     
 }
+/*  pagination color */
+.custom-pagination .page-link {
+    background-color: #fff;
+    color: #ff8c00;
+  }
+  
+  .custom-pagination .page-link:hover {
+    background-color: #FF7F00;
+    color: #ffff;
+  }
+  
+  .custom-pagination .active .page-link {
+    background-color: #ff8c00;
+    color: white;
+  
+    border: none;
+  }
+  
+  .custom-pagination .active {
+    background-color: #ff8c00;
+  }
+  

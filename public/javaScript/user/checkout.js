@@ -24,7 +24,7 @@ function populateEditModal(id, firstName, lastName, email, mobile, addressLine, 
         }
     }
 
-    document.querySelector('#editAddress form').action = `/user/editAddress/${id}`;
+    document.querySelector('#editAddress form').action = `/editAddress/${id}`;
 }
 
 

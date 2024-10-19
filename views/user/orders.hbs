@@ -1,99 +1,95 @@
-<link rel="stylesheet" href="/styles/user/userProfile.css">
+<link rel="stylesheet" href="/styles/user/order.css">
 
 <header>
-    <nav class="navbar navbar-expand-lg shadow-navbar">
-        <div class="container-fluid py-auto px-auto">
-            <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
+  <nav class="navbar navbar-expand-lg  shadow-navbar">
+    <div class="container-fluid py-auto px-auto ">
+      <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a>
-                    </li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a>
-                    </li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a>
-                    </li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About
-                            us</a></li>
-                </ul>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a></li>
+        </ul>
 
-                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i
-                                class="fa-solid fa-magnifying-glass"></i></a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i
-                                class="fa-regular fa-heart"></i></a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
-                                class="fa-regular fa-user"></i></a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i
-                                class="fa-solid fa-cart-shopping"></i></a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+        <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+          <div class="input-group">
+            <form class="d-flex" action="/search" method="GET">
+              <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
+                aria-label="Search">
+              <button class="btn btn-outline" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+          </div>  
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
+                class="fa-regular fa-heart"></i></a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
+                class="fa-regular fa-user"></i></a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/cart"><i
+                class="fa-solid fa-cart-shopping"></i></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 </header>
 
-<div class="container mt-3">
-    <div class="row mt-5">
+<div class="container mt-5">
+    <div class="row">
         <!-- Sidebar -->
         <div class="col-md-2">
             <div class="container-fluid">
                 <span class="fw-bold">Account & Settings</span>
                 <hr>
             </div>
-
             <nav class="nav flex-column mt-2">
                 <a href="/userProfile" class="btn btn-outline-warning mb-2">User Details</a>
                 <a href="/orders" class="btn btn-outline-warning mb-2 active">Orders</a>
-                <a href="#" class="btn btn-outline-warning mb-2">PRODUCTS</a>
-                <a href="#" class="btn btn-outline-warning mb-2">CATEGORIES</a>
-                <a href="#" class="btn btn-outline-warning mb-2">COUPONS</a>
-                <a href="#" class="btn btn-outline-warning mb-2">OFFERS</a>
-                <a href="#" class="btn btn-outline-warning mb-2">SALES</a>
+                <a href="/whishList" class="btn btn-outline-warning mb-2 ">whishList</a>
+                <a href="/logOut" class="btn text-warning mb-2 mt-4 px-auto">
+                    <i class="fa-solid fa-right-from-bracket me-3"></i>Log out
+                </a>
             </nav>
         </div>
 
-        <div class="col-md-10 mt-4 bg1">
+        <!-- Orders Section -->
+        <div class="col-md-10">
             {{#each orders}}
-
-            <div class="container row mt-3">
-                <div class="col-md-12">
+            <div class="card mt-3">
+                <div class="card-header bg-warning text-white">
+                    Order ID: {{this._id}}
+                </div>
+                <div class="card-body">
                     {{#each this.products}}
-                    <div class="card mb-3">
-                        <div class="row g-0">
-                            <div class="col-md-2">
-                                <img src="/uploads/{{this.productId.images.[0]}}" class="img-fluid rounded-start"
-                                    alt="{{this.productId.productName}}">
-                            </div>
-                            <div class="col-md-10">
-                                <div class="row">
-                                    <div class="col-md-7 card-body">
-                                        <h5 class="card-title">Delivered on 25/05/2025</h5>
+                    <div class="row mb-3 position-relative">
+                        <!-- Highlight if cancelled -->
+                        {{#if (eq this.status 'Cancelled')}}
+                        <div class="cancel-overlay position-absolute top-0 start-0 w-100 h-100 bg-danger bg-opacity-50 text-center d-flex justify-content-center align-items-center">
+                            <span class="text-white fw-bold"><i class="fa-solid fa-ban me-2"></i>Cancelled</span>
+                        </div>
+                        {{/if}}
 
-                                        <p class="card-text">Product Name: {{this.productId.productName}}</p>
-                                        <p class="card-text">Quantity: {{this.quantity}}</p>
-                                        <p class="card-text">Price: ₹{{this.productId.productPrice}}</p>
-                                        <p class="card-text">Total Amount: ₹{{../totalAmount}}</p>
-
-                                        <p class="card-text">Payment Status: {{../paymentStatus}}</p>
-
-                                        <p class="card-text">Shipping Address: {{../shippingAddress.addressLine}},
-                                            {{../shippingAddress.city}}</p>
-                                        <div class="d-flex">
-                                            <p class="card-text"><small class="text-body-secondary">Order ID:
-                                                    {{../_id}}</small></p>
-                                            <p class="card-text ms-4"><small class="text-body-secondary">Status:
-                                                    {{../status}}</small></p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-5 d-flex justify-content-center align-items-center">
-                                        <button class="btn btn-warning me-2">View Details</button>
-                                        <form action="/cancelProduct" method="post">
-                                            <input type="hidden" name="orderId" value="{{../_id}}">
-                                            <input type="hidden" name="productId" value="{{this.productId._id}}">
-                                            <button class="btn btn-danger">Cancel Product</button>
-                                        </form>
-                                    </div>
+                        <div class="col-md-2">
+                            <img src="/uploads/{{this.productId.images.[0]}}" class="img-fluid rounded" alt="{{this.productId.productName}}">
+                        </div>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <p class="mb-1"><strong>Product Name:</strong> {{this.productId.productName}}</p>
+                                    <p class="mb-1"><strong>Price:</strong> ₹{{this.productId.productPrice}}</p>
+                                    <p class="mb-1"><strong>Quantity:</strong> {{this.quantity}}</p>
+                                </div>
+                                <div class="col-md-5 d-flex align-items-center justify-content-end">
+                                    <a href="/orderDetails/{{../_id}}/{{this.productId._id}}" class="btn btn-warning me-2">View Details</a>
+                                    {{#if (neq this.status 'Cancelled')}}
+                                    <form action="/cancelProduct" method="post" onsubmit="return confirm('Are you sure you want to cancel this product?');">
+                                        <input type="hidden" name="orderId" value="{{../_id}}">
+                                        <input type="hidden" name="productId" value="{{this.productId._id}}">
+                                        <button class="btn btn-danger">Cancel Product</button>
+                                    </form>
+                                    {{else}}
+                                    <span class="text-danger">Cancelled</span>
+                                    {{/if}}
                                 </div>
                             </div>
                         </div>
@@ -102,6 +98,34 @@
                 </div>
             </div>
             {{/each}}
+
+            <!-- Pagination Section -->
+            <nav aria-label="Order Page Navigation" class="mt-4">
+                <ul class="pagination justify-content-center custom-pagination">
+                    {{#if (gt currentPage 1)}}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{sub currentPage 1}}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {{/if}}
+
+                    {{#each (range 1 totalPages)}}
+                    <li class="page-item {{#if (eq @this ../currentPage)}}active{{/if}}">
+                        <a class="page-link" href="?page={{@this}}">{{@this}}</a>
+                    </li>
+                    {{/each}}
+
+                    {{#if (lt currentPage totalPages)}}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{add currentPage 1}}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {{/if}}
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
+

@@ -44,15 +44,21 @@
   }
 
   document.getElementById('demoLogin').addEventListener('click', function() {
-    fetch('/user/demoLogin', {
+    fetch('/demoLogin', {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
     })
     .then(response => {
-        if (response.ok) {
-            window.location.href = '/user/home'; 
+        if (response.redirected) {
+            window.location.href = response.url;  
         } else {
-            console.error('Demo login failed');
+            return response.text();  
         }
+    })
+    .then(data => {
+        console.error('Error during demo login:', data);
     })
     .catch(error => {
         console.error('Error during demo login:', error);

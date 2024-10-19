@@ -8,7 +8,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 const path = require('path');
 const Order = require('../module/orderModel')
-const fs = require('fs'); 
+const fs = require('fs');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -41,16 +41,34 @@ const logoutBtn = async (req, res) => {
 }
 const usersPage = async (req, res) => {
     try {
-        const users = await User.find({});
-        res.render('admin/users', { data: users })
+
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 7) || 7;
+        const skip = (page - 1) * limit;
+        const totalUsers = await User.countDocuments();
+
+        const users = await User.find({})
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalUsers / limit);
+
+        res.render('admin/users', {
+            data: users,
+            currentPage: page,
+            totalPages: totalPages,
+            totalUsers: totalUsers
+        });
+
     } catch (err) {
+        console.error('Error fetching users:', err);
         res.status(500).send('Error fetching Users');
     }
 };
 const blockUser = async (req, res) => {
     const userId = req.params.id;
     await User.findByIdAndUpdate(userId, { isBlocked: true });
-    res.redirect('/users');unblockUser
+    res.redirect('/users'); unblockUser
 };
 const unblockUser = async (req, res) => {
     const userId = req.params.id;
@@ -58,8 +76,27 @@ const unblockUser = async (req, res) => {
     res.redirect('/users');
 };
 const categoryPage = async (req, res) => {
-    const category = await Category.find({});
-    res.render('admin/category', { category });
+    const limit = 7;
+    const page = parseInt(req.query.page) || 1;
+
+    try {
+        const totalCategories = await Category.countDocuments();
+        const categories = await Category.find({})
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .exec();
+
+        const totalPages = Math.ceil(totalCategories / limit);
+
+        res.render('admin/category', {
+            category: categories,
+            currentPage: page,
+            totalPages
+        });
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+        res.status(500).send("Server Error");
+    }
 };
 const addCategory = async (req, res) => {
     const { brandName, displayType, bandColor } = req.body;
@@ -133,12 +170,20 @@ const activeCategory = async (req, res) => {
 }
 const productPage = async (req, res) => {
     try {
-        const products = await Products.find();
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+
+        const products = await Products.find().skip(skip).limit(limit);
+        const totalProducts = await Products.countDocuments();
+        const totalPages = Math.ceil(totalProducts / limit);
         const categories = await Category.find();
-        res.render('admin/products', { products, categories });
+
+        res.render('admin/products', { products, categories, currentPage: page, totalPages });
 
     } catch (err) {
-        console.log("product listing error", { err })
+        console.log("product listing error", { err });
     }
 };
 const addProduct = async (req, res) => {
@@ -163,8 +208,8 @@ const addProduct = async (req, res) => {
     if (!highlights.features) errors.push("features is required");
     if (!highlights.warranty) errors.push("warranty is required");
 
-    
-    if (!req.files ||req.files.length !== 3 ){
+
+    if (!req.files || req.files.length !== 3) {
         errors.push('Please upload at least 3 images.');
     }
 
@@ -172,7 +217,7 @@ const addProduct = async (req, res) => {
         return res.status(400).json({ errors });
     }
 
- 
+
     try {
 
         const existingProduct = await Products.findOne({ productName: productName });
@@ -184,7 +229,7 @@ const addProduct = async (req, res) => {
         for (const file of req.files) {
             const newImgName = `${Date.now()}-${file.originalname}`;
             await sharp(file.buffer)
-                .resize(500, 500) 
+                .resize(500, 500)
                 .toFile(`./uploads/${newImgName}`);
             images.push(newImgName);
         }
@@ -216,11 +261,11 @@ const addProduct = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
-
 const editProduct = async (req, res) => {
     try {
         const { productName, productStock, productPrice, id, categories, description, highlights } = req.body;
         const product = await Products.findById(id);
+
         if (!product) {
             return res.status(404).send('Product not found');
         }
@@ -232,38 +277,57 @@ const editProduct = async (req, res) => {
         product.description = description;
         product.category = categories;
 
-        // Handle image replacement
+        console.log(req.files)
+        // Replace images if new files are uploaded
         if (req.files && req.files.length > 0) {
             for (const [index, file] of req.files.entries()) {
                 const oldImage = product.images[index];
                 const newImageName = `${Date.now()}-${file.originalname}`;
 
-                // Process the image with sharp
+                // Resize and save the new image
                 await sharp(file.buffer)
                     .resize(500, 500)
                     .toFile(path.join(__dirname, '../uploads/', newImageName));
 
-                // Replace the old image with the new one in the array
-                product.images[index] = newImageName;
+                // Replace the old image with the new one
+                if (product.images[index]) {
+                    product.images[index] = newImageName;
+                } else {
+                    product.images.push(newImageName);
+                }
 
-                // Remove old image from the filesystem if it exists
+                // Delete the old image file if it exists
                 if (oldImage) {
-                    fs.unlinkSync(path.join(__dirname, '../uploads/', oldImage));
+                    const oldImagePath = path.join(__dirname, '../uploads/', oldImage);
+                    if (fs.existsSync(oldImagePath)) {
+                        fs.unlinkSync(oldImagePath);
+                    }
                 }
             }
         }
 
-        // Ensure at least 3 images are in place
+        // Ensure there are no more than 3 images
         if (product.images.length > 3) {
-            product.images = product.images.slice(0, 3); 
+            product.images = product.images.slice(0, 3);
         }
 
-        // Update highlights if available
+        // Update highlights if provided
         if (highlights) {
-            product.highlights = highlights;
+            const { brand, model, caseMaterial, dialColor, waterResistance, movementType, bandMaterial, features, warranty } = highlights;
+            product.highlights = {
+                brand: brand || product.highlights.brand,
+                model: model || product.highlights.model,
+                caseMaterial: caseMaterial || product.highlights.caseMaterial,
+                dialColor: dialColor || product.highlights.dialColor,
+                waterResistance: waterResistance || product.highlights.waterResistance,
+                movementType: movementType || product.highlights.movementType,
+                bandMaterial: bandMaterial || product.highlights.bandMaterial,
+                features: Array.isArray(features) ? features : product.highlights.features,
+                warranty: warranty || product.highlights.warranty
+            };
         }
 
-        // Save the updated product
+        // Save the updated product to the database
         await product.save();
         res.redirect('/products');
     } catch (err) {
@@ -291,7 +355,11 @@ const activeProduct = async (req, res) => {
     }
 };
 const orders = async (req, res) => {
+    const limit = 4;
+    const page = parseInt(req.query.page) || 1;
+
     try {
+        const totalOrders = await Order.countDocuments();
         const orders = await Order.find()
             .populate({
                 path: 'userId',
@@ -305,8 +373,17 @@ const orders = async (req, res) => {
                 path: 'products.productId',
                 select: 'productName',
             })
+            .skip((page - 1) * limit)
+            .limit(limit)
             .exec();
-        res.render('admin/order', { orders });
+
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        res.render('admin/order', {
+            orders,
+            currentPage: page,
+            totalPages,
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
@@ -317,7 +394,7 @@ const changeOrderStatus = async (req, res) => {
 
     try {
         await Order.findByIdAndUpdate(orderId, { status });
-        res.redirect('/orders');
+        res.redirect('/ordersList');
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
@@ -335,22 +412,36 @@ const cancelOrder = async (req, res) => {
         }
 
         await Order.findByIdAndDelete(orderId);
-        res.redirect('/orders');
+        res.redirect('/ordersList');
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
     }
 };
-const inventry = async (req, res) => {
+const inventory = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 7;
+
     try {
-        const products = await Products.find({ isDeleted: false });
-        res.render('admin/inventory', { products });
+        const totalProducts =  await Products.countDocuments();
+        const products = await Products.find({ isDeleted: false })
+        .skip((page -1) * limit)
+        .limit(limit)
+        .exec();
+        
+        const totalPages = Math.ceil(totalProducts / limit) 
+
+        res.render('admin/inventory', { 
+            products ,
+            currentPage: page,
+            totalPages,
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
     }
-}
-const editInventry = async (req, res) => {
+};
+const editInventory = async (req, res) => {
     const { id, productName, productStock, productPrice, isFeatured } = req.body;
     try {
         await Products.findByIdAndUpdate(id, { productName, productStock, productPrice, isFeatured });
@@ -400,8 +491,8 @@ module.exports = {
     orders,
     changeOrderStatus,
     cancelOrder,
-    inventry,
-    editInventry,
+    inventory,
+    editInventory,
     deleteInventory,
     updateStock,
     activeProduct,
