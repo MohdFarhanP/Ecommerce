@@ -12,6 +12,13 @@ const authRouter = require('./routes/auth');
 const session = require('express-session');
 const passport = require('passport');
 const { format } = require('date-fns');
+const Razorpay = require('razorpay');
+
+
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 
 
@@ -57,14 +64,25 @@ app.engine('hbs', exphbs.engine({
         floor: (num) => Math.floor(num),
         add: (a, b) => a + b,
         sub: (a, b) => a - b,
-        formatDate: (date, formatString) => { return format(new Date(date), formatString); },
+        formatDate: (date, formatString) => {
+            if (!(date instanceof Date) || isNaN(date)) {
+                return 'Invalid Date'; // Fallback if date is invalid
+            }
+            return format(new Date(date), formatString);
+         },
         range: (min, max) => {
             const range = [];
             for (let i = min; i <= max; i++) {
                 range.push(i);
             }
             return range;
-        }
+        },
+        isEmpty: (array) => {
+            return array.length === 0;
+        },
+        ifEquals: function(arg1, arg2, options) {
+            return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+        },
     }
 }));
 

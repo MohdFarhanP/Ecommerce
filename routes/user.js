@@ -50,11 +50,13 @@ router.post('/updateCartQuantity',userAuth.checkSession,userController.updateCar
 router.post('/checkoutbtn',userAuth.checkSession,userController.checkoutbtn)
 router.get('/checkout', userAuth.checkSession, userController.checkout);
 router.get("/whishList",userAuth.checkSession,userController.whishlist);
-router.post("/wishlistAdd", userAuth.checkSession, userController.addWhishlist);
-router.post("/wishlistRemove", userAuth.checkSession, userController.removeWhishList);
-
-
-
+router.post("/wishlistAdd", userAuth.checkSession, userController.addWishlist);
+router.post("/wishlistRemove", userAuth.checkSession, userController.removeWishlist);
+router.post("/applyCoupon",userAuth.checkSession,userController.couponApply);
+router.post('/removeCoupon',userAuth.checkSession,userController.removeCoupon);
+router.post('/create-razorpay-order',userAuth.checkSession,userController.createRazorpayOrder);
+router.post('/verify-razorpay-payment',userAuth.checkSession,userController.verifyRazorpayPayment);
+router.get('/wallet',userAuth.checkSession,userController.walletpage)
 
 // Blocked page for users who are blocked
 router.get('/blocked', userController.blocked);

@@ -14,8 +14,8 @@
                 <a href="/category" class="btn mbtn btn-outline-warning mb-2 ">CATEGORIES</a>
                 <a href="/ordersList" class="btn mbtn btn-outline-warning mb-2">ORDERS</a>
                 <a href="/inventory" class="btn mbtn btn-outline-warning mb-2">INVENTORY</a>
-                <a href="#" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
-                <a href="#" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
+                <a href="/coupon" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
+                <a href="/offer" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
                 <a href="#" class="btn mbtn btn-outline-warning mb-2">SALES</a>
             </nav>
         </div>
@@ -23,9 +23,9 @@
         <!-- Main Content -->
         <div class="col-md-10">
             <!-- Header -->
-            <div class="row dashboard-header mt-5">
-                <div class="col-md-12 text-center">
-                    <h1 class="display-4">ADMIN DASHBOARD</h1>
+            <div class="row dashboard-header mt-5 mb-4">
+                <div class="col-md-12">
+                    <h1 class="text-center">Product Management</h1>
                 </div>
             </div>
 
@@ -47,7 +47,7 @@
             <!-- Table -->
             <div class="row mt-4">
                 <div class="col-md-12">
-                    <button type="button" class="btn btn-success m-2" data-bs-toggle="modal"
+                    <button type="button" class="btn btn-outline-success mb-2" data-bs-toggle="modal"
                         data-bs-target="#addProductModal">Add Product</button>
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered table-hover">
@@ -303,7 +303,7 @@
 
                             <div class="form-group mb-3">
                                 <label for="productCategories">Categories</label>
-                                <select class="form-control" id="productCategories" name="category" required>
+                                <select class="form-control" id="productCategories" name="categories" required>
                                     <option value="" disabled>Select Category</option>
                                     {{#each categories}}
                                     <option value="{{_id}}" {{#if (isSelected _id

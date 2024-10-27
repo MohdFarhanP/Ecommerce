@@ -1,36 +1,40 @@
 <link rel="stylesheet" href="/styles/user/checkout.css">
 <header>
-  <nav class="navbar navbar-expand-lg  shadow-navbar">
-    <div class="container-fluid py-auto px-auto ">
-      <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
+    <nav class="navbar navbar-expand-lg  shadow-navbar">
+        <div class="container-fluid py-auto px-auto ">
+            <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a></li>
-        </ul>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a>
+                    </li>
+                </ul>
 
-        <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-          <div class="input-group">
-            <form class="d-flex" action="/search" method="GET">
-              <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
-                aria-label="Search">
-              <button class="btn btn-outline" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </form>
-          </div>  
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
-                class="fa-regular fa-heart"></i></a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
-                class="fa-regular fa-user"></i></a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/cart"><i
-                class="fa-solid fa-cart-shopping"></i></a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <div class="input-group">
+                        <form class="d-flex" action="/search" method="GET">
+                            <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
+                                aria-label="Search">
+                            <button class="btn btn-outline" type="submit"><i
+                                    class="fa-solid fa-magnifying-glass"></i></button>
+                        </form>
+                    </div>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
+                                class="fa-regular fa-heart"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
+                                class="fa-regular fa-user"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/cart"><i
+                                class="fa-solid fa-cart-shopping"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <div class="container mt-5">
@@ -40,9 +44,10 @@
             <hr>
             <div class="container">
                 <h5 class="mb-2 mt-2">Select Address</h5>
+                {{#if userAddresses}}
                 <div class="address-list">
                     {{#each userAddresses}}
-                    <div class="address-card" data-address-id="{{this._id}}" onclick="selectCard(this)">
+                    <div class="address-card" data-address-id="{{this._id}}" data-phone="{{this.mobile}}" onclick="selectCard(this)">
                         <span class="firstName"><strong>First Name:</strong> {{this.firstName}}</span>
                         <span class="lastName"><strong>Last Name:</strong> {{this.lastName}}</span>
                         <span class="email"><strong>Email:</strong> {{this.email}}</span>
@@ -59,6 +64,9 @@
                     </div>
                     {{/each}}
                 </div>
+                {{else}}
+                <p class="text-center fs-4">you have no Address Please create one </p>
+                {{/if}}
             </div>
 
             {{!-- Edit modal for Address --}}
@@ -208,16 +216,15 @@
                         <div class="col-md-9">
                             <h6 class=""><strong>Products</strong></h6>
                             {{#each cartItems}}
-                            <p class=" text-body-secondary my-4 "><small>{{this.product.productName}}
+                            <p class="text-body-secondary my-4"><small>{{this.product.productName}}
                                     ({{this.quantity}})</small></p>
                             {{/each}}
                         </div>
                         <div class="text-end col-md-3">
                             <h6><strong>Total</strong></h6>
                             {{#each cartItems}}
-                            <h6 class=" my-3 py-2"><small
-                                    id="product-price-{{this.product._id}}">₹{{this.itemTotal}}</small>
-                            </h6>
+                            <h6 class="my-3 py-2"><small
+                                    id="product-price-{{this.product._id}}">₹{{this.itemTotal}}</small></h6>
                             {{/each}}
                             <br>
                         </div>
@@ -227,16 +234,22 @@
 
                     <div class="d-flex justify-content-between flex-wrap mt-4">
                         <div>
-
-                            <h6 class=" mt-3 mb-2 text-body-secondary"><strong>Subtotal</strong></h6>
-                            <h6 class=" mb-2 text-body-secondary"><strong>Shipping</strong></h6>
-
+                            <h6 class="mt-3 mb-2 text-body-secondary"><strong>Subtotal</strong></h6>
+                            <h6 class="mb-2 text-body-secondary"><strong>Shipping</strong></h6>
+                            <h6 class="mb-2 text-body-secondary">Delivery Charge</h6>
+                            {{#if appliedCouponCode}}
+                            <h6 class="mb-2 text-body-secondary"><strong>Coupon Applied</strong></h6>
+                            <h6 class="mb-2 text-body-secondary"><strong>Discount</strong></h6>
+                            {{/if}}
                         </div>
                         <div class="text-end">
-
-                            <h6 class=" mt-3 mb-2"><strong>₹{{subTotal}}</strong></h6>
-                            <h6 class=" mb-4"><strong>₹{{shippingCharge}}</strong></h6>
-
+                            <h6 class="mt-3 mb-2"><strong>₹{{subTotal}}</strong></h6>
+                            <h6 class="mb-2"><strong>₹{{shippingCharge}}</strong></h6>
+                            <h6 class="mb-2" id="delivery-charge">₹{{deliveryCharge}}</h6>
+                            {{#if appliedCouponCode}}
+                            <h6 class="mb-2"><strong>{{appliedCouponCode}}</strong></h6>
+                            <h6 class="mb-2"><strong>- ₹{{discountAmount}}</strong></h6>
+                            {{/if}}
                         </div>
                     </div>
 
@@ -252,48 +265,40 @@
                     <div class="form-check mt-2 mb-2">
                         <input class="form-check-input custom-radio" type="radio" name="paymentOption" value="COD"
                             id="cashOnDelivery">
-                        <label class="form-check-label" for="cashOnDelivery">
-                            Cash on delivery
-                        </label>
+                        <label class="form-check-label" for="cashOnDelivery">Cash on delivery</label>
                     </div>
                     <div class="form-check mb-2">
-                        <input class="form-check-input custom-radio" type="radio" name="paymentOption" value="razorpay"
+                        <input class="form-check-input custom-radio" type="radio" name="paymentOption" value="Razorpay"
                             id="razorpay" checked>
-                        <label class="form-check-label" for="razorpay">
-                            Razorpay
-                        </label>
+                        <label class="form-check-label" for="razorpay">Razorpay</label>
                     </div>
                     <div class="form-check mb-4">
-                        <input class="form-check-input custom-radio" type="radio" name="paymentOption" value="wallet"
+                        <input class="form-check-input custom-radio" type="radio" name="paymentOption" value="Wallet"
                             id="wallet">
-                        <label class="form-check-label" for="wallet">
-                            Wallet
-                        </label>
+                        <label class="form-check-label" for="wallet">Wallet</label>
                     </div>
-
-
 
                     <hr>
                     <form action="/placeOrder" id="checkoutForm" method="post">
-
-                        <input type="hidden" name="totalAmount" value="{{grandTotal}}">
-
+                        <input type="hidden" name="totalAmount" id="totalAmount" value="{{grandTotal}}">
                         <input type="hidden" id="selectedAddress" name="shippingAddress" value="">
-
                         {{#each cartItems}}
                         <input type="hidden" name="products[{{@index}}][productId]" value="{{this.product._id}}">
                         <input type="hidden" name="products[{{@index}}][quantity]" value="{{this.quantity}}">
                         <input type="hidden" name="products[{{@index}}][price]" value="{{this.itemTotal}}">
                         {{/each}}
-
+                        <input type="hidden" id="razorpayKey" name="razorpayKey" value="{{razorpayKey}}">
+                        <input type="hidden" id="userEmail" name="emil" value="{{userEmail}}">
                         <input type="hidden" id="selectedPaymentMethod" name="paymentMethod" value="">
-
+                         <input type="hidden" id="phoneNumber" name="phoneNumber" value="">
                         <div class="d-flex justify-content-center my-4">
                             <button class="btn btn-outline-warning w-75 w-md-50" type="submit">Place Order</button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 

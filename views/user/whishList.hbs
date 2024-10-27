@@ -51,33 +51,42 @@
             <nav class="nav flex-column mt-2">
                 <a href="/userProfile" class="btn btn-outline-warning mb-2 ">User Details</a>
                 <a href="/orders" class="btn btn-outline-warning mb-2 ">Orders</a>
-                 <a href="/whishList" class="btn btn-outline-warning mb-2 active">whishList</a>
+                <a href="/whishList" class="btn btn-outline-warning mb-2 active">whishList</a>
+                <a href="/wallet" class="btn btn-outline-warning mb-2">wallet</a>
                 <a href="/logOut" class="btn text-warning mb-2  mt-4 px-auto"><i
                         class="fa-solid fa-right-from-bracket me-3"></i>Log out</a>
             </nav>
         </div>
 
-        <div class="col-md-10 mt-4 bg1">
+        <div class="col-md-10 formContainer mt-4 bg1">
             <div class="container">
                 <h3>Your Wishlist</h3>
                 {{#if products.length}}
                 <div class="row">
                     {{#each products}}
-                    <div class="col-md-4">
+                    <div class="col-md-4 wishlistItem" id="wishlist-item-{{this._id}}">
                         <div class="card mb-4 shadow-sm">
                             <img src="/uploads/{{this.images.[0]}}" class="card-img-top" alt="Product Image">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">{{this.productName}}</h5>
-                                <p class="card-text">Price: <span class="text-warning">₹{{this.productPrice}}</span></p>
-                                <form action="/cart/add/{{this._id}}" method="POST">
-                                    <button type="submit" class="btn btn-outline-warning w-100 mb-2">Add to
-                                        Cart</button>
+                            <div class="card-body mt-2 text-center">
+                                <div class="mb-2">
+                                    <h6 class="card-title">{{this.productName}}</h6>
+                                    <p class="card-text">Price: <span class="text-warning">₹{{this.productPrice}}</span>
+                                    </p>
+                                </div>
+                                {{#if this.productStock}}
+                                <form action="/addToCart" method="POST" class="mt-auto">
+                                    <input type="hidden" name="productId" value="{{_id}}">
+                                    <input type="number" name="quantity" value="1" min="1" hidden>
+                                    <button type="submit" class="btn btn-outline-warning w-100">Add to Cart</button>
                                 </form>
-                                <form action="/wishlistRemove" method="POST">
-                                <input type="hidden" name="productId" value="{{this._id}}" >
+                                {{/if}}
+
+                                <form class="removeWishlistForm">
+                                    <input type="hidden" name="productId" value="{{this._id}}">
                                     <button type="submit" class="btn btn-outline-danger w-100">Remove from
                                         Wishlist</button>
                                 </form>
+
                             </div>
                         </div>
                     </div>
@@ -89,7 +98,23 @@
                 </div>
                 {{/if}}
             </div>
-
         </div>
     </div>
 </div>
+
+
+<div class="toast-container position-fixed bottom-0 end-0 p-2">
+    <div id="toast" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="assertive"
+        aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong id="toast-title" class="me-auto"></strong>
+                <div id="toast-body"></div>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script src="/javaScript/user/whishlist.js"></script>

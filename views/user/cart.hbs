@@ -1,43 +1,47 @@
 <link rel="stylesheet" href="/styles/user/cart.css">
 <header>
-  <nav class="navbar navbar-expand-lg  shadow-navbar">
-    <div class="container-fluid py-auto px-auto ">
-      <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
+    <nav class="navbar navbar-expand-lg  shadow-navbar">
+        <div class="container-fluid py-auto px-auto ">
+            <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a></li>
-        </ul>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a>
+                    </li>
+                </ul>
 
-        <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-          <div class="input-group">
-            <form class="d-flex" action="/search" method="GET">
-              <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
-                aria-label="Search">
-              <button class="btn btn-outline" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </form>
-          </div>  
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
-                class="fa-regular fa-heart"></i></a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
-                class="fa-regular fa-user"></i></a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/cart"><i
-                class="fa-solid fa-cart-shopping"></i></a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <div class="input-group">
+                        <form class="d-flex" action="/search" method="GET">
+                            <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
+                                aria-label="Search">
+                            <button class="btn btn-outline" type="submit"><i
+                                    class="fa-solid fa-magnifying-glass"></i></button>
+                        </form>
+                    </div>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
+                                class="fa-regular fa-heart"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
+                                class="fa-regular fa-user"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/cart"><i
+                                class="fa-solid fa-cart-shopping"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8">
-            <h5 class="mb-4 mt-4">1 item Added</h5>
-
+            <h5 class="mb-4 mt-4">{{totalItems}} item(s) Added</h5>
+            {{#if cartItems}}
             <div class="scroll-container">
                 {{#each cartItems}}
                 <div class="card mb-3 me-2">
@@ -50,11 +54,22 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap">
                                     <h6 class="card-title mb-0">{{this.product.productName}}</h6>
-                                    <h5 class="ms-md-5 text-end text-md-start">₹{{this.product.productPrice}}</h5>
-                                </div>
-                                <p class="card-text">{{this.product.description}}</p>
-                                <div class="d-flex justify-content-between align-items-center flex-wrap">
 
+                                    <!-- Display discounted price if available -->
+                                    <h5 class="ms-md-5 text-end text-md-start">
+                                        {{#if (gt this.product.discountPrice 0)}}
+                                        <span
+                                            class="text-decoration-line-through text-muted">₹{{this.product.productPrice}}</span>
+                                        <span class="text-danger ms-2">₹{{this.product.discountPrice}}</span>
+                                        {{else}}
+                                        ₹{{this.product.productPrice}}
+                                        {{/if}}
+                                    </h5>
+                                </div>
+
+                                <p class="card-text">{{this.product.description}}</p>
+
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
                                     <div class="quantity d-flex align-items-center mb-2">
                                         <button class="quantity-btn minus btn btn-outline-secondary btn-sm"
                                             data-product-id="{{this.product._id}}"
@@ -78,12 +93,14 @@
 
                                     <div class="remove-item d-flex align-items-center ms-3">
                                         <i class="fa-regular fa-trash-can"></i>
-                                        <form action="/removeCartItem/{{this.product.id}}" method="post">
+                                        <form action="/removeCartItem/{{this.product._id}}" method="post">
                                             <button class="ms-1 text-danger btn">Remove</button>
                                         </form>
                                     </div>
-                                    <p class="card-text mt-2 mt-md-0"><small class="text-body-secondary">Ships on
-                                            Wednesday 3 March</small></p>
+
+                                    <p class="card-text mt-2 mt-md-0">
+                                        <small class="text-body-secondary">Ships on Wednesday 3 March</small>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -92,6 +109,7 @@
                 {{/each}}
             </div>
 
+            <!-- Pagination -->
             <nav aria-label="Page navigation pages">
                 <ul class="pagination justify-content-center custom-pagination">
                     {{#if (gt currentPage 1)}}
@@ -117,8 +135,11 @@
                     {{/if}}
                 </ul>
             </nav>
-
+            {{else}}
+            <p class="text-center display-5 mt-5">No Items in Cart</p>
+            {{/if}}
         </div>
+
 
         <div class="col-md-4 mt-5">
             <div class="card p-3 shadow p-3 mb-5 ms-4 me-4">
@@ -131,31 +152,40 @@
                         <div class="col-md-9">
                             <h6><strong>Products</strong></h6>
                             {{#each cartItems}}
-                            <p class=" mt-3 text-body-secondary"><small>{{this.product.productName}}
-                                    ({{this.quantity}})</small></p>
+                            <p class="mt-3 text-body-secondary">
+                                <small>{{this.product.productName}} ({{this.quantity}})</small>
+                            </p>
                             {{/each}}
                             <br>
-                            <h6 class="mt-1">Delivery Charge</h6>
                         </div>
                         <div class="text-end col-md-3">
                             <h6><strong>Total</strong></h6>
                             {{#each cartItems}}
-                            <h6 class=" mt-3"><small id="product-price-{{this.product._id}}">₹{{this.itemTotal}}</small>
+                            <h6 class="mt-3">
+                                <small id="product-price-{{this.product._id}}">
+                                    ₹{{this.itemTotal}} <!-- Ensure itemTotal is calculated in the controller -->
+                                </small>
                             </h6>
                             {{/each}}
                             <br>
-                            <h6 class="mt-4" id="delivery-charge">₹{{deliveryCharge}}</h6>
                         </div>
                     </div>
 
                     <hr>
 
                     <p>Coupon Code</p>
-                    <div class="mt-2">
-                        <input type="text" class="form-control" placeholder="Enter your coupon code">
-                        <button class="btn btn-success mt-2 w-50">Apply</button>
+                    <div class="mt-1">
+                        <input type="text" id="coupon-code" class="form-control" placeholder="Enter your coupon code">
+                        <button class="btn btn-success mt-2 btn-sm w-50" id="apply-coupon-btn">Apply</button>
                     </div>
-
+                    {{#if appliedCouponCode}}
+                    <div class="coupon-section text-center mt-3">
+                        <p>Coupon Applied: {{appliedCouponCode}}</p>
+                        <button class="btn btn-outline-danger btn-sm" id="remove-coupon-btn">Remove Coupon</button>
+                    </div>
+                    {{else}}
+                    <p class="text-center mt-2 text-danger">No coupon applied.</p>
+                    {{/if}}
                     <hr>
 
                     <div class="d-flex justify-content-between align-items-center">
@@ -170,55 +200,38 @@
                     </form>
 
                     <hr>
-
                 </div>
+
             </div>
         </div>
     </div>
     <div class="row">
         <h5 class="mb-4 mt-4">Available Coupons</h5>
-
+        {{#each coupons}}
         <div class="col-md-3">
             <div class="card border-warning mb-3">
                 <div class="card-body text-center">
-                    <h4 class="card-title text-warning">₹1000 OFF</h4>
-                    <p class="card-text">On all orders with a minimum order value of ₹5000</p>
-                    <button class="btn btn-outline-warning btn-sm">Apply Coupon</button>
+                    <h4 class="card-title text-warning">{{#if ( eq discountType
+                        'percentage')}}%{{else}}₹{{/if}}{{discountValue}} OFF</h4>
+                    <p class="card-text">{{description}}</p>
+                    <button class="btn btn-outline-warning btn-sm apply-coupon-btn" data-coupon-code="{{code}}">Coupon
+                        Code</button>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card border-success mb-3">
-                <div class="card-body text-center">
-                    <h4 class="card-title text-success">20% OFF</h4>
-                    <p class="card-text">Get 20% off on electronics. Minimum order ₹3000</p>
-                    <button class="btn btn-outline-success btn-sm">Apply Coupon</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-primary mb-3">
-                <div class="card-body text-center">
-                    <h4 class="card-title text-primary">Free Shipping</h4>
-                    <p class="card-text">Avail free shipping on all orders above ₹2000</p>
-                    <button class="btn btn-outline-primary btn-sm">Apply Coupon</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-danger mb-3">
-                <div class="card-body text-center">
-                    <h4 class="card-title text-danger">₹500 OFF</h4>
-                    <p class="card-text">Flat ₹500 off on your first order. No minimum purchase</p>
-                    <button class="btn btn-outline-danger btn-sm">Apply Coupon</button>
-                </div>
-            </div>
-        </div>
+        {{/each}}
     </div>
+</div>
 
+<div class="toast align-items-center text-white bg-danger border-0" id="errorToast" role="alert" aria-live="assertive"
+    aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1100; min-width: 250px;">
+    <div class="d-flex">
+        <div class="toast-body" id="toastBody">
+
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+            aria-label="Close"></button>
+    </div>
 </div>
 
 <script src="/javaScript/user/cart.js"></script>

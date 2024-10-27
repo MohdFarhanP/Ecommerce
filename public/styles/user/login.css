@@ -26,12 +26,8 @@ a {
     background-color: #1877f2; 
 }
 
-.btn-apple {
-    color: white;
-    background-color: #000000; 
-}
 
-.btn-google:hover, .btn-facebook:hover, .btn-apple:hover {
+.btn-google:hover, .btn-facebook:hover   {
     opacity: 0.9;
 }
 

@@ -29,5 +29,15 @@ router.get('/inventory', adminAuth.checkSession, adminController.inventory);
 router.post('/editInventory', adminAuth.checkSession, adminController.editInventory);
 router.post('/deleteInventory', adminAuth.checkSession, adminController.deleteInventory);
 router.post('/updateStock', adminAuth.checkSession, adminController.updateStock);
+router.get('/coupon',adminAuth.checkSession,adminController.coupon);
+router.post('/createCoupon',adminController.upload.none(),adminAuth.checkSession,adminController.createCoupon);
+router.post('/deleteCoupon/:id',adminAuth.checkSession,adminController.deleteCoupon);
+router.get('/offer',adminAuth.checkSession,adminController.offer);
+router.post('/createOffer',adminController.upload.none(),adminAuth.checkSession,adminController.createOffer);
+router.post('/editOffer',adminController.upload.none(),adminAuth.checkSession,adminController.editOffer);
+router.post('/deleteOffer',adminAuth.checkSession,adminController.deleteOffer)
+
+
+
 
 module.exports = router;

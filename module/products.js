@@ -2,8 +2,15 @@ const mongoose = require('mongoose');
 
 const productSchema = mongoose.Schema({
     productName:String,
-    productStock:Number,
+    productStock:{
+        type:Number,
+        default:0,
+    },
     productPrice:Number,
+    discountPrice:{
+        type:Number,
+        default:0,
+    },
     images:[String],
     isDeleted:{
         type:Boolean,
@@ -27,8 +34,11 @@ const productSchema = mongoose.Schema({
     },
     maxQtyPerPerson: {
         type: Number,
-        default:  function() {
-            return Math.min(Math.floor(this.productStock / 5), 10);
+        default: function() {
+            if (typeof this.productStock === 'number' && !isNaN(this.productStock)) {
+                return Math.min(Math.floor(this.productStock / 5), 10);
+            }
+            return 0;
         }
     },
     createdAt: {
@@ -47,6 +57,10 @@ const productSchema = mongoose.Schema({
         type: Number,
         default: 0,
     },
+    offersApplied: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Offer'
+    }],
 });
 
 module.exports = mongoose.model("Products",productSchema);

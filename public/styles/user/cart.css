@@ -61,3 +61,9 @@
 .custom-pagination{
   padding-left: 46.3rem;
 }
+
+/* toast error msg */
+#errorToast {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}

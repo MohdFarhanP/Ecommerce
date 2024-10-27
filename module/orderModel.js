@@ -22,7 +22,7 @@ const orderSchema = new mongoose.Schema({
 
     totalAmount: { type: Number, required: true },
 
-    paymentMethod: { type: String, enum: ['COD'], default: 'COD' }, 
+    paymentMethod: { type: String, enum: ['COD','Razorpay','Wallet'], default: 'COD' }, 
 
     paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Failed'], default: 'Pending' },
 

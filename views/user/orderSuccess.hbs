@@ -1,5 +1,5 @@
- <link rel="stylesheet" href="/styles/user/orderSuccess.css">
- <header>
+<link rel="stylesheet" href="/styles/user/orderSuccess.css">
+<header>
   <nav class="navbar navbar-expand-lg  shadow-navbar">
     <div class="container-fluid py-auto px-auto ">
       <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
@@ -20,7 +20,7 @@
                 aria-label="Search">
               <button class="btn btn-outline" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
-          </div>  
+          </div>
           <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
                 class="fa-regular fa-heart"></i></a></li>
           <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
@@ -32,41 +32,44 @@
     </div>
   </nav>
 </header>
- 
- 
- 
- <div class="container mt-5">
-        <div class="alert alert-success" role="alert">
-            <h4 class="alert-heading">Thank you for your order!</h4>
-            <p>Your order has been successfully placed with Cash on Delivery.</p>
-            <hr>
-            <p class="mb-0">Order ID: {{order._id}}</p>
-        </div>
 
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5>Order Details</h5>
-            </div>
-            <div class="card-body">
-                <p><strong>Order ID:</strong> {{order._id}}</p>
-                <p><strong>Total Amount:</strong> ₹{{order.totalAmount}}</p>
-                <p><strong>Delivery Address:</strong> {{order.shippingAddress.addressLine}},{{order.shippingAddress.city}},{{order.shippingAddress.city}}</p>
-                <p><strong>Estimated Delivery:</strong> 3-5 business days</p>
 
-                <hr>
-                <h6>Products Ordered:</h6>
-                <ul>
-                    {{#each order.products}}
-                    <li>
-                        {{this.productId.productName}} - Quantity: {{this.quantity}} - Price: ₹{{this.productId.productPrice}}
-                    </li>
-                    {{/each}}
-                </ul>
-            </div>
-        </div>
 
-        <div class="mt-4">
-            <a href="/ProductList" class="btn btn-outline-warning">Continue Shopping</a>
-            <a href="/orders" class="btn btn-outline-warning">See Orders</a>
-        </div>
+<div class="container mt-5">
+  <div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Thank you for your order!</h4>
+    <p>Your order has been successfully placed with {{#if (eq order.paymentMethod 'COD')}} Cash on Delivery {{else if
+      (eq order.paymentMethod 'Razorpay')}} Razorpay {{else}} Wallet {{/if}}.</p>
+    <hr>
+    <p class="mb-0">Order ID: {{order._id}}</p>
+  </div>
+
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5>Order Details</h5>
     </div>
+    <div class="card-body">
+      <p><strong>Order ID:</strong> {{order._id}}</p>
+      <p><strong>Total Amount:</strong> ₹{{order.totalAmount}}</p>
+      <p><strong>Delivery Address:</strong>
+        {{order.shippingAddress.addressLine}},{{order.shippingAddress.city}},{{order.shippingAddress.city}}</p>
+      <p><strong>Estimated Delivery:</strong> 3-5 business days</p>
+
+      <hr>
+      <h6>Products Ordered:</h6>
+      <ul>
+        {{#each order.products}}
+        <li>
+          {{this.productId.productName}} - Quantity: {{this.quantity}} - Price: ₹{{#if
+          this.productId.discountPrice}}{{this.productId.discountPrice}}{{else}}{{this.productId.productPrice}}{{/if}}
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <a href="/ProductList" class="btn btn-outline-warning">Continue Shopping</a>
+    <a href="/orders" class="btn btn-outline-warning">See Orders</a>
+  </div>
+</div>

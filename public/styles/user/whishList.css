@@ -10,3 +10,21 @@
 .mbtn{
     margin-top: .9rem;   
 }
+.card {
+    width: 100%; /* Make sure it fits within its column */
+    max-width: 25rem; /* Set a maximum width for the card */
+    height: 21rem; /* Set a fixed height for the card */
+}
+
+.card-img-top {
+    height: 10rem; /* Set a fixed height for the image */
+    object-fit: contain; /* Ensure the image covers the area without distortion */
+}
+
+.card-body {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Space elements evenly */
+
+}

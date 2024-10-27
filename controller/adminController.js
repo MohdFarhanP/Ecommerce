@@ -9,6 +9,10 @@ const sharp = require('sharp');
 const path = require('path');
 const Order = require('../module/orderModel')
 const fs = require('fs');
+const Coupon = require('../module/coupenModel');
+const { log } = require('console');
+const Offer = require('../module/offerModel');
+const { body, validationResult } = require('express-validator');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -132,7 +136,7 @@ const editCategory = async (req, res) => {
         if (!brandName || !displayType || !bandColor) {
             return res.json({ error: 'All fields are required' });
         }
-        const existingCategory = await Category.findOne({ brandName, _id: { $ne: id } });
+        const existingCategory = await Category.findOne({_id:id});
         if (existingCategory) {
 
             return res.json({ error: 'Brand name already exists. Please choose a different one.' });
@@ -191,6 +195,7 @@ const addProduct = async (req, res) => {
 
     // Validate required fields
     const { productName, productStock, productPrice, description, category, highlights } = req.body;
+    console.log(req.file)
 
     if (!productName) errors.push("Product name is required.");
     if (!productStock) errors.push("Product stock is required.");
@@ -423,16 +428,16 @@ const inventory = async (req, res) => {
     const limit = 7;
 
     try {
-        const totalProducts =  await Products.countDocuments();
+        const totalProducts = await Products.countDocuments();
         const products = await Products.find({ isDeleted: false })
-        .skip((page -1) * limit)
-        .limit(limit)
-        .exec();
-        
-        const totalPages = Math.ceil(totalProducts / limit) 
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .exec();
 
-        res.render('admin/inventory', { 
-            products ,
+        const totalPages = Math.ceil(totalProducts / limit)
+
+        res.render('admin/inventory', {
+            products,
             currentPage: page,
             totalPages,
         });
@@ -471,6 +476,251 @@ const updateStock = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+const coupon = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+
+        const totalCoupons = await Coupon.countDocuments();
+
+        const Coupons = await Coupon.find()
+            .populate('applicableProducts', 'productName')
+            .populate('applicableCategories', 'brandName')
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalCoupons / limit);
+
+        const products = await Products.find({ isDeleted: false });
+        const categories = await Category.find({ isDelete: false });
+
+        res.render('admin/coupon', {
+            Coupons,
+            products,
+            categories,
+            currentPage: page,
+            totalPages
+        });
+    } catch (error) {
+        console.log('Error:', error);
+    }
+};
+const createCoupon = async (req, res) => {
+    const { code, discountType, discountValue, minimumCartValue, usageLimit, expiryDate, description } = req.body;
+    const products = req.body.products || [];
+    const categories = req.body.categories || [];
+    console.log(req.body)
+
+    try {
+
+        const existingCoupon = await Coupon.findOne({ code });
+        if (existingCoupon) {
+            return res.status(400).json({ success: false, message: `Coupon code '${code}' already exists.` });
+        }
+        const applicableProducts = products.length === 0 ? [] : products;
+        const applicableCategories = categories.length === 0 ? [] : categories;
+
+        const newCoupon = new Coupon({
+            code,
+            discountType,
+            discountValue,
+            minimumCartValue,
+            usageLimit,
+            expiryDate,
+            description,
+            applicableProducts,
+            applicableCategories
+        });
+
+        await newCoupon.save();
+
+        return res.json({ success: true, message: 'Coupon created successfully' });
+
+    } catch (error) {
+        console.error("Creating error: ", error.message);
+        return res.status(500).json({ success: false, message: 'An error occurred while creating the coupon. Please try again later.' });
+    }
+};
+const deleteCoupon = async (req, res) => {
+    const couponId = req.params.id;
+    try {
+        await Coupon.findByIdAndDelete(couponId);
+        console.log('deleted');
+        res.redirect('/coupon')
+    } catch (err) {
+        console.log('deleting error : ', err)
+    }
+};
+const offer = async (req, res) => {
+    try {
+        const offers = await Offer.find()
+            .populate('applicableProducts', 'productName')
+            .populate('applicableCategories', 'brandName');
+
+        const products = await Products.find({ isDeleted: false });
+        const categories = await Category.find({ isDelete: false });
+
+        res.render('admin/offer', { offers, products, categories });
+
+    } catch (error) {
+        console.error('Error fetching offers:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+const createOffer = async (req, res) => {
+    const { discountType, discountValue, applicableProducts, applicableCategories, expirationDate, isActive, description } = req.body;
+
+    if (!discountType || !discountValue || !expirationDate || !description) {
+        return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+
+    // Ensure discountValue is a number
+    const numericDiscountValue = Number(discountValue);
+    if (isNaN(numericDiscountValue)) {
+        return res.status(400).json({ message: 'Invalid discount value' });
+    }
+
+    try {
+        const offer = new Offer({
+            discountType,
+            discountValue: numericDiscountValue,
+            description,
+            applicableProducts: applicableProducts || [],
+            applicableCategories: applicableCategories || [],
+            expirationDate,
+            isActive: isActive === 'on'
+        });
+
+        await offer.save();
+
+        // Find and update discountPrice for applicable products
+        let productsToUpdate = [];
+
+        if (applicableProducts && applicableProducts.length > 0) {
+            productsToUpdate = await Products.find({ _id: { $in: applicableProducts } });
+        }
+
+        if (applicableCategories && applicableCategories.length > 0) {
+            const productsInCategory = await Products.find({ category: { $in: applicableCategories } });
+            productsToUpdate.push(...productsInCategory);
+        }
+
+        for (const product of productsToUpdate) {
+            let discountPrice;
+
+            // Ensure product.price is a number
+            const productPrice = Number(product.productPrice);
+            if (isNaN(productPrice)) {
+                console.error(`Product ID ${product._id} has an invalid price: ${product.productPrice}`);
+                continue; // Skip this product
+            }
+
+            // Calculate discountPrice based on discountType
+            if (discountType === 'percentage') {
+                discountPrice = productPrice - (productPrice * (numericDiscountValue / 100));
+            } else if (discountType === 'fixed') {
+                discountPrice = productPrice - numericDiscountValue;
+            } else {
+                console.error(`Invalid discount type for product ID ${product._id}`);
+                continue; // Skip this product
+            }
+
+            // Ensure discountPrice doesn't go negative
+            discountPrice = Math.max(discountPrice, 0);
+
+            console.log(`Updated discount price for product ID: ${product._id} to ${discountPrice}`);
+
+            // Update the product with the new discountPrice
+            await Products.updateOne(
+                { _id: product._id },
+                {
+                    $set: { discountPrice, },
+                    $addToSet: { offersApplied: offer._id },
+                },
+                { upsert: true } 
+            );
+
+        }
+
+        res.status(201).json({ message: 'Offer created successfully', offer });
+    } catch (error) {
+        console.error('Error creating offer:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+const editOffer = async (req, res) => {
+    try {
+        const { offerId, discountType, discountValue, expirationDate, isActive, description } = req.body;
+
+        let offer = await Offer.findById(offerId);
+
+        if (!offer) {
+            return res.status(404).json({ success: false, message: 'Offer not found' });
+        }
+
+        // Update the offer fields
+        offer.discountType = discountType;
+        offer.discountValue = discountValue;
+        offer.expirationDate = expirationDate;
+        offer.description = description;
+        offer.isActive = isActive === 'true';
+
+        await offer.save();
+
+        // Find all products linked to this offer
+        const productsToUpdate = await Products.find({ offersApplied: offerId });
+
+        for (const product of productsToUpdate) {
+            let discountPrice = product.price; // Default to the original price
+
+            if (offer.isActive) {
+                if (discountType === 'percentage') {
+                    discountPrice = product.price - (product.price * (discountValue / 100));
+                } else if (discountType === 'fixed') {
+                    discountPrice = product.price - discountValue;
+                }
+
+                discountPrice = Math.max(discountPrice, 0); // Ensure price doesn't go negative
+            }
+
+            await Products.updateOne(
+                { _id: product._id },
+                {
+                    $set: { discountPrice: offer.isActive ? discountPrice : null }
+                }
+            );
+        }
+
+        res.status(200).json({ success: true, message: 'Offer updated successfully' });
+    } catch (error) {
+        console.error('Error updating offer:', error);
+        res.status(500).json({ success: false, message: 'Server error, please try again later' });
+    }
+};
+const deleteOffer = async (req, res) => {
+    try {
+        const { offerId } = req.body;
+
+        // Delete the offer
+        const deletedOffer = await Offer.findByIdAndDelete(offerId);
+        if (!deletedOffer) {
+            return res.status(404).json({ message: 'Offer not found' });
+        }
+
+        // Remove the offerId from the offersApplied field of products
+        await Products.updateMany(
+            { offersApplied: offerId },
+            { $pull: { offersApplied: offerId } }
+        );
+
+        res.redirect('/offer');
+    } catch (err) {
+        console.error('Error deleting offer:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     loadLogin,
     loginBtn,
@@ -496,5 +746,14 @@ module.exports = {
     deleteInventory,
     updateStock,
     activeProduct,
+    coupon,
+    createCoupon,
+    deleteCoupon,
+    offer,
+    createOffer,
+    editOffer,
+    deleteOffer,
+
+
 
 }

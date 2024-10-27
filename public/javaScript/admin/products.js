@@ -2,7 +2,7 @@ let cropper;
 let currentReplaceInput = null; // To track which image is being replaced
 
 // Function to show the product details in the modal for editing
-function showEditProduct(productName, productStock, productPrice, description, id, category, highlights, images) {
+function showEditProduct(productName, productStock, productPrice, description, id, category, highlights, images) {0.
     // Populate basic fields
     document.getElementById("productName").value = productName;
     document.getElementById("productStock").value = productStock;
@@ -25,6 +25,8 @@ function showEditProduct(productName, productStock, productPrice, description, i
     document.getElementById("highlightWarranty").value = highlights.warranty;
 
     // Display existing images and add replace functionality
+    console.log(images);
+    
     const imagePreview = document.querySelector(".product-images");
     imagePreview.innerHTML = "";  // Clear current images
 
