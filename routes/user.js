@@ -41,13 +41,13 @@ router.get('/orderDetails/:orderId/:productId',userAuth.checkSession,userControl
 router.post('/placeOrder',userAuth.checkSession,userController.placeOrder);
 router.get('/orderSuccess/:orderId',userAuth.checkSession,userController.orderSuccess)
 router.post('/cancelProduct',userAuth.checkSession,userController.cancelProduct);
-
+router.post('/returnProduct',userAuth.checkSession,userController.returnProduct);
 // Shopping and checkout (session required)
 router.get('/cart', userAuth.checkSession, userController.cart);
 router.post('/addToCart',userAuth.checkSession,userController.addToCart);
 router.post('/removeCartItem/:id',userAuth.checkSession,userController.removeCartItem);
 router.post('/updateCartQuantity',userAuth.checkSession,userController.updateCartQuantity)
-router.post('/checkoutbtn',userAuth.checkSession,userController.checkoutbtn)
+router.post('/checkoutbtn',userAuth.checkSession,userController.checkoutbtn);
 router.get('/checkout', userAuth.checkSession, userController.checkout);
 router.get("/whishList",userAuth.checkSession,userController.whishlist);
 router.post("/wishlistAdd", userAuth.checkSession, userController.addWishlist);
@@ -56,7 +56,7 @@ router.post("/applyCoupon",userAuth.checkSession,userController.couponApply);
 router.post('/removeCoupon',userAuth.checkSession,userController.removeCoupon);
 router.post('/create-razorpay-order',userAuth.checkSession,userController.createRazorpayOrder);
 router.post('/verify-razorpay-payment',userAuth.checkSession,userController.verifyRazorpayPayment);
-router.get('/wallet',userAuth.checkSession,userController.walletpage)
+router.get('/wallet',userAuth.checkSession,userController.walletpage);
 
 // Blocked page for users who are blocked
 router.get('/blocked', userController.blocked);

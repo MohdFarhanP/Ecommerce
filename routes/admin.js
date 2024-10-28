@@ -35,9 +35,9 @@ router.post('/deleteCoupon/:id',adminAuth.checkSession,adminController.deleteCou
 router.get('/offer',adminAuth.checkSession,adminController.offer);
 router.post('/createOffer',adminController.upload.none(),adminAuth.checkSession,adminController.createOffer);
 router.post('/editOffer',adminController.upload.none(),adminAuth.checkSession,adminController.editOffer);
-router.post('/deleteOffer',adminAuth.checkSession,adminController.deleteOffer)
-
-
-
+router.post('/deleteOffer',adminAuth.checkSession,adminController.deleteOffer);
+router.get('/salesReport',adminController.salesReport);
+router.get('/salesReport/download/pdf',adminAuth.checkSession,adminController.downloadSalesReportPdf);
+router.get('/salesReport/download/excel',adminAuth.checkSession,adminAuth.checkSession,adminController.downloadSalesReportExcel);
 
 module.exports = router;

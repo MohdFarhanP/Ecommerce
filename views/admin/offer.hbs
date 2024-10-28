@@ -16,7 +16,7 @@
                 <a href="/inventory" class="btn mbtn btn-outline-warning mb-2 ">INVENTORY</a>
                 <a href="/coupon" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
                 <a href="/offer" class="btn mbtn btn-outline-warning mb-2  active">OFFERS</a>
-                <a href="#" class="btn mbtn btn-outline-warning mb-2">SALES</a>
+                <a href="/salesReport" class="btn mbtn btn-outline-warning mb-2">SALES</a>
                 <form action="/logout" method="post" class="text-center">
                     <button class="mt-3 btn btn-outline-warning"> Logout</button>
                 </form>
@@ -73,11 +73,11 @@
                                 <tr>
                                     <td>{{this.discountType}}</td>
                                     <td>
-                                        {{#ifEquals this.discountType 'percentage'}}
+                                        {{#if (eq this.discountType 'percentage')}}
                                         {{this.discountValue}}%
                                         {{else}}
                                         ₹{{this.discountValue}}
-                                        {{/ifEquals}}
+                                        {{/if}}
                                     </td>
                                     <td>{{this.description}}</td>
                                     <td>

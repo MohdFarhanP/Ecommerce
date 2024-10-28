@@ -66,7 +66,7 @@ app.engine('hbs', exphbs.engine({
         sub: (a, b) => a - b,
         formatDate: (date, formatString) => {
             if (!(date instanceof Date) || isNaN(date)) {
-                return 'Invalid Date'; // Fallback if date is invalid
+                return 'Invalid Date'; 
             }
             return format(new Date(date), formatString);
          },
@@ -80,10 +80,10 @@ app.engine('hbs', exphbs.engine({
         isEmpty: (array) => {
             return array.length === 0;
         },
-        ifEquals: function(arg1, arg2, options) {
-            return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
-        },
-    }
+        or:(a, b) => {
+            return a || b;
+        }
+    },
 }));
 
 app.use((req, res, next) => {

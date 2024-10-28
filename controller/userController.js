@@ -697,11 +697,11 @@ const cancelProduct = async (req, res) => {
             return res.status(400).send('Product is already canceled');
         }
 
-        await Order.updateOne(
-            { _id: orderId, "products.productId": productId },
+        const uptOrder = await Order.updateOne(
+            { _id: orderId, "products.productId": productId, 'products.status': { $in: ['Pending', 'Confirmed'] } },
             { $set: { "products.$.status": 'Cancelled' } }
         );
-
+       
         await Products.updateOne(
             { _id: productId },
             { $inc: { productStock: productToCancel.quantity } }
@@ -742,10 +742,29 @@ const cancelProduct = async (req, res) => {
         res.status(500).send('Error canceling product');
     }
 };
+const returnProduct = async (req, res) => {
+    const { orderId, productId } = req.body;
+
+    try {
+        const updatedOrder = await Order.updateOne(
+            { _id: orderId, 'products.productId': productId, 'products.status': 'Delivered' },
+            { $set: { 'products.$.status': 'Returned' } }
+        );
+
+        if (updatedOrder.modifiedCount > 0) {
+            res.redirect('/orders');
+        } else {
+            res.status(400).send('Return not allowed before delivery.');
+        }
+    } catch (error) {
+        console.error('Error returning product:', error);
+        res.status(500).send('Could not return the product');
+    }
+};
 const placeOrder = async (req, res) => {
 
     const userId = req.session.userId;
-    const { shippingAddress, products, totalAmount, paymentMethod } = req.body;
+    const { shippingAddressId, products, totalAmount, paymentMethod, discount, couponCode, couponDiscount } = req.body;
 
     try {
         if (paymentMethod === 'Wallet') {
@@ -756,28 +775,42 @@ const placeOrder = async (req, res) => {
 
                 user.walletBalance -= totalAmount;
                 await user.save();
+                const shippingAddress = await Address.findById(shippingAddressId);
 
                 const newOrder = new Order({
                     userId,
                     products,
-                    shippingAddress,
+                    shippingAddress: {
+                        firstName: shippingAddress.firstName,
+                        lastName: shippingAddress.lastName,
+                        email: shippingAddress.email,
+                        mobile: shippingAddress.mobile,
+                        addressLine: shippingAddress.addressLine,
+                        city: shippingAddress.city,
+                        pinCode: shippingAddress.pinCode,
+                        country: shippingAddress.country,
+                    },
                     totalAmount,
                     paymentMethod,
                     paymentStatus: 'Paid',
                     status: 'Confirmed',
-                    deliveryDate: new Date(new Date().setDate(new Date().getDate() + 5))
+                    deliveryDate: new Date(new Date().setDate(new Date().getDate() + 5)),
+                    discount,
+                    couponCode,
+                    couponDiscount
                 });
 
                 await newOrder.save();
 
                 await WalletTransaction.create({
                     userId: userId,
-                    amount: orderTotal,
+                    amount: totalAmount,
                     transactionType: 'Debit',
                     description: `Payment for order ${newOrder.products}`
                 });
 
                 await Cart.findOneAndDelete({ user: userId });
+                delete req.session.appliedCouponCode;
 
                 res.redirect(`/orderSuccess/${newOrder._id}`);
 
@@ -791,20 +824,34 @@ const placeOrder = async (req, res) => {
             const deliveryDate = new Date();
             deliveryDate.setDate(deliveryDate.getDate() + randomDays);
 
+            const shippingAddress = await Address.findById(shippingAddressId);
+
             const newOrder = new Order({
                 userId,
                 products,
-                shippingAddress,
+                shippingAddress:{
+                    firstName: shippingAddress.firstName,
+                    lastName: shippingAddress.lastName,
+                    email: shippingAddress.email,
+                    mobile: shippingAddress.mobile,
+                    addressLine: shippingAddress.addressLine,
+                    city: shippingAddress.city,
+                    pinCode: shippingAddress.pinCode,
+                    country: shippingAddress.country,
+                },
                 totalAmount,
                 paymentMethod: paymentMethod || "COD",
                 paymentStatus: 'Pending',
                 status: 'Confirmed',
-                deliveryDate
+                deliveryDate,
+                discount,
+                couponCode,
+                couponDiscount
             });
             await newOrder.save();
 
             await Cart.findOneAndDelete({ user: userId });
-
+            delete req.session.appliedCouponCode;
             res.redirect(`/orderSuccess/${newOrder._id}`);
         }
     } catch (err) {
@@ -831,24 +878,38 @@ const createRazorpayOrder = async (req, res) => {
 const verifyRazorpayPayment = async (req, res) => {
     const userId = req.session.userId;
     try {
-        const { order_id, payment_id, signature, shippingAddress, paymentMethod, totalAmount, products } = req.body;
+        const { order_id, payment_id, signature, shippingAddressId, paymentMethod, totalAmount, products, couponCode, couponDiscount, discount } = req.body;
 
         const crypto = require('crypto');
         const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
             .update(order_id + "|" + payment_id)
             .digest('hex');
-
+           
+            const shippingAddress = await Address.findById(shippingAddressId);
+            
         if (generatedSignature === signature) {
             // Payment is verified, save the order
             const newOrder = new Order({
                 userId: req.session.userId,
                 products: products,
-                shippingAddress,
+                shippingAddress:{
+                    firstName: shippingAddress.firstName,
+                    lastName: shippingAddress.lastName,
+                    email: shippingAddress.email,
+                    mobile: shippingAddress.mobile,
+                    addressLine: shippingAddress.addressLine,
+                    city: shippingAddress.city,
+                    pinCode: shippingAddress.pinCode,
+                    country: shippingAddress.country,
+                },
                 totalAmount,
                 paymentMethod,
                 paymentStatus: 'Paid',
                 status: 'Confirmed',
-                deliveryDate: new Date(new Date().setDate(new Date().getDate() + 5))
+                deliveryDate: new Date(new Date().setDate(new Date().getDate() + 5)),
+                couponCode,
+                couponDiscount,
+                discount
             });
 
             await newOrder.save();
@@ -857,6 +918,8 @@ const verifyRazorpayPayment = async (req, res) => {
             await Cart.findOneAndDelete({ user: userId });
             console.log("cart item deleted ");
 
+            delete req.session.appliedCouponCode;
+            
             res.json({ success: true, orderId: newOrder._id });
         } else {
             res.json({ success: false, message: "Payment verification failed" });
@@ -906,13 +969,12 @@ const cart = async (req, res) => {
                 product: item.product,
                 quantity: item.quantity,
                 itemTotal,
-                price, // Include price for display
+                price,
             };
         });
 
         const totalPrice = paginatedItems.reduce((acc, item) => acc + item.itemTotal, 0);
 
-        // If a coupon or discount is applied, it will adjust the final total
         const grandTotal = req.session.discountedTotal || totalPrice;
 
         const coupons = await Coupon.find({
@@ -1131,11 +1193,11 @@ const checkout = async (req, res) => {
             const coupon = await Coupon.findOne({ code: appliedCouponCode });
 
             if (coupon) {
-                // Calculate the discount amount based on the discount type
+
                 if (coupon.discountType === 'percentage') {
-                    discountAmount = (subTotal * coupon.discountValue) / 100; // e.g., if discountValue is 10, it gives 10% discount
+                    discountAmount = (subTotal * coupon.discountValue) / 100;
                 } else if (coupon.discountType === 'fixed') {
-                    discountAmount = coupon.discountValue; // e.g., if discountValue is 50, it gives ₹50 off
+                    discountAmount = coupon.discountValue;
                 }
             }
         }
@@ -1253,7 +1315,7 @@ const removeWishlist = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Product ID is required' });
         }
 
-        const wishlist = await Wishlist.findOne({ user: userId });
+        const wishlist = await Wishlist.findOne({ userId: userId });
 
         if (!wishlist) {
             return res.status(400).json({ success: false, message: 'Wishlist not found' });
@@ -1454,5 +1516,6 @@ module.exports = {
     removeCoupon,
     createRazorpayOrder,
     verifyRazorpayPayment,
-    walletpage
+    walletpage,
+    returnProduct
 }

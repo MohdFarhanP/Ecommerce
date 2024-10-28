@@ -11,13 +11,18 @@ const orderSchema = new mongoose.Schema({
             productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Products', required: true },
             quantity: { type: Number, required: true },
             price: { type: Number, required: true },
-            status: { type: String, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'], default: 'Pending' }
+            status: { type: String, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Returned', 'Cancelled'], default: 'Pending' }
         }
     ],
     shippingAddress: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Address',
-        required: true
+        firstName: { type: String, required: true },
+        lastName: { type: String, required: true },
+        email: { type: String, required: true },
+        mobile: { type: String, required: true },
+        addressLine: { type: String, required: true },
+        city: { type: String, required: true },
+        pinCode: { type: String, required: true },
+        country: { type: String, required: true },
     },
 
     totalAmount: { type: Number, required: true },
@@ -30,7 +35,13 @@ const orderSchema = new mongoose.Schema({
 
     deliveryDate: { type: Date },
 
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+
+    discount: { type: Number, default: 0 },
+    
+    couponCode: { type: String },
+    
+    couponDiscount: { type: Number, default: 0 }
 });
     
 module.exports = mongoose.model('Order', orderSchema);

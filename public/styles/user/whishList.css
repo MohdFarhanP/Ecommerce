@@ -13,7 +13,7 @@
 .card {
     width: 100%; /* Make sure it fits within its column */
     max-width: 25rem; /* Set a maximum width for the card */
-    height: 21rem; /* Set a fixed height for the card */
+    height: 22rem; /* Set a fixed height for the card */
 }
 
 .card-img-top {

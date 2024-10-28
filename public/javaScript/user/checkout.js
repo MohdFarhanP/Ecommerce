@@ -1,5 +1,5 @@
-let phone 
- 
+let phone
+
 function getProductsFromDOM() {
     const products = [];
     document.querySelectorAll('[name^="products"]').forEach((input) => {
@@ -14,14 +14,14 @@ function getProductsFromDOM() {
     return products;
 }
 
-        
+
 // selecting the defult address 
 
 function selectCard(selectedCard) {
     const cards = document.querySelectorAll('.address-card');
     cards.forEach(card => card.classList.remove('selected'));
     selectedCard.classList.add('selected');
-// get addressId and phone number
+    // get addressId and phone number
     const addressId = selectedCard.getAttribute('data-address-id');
     document.getElementById('selectedAddress').value = addressId;
     const phoneNumber = selectedCard.getAttribute('data-phone');
@@ -50,18 +50,22 @@ function populateEditModal(id, firstName, lastName, email, mobile, addressLine, 
 }
 
 
-document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
-    e.preventDefault(); 
+document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-        const selectedAddress = document.getElementById('selectedAddress').value;
-        if (!selectedAddress) {
-            alert('Please select a shipping address.'); 
-            return; 
-        }
-        
-        const userEmail = document.getElementById('userEmail').value;
-        const razorpayKey = document.getElementById('razorpayKey').value;
-        const products = getProductsFromDOM();
+    const selectedAddressId = document.getElementById('selectedAddress').value;
+    if (!selectedAddressId) {
+        alert('Please select a shipping address.');
+        return;
+    }
+
+    const userEmail = document.getElementById('userEmail').value;
+    const razorpayKey = document.getElementById('razorpayKey').value;
+    const products = getProductsFromDOM();
+    const couponCode = document.getElementById('couponCode')?.value || null;
+    const couponDiscount = parseFloat(document.getElementById('couponDiscount')?.value) || 0;
+    const discount = parseFloat(document.getElementById('discount')?.value) || 0;
+
 
     const selectedPayment = document.querySelector('input[name="paymentOption"]:checked').value;
     document.getElementById('selectedPaymentMethod').value = selectedPayment;
@@ -70,7 +74,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
         // Call backend to create a Razorpay order
         const totalAmount = document.querySelector('input[name="totalAmount"]').value;
         console.log(totalAmount);
-        
+
         const response = await fetch('/create-razorpay-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -78,7 +82,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
         });
 
         const orderData = await response.json();
-        
+
         if (orderData.success) {
             // Initialize Razorpay payment
             const options = {
@@ -86,9 +90,9 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
                 amount: orderData.order.amount,
                 currency: "INR",
                 order_id: orderData.order.id,
-                handler: function(response) {
+                handler: function (response) {
                     // Pass Razorpay response to backend for verification
-                    verifyRazorpayPayment(response, selectedAddress, selectedPayment, totalAmount, products);
+                    verifyRazorpayPayment(response, selectedAddressId, selectedPayment, totalAmount, products, couponCode, couponDiscount, discount);
                 },
                 prefill: {
                     email: userEmail,
@@ -106,15 +110,19 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
     }
 });
 
-async function verifyRazorpayPayment(response, selectedAddress, paymentMethod, totalAmount, products) {
+async function verifyRazorpayPayment(response, shippingAddressId, paymentMethod, totalAmount, products, couponCode, couponDiscount, discount) {
     const verificationData = {
         order_id: response.razorpay_order_id,
         payment_id: response.razorpay_payment_id,
         signature: response.razorpay_signature,
-        shippingAddress: selectedAddress,
+        selectedAddressId: shippingAddressId,
         paymentMethod: paymentMethod,
         totalAmount: totalAmount,
         products: products,
+        couponCode: couponCode,
+        couponDiscount: couponDiscount,
+        discount: discount
+
     };
 
     const verificationResponse = await fetch('/verify-razorpay-payment', {
@@ -127,7 +135,7 @@ async function verifyRazorpayPayment(response, selectedAddress, paymentMethod, t
     if (verificationResult.success) {
         window.location.href = `/orderSuccess/${verificationResult.orderId}`;
     } else {
-        if(!verificationResult.success)
-        alert(verificationResult.message);
+        if (!verificationResult.success)
+            alert(verificationResult.message);
     }
 }

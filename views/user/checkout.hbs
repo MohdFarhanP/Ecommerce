@@ -281,11 +281,20 @@
                     <hr>
                     <form action="/placeOrder" id="checkoutForm" method="post">
                         <input type="hidden" name="totalAmount" id="totalAmount" value="{{grandTotal}}">
-                        <input type="hidden" id="selectedAddress" name="shippingAddress" value="">
+                        <input type="hidden" id="selectedAddress" name="shippingAddressId" value="">
                         {{#each cartItems}}
                         <input type="hidden" name="products[{{@index}}][productId]" value="{{this.product._id}}">
                         <input type="hidden" name="products[{{@index}}][quantity]" value="{{this.quantity}}">
                         <input type="hidden" name="products[{{@index}}][price]" value="{{this.itemTotal}}">
+                        {{/each}}
+                        {{#if appliedCouponCode }}
+                        <input type="hidden" id="couponCode" name="couponCode" value="{{appliedCouponCode}}">
+                        <input type="hidden" id="couponDiscount" name="couponDiscount" value="{{discountAmount}}">
+                        {{/if}}
+                        {{#each cartItems}}
+                        {{#if this.product.discountPrice}}
+                        <input type="hidden" name="discount" id="discount" value="{{this.product.discountPrice}}">
+                        {{/if}}
                         {{/each}}
                         <input type="hidden" id="razorpayKey" name="razorpayKey" value="{{razorpayKey}}">
                         <input type="hidden" id="userEmail" name="emil" value="{{userEmail}}">

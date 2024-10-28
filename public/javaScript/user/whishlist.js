@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log(`Found ${wishlistForms.length} wishlist forms.`);
         wishlistForms.forEach(function (form) {
             form.addEventListener('submit', function (e) {
-                e.preventDefault(); // Prevent the default form submission
+                e.preventDefault(); 
                 console.log('Remove Wishlist Form submitted.');
 
                 const productId = form.querySelector('input[name="productId"]').value;
@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function removeFromWishlist(productId) {
+    console.log('removewhislistfun:',productId)
     fetch('/wishlistRemove', {
         method: 'POST',
         headers: {
@@ -32,13 +33,13 @@ function removeFromWishlist(productId) {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                throw new Error(`HTTP error! Status: ${response.status}, ${response.message}`);
             }
             return response.json();
         })
         .then(data => {
             if (data.success) {
-                console.log('Product removed from wishlist successfully!');
+            
                 showToast('Success', data.message);
 
                 const productElement = document.querySelector(`#wishlist-item-${productId}`);
@@ -47,13 +48,8 @@ function removeFromWishlist(productId) {
                 }
 
                 const remainingItem = document.querySelectorAll('.wishlistItem');
-                if (remainingItem.length === 0) {
-                    document.querySelectorAll('.formContainer').innerHTML =
-                        `
-                <div class="d-flex justify-content-center align-items-center mt-5  display-6">
-                    <p>Your wishlist is empty</p>
-                </div>
-            `;
+                if (remainingItem.length == 0) {
+                    location.reload()
                 }
 
             } else {

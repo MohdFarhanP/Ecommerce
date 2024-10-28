@@ -16,7 +16,10 @@
                 <a href="/inventory" class="btn mbtn btn-outline-warning mb-2">INVENTORY</a>
                 <a href="/coupon" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
                 <a href="/offer" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
-                <a href="#" class="btn mbtn btn-outline-warning mb-2">SALES</a>
+                <a href="/salesReport" class="btn mbtn btn-outline-warning mb-2">SALES</a>
+                <form action="/logout" method="post" class="text-center">
+                    <button class="mt-3 btn btn-outline-warning"> Logout</button>
+                </form>
             </nav>
         </div>
 
@@ -389,14 +392,14 @@
 
         <!-- Cropper Modal -->
         <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <img id="imageToCrop" style="max-width: 100%;" />
+                        <img id="imageToCrop" />
                     </div>
                     <div class="modal-footer">
                         <button id="cropImage" type="button" class="btn btn-primary">Crop</button>

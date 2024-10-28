@@ -1,0 +1,159 @@
+<link rel="stylesheet" href="/styles/admin/sales.css">
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2">
+            <div class="container-fluid m-3">
+                <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
+            </div>
+            <nav class="nav flex-column mt-5">
+                <a href="#" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
+                <a href="/users" class="btn mbtn btn-outline-warning mb-2">USERS</a>
+                <a href="/products" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
+                <a href="/category" class="btn mbtn btn-outline-warning mb-2">CATEGORIES</a>
+                <a href="/ordersList" class="btn mbtn btn-outline-warning mb-2">ORDERS</a>
+                <a href="/inventory" class="btn mbtn btn-outline-warning mb-2">INVENTORY</a>
+                <a href="/coupon" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
+                <a href="/offer" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
+                <a href="/salesReport" class="btn mbtn btn-outline-warning mb-2 active">SALES</a>
+                <form action="/logout" method="post" class="text-center">
+                    <button class="mt-3 btn btn-outline-warning"> Logout</button>
+                </form>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10">
+            <!-- Header -->
+            <div class="row dashboard-header mt-5 mb-4">
+                <div class="col-md-12">
+                    <h1 class="text-center">Sales Management</h1>
+                </div>
+            </div>
+
+            <!-- Search and Dropdown -->
+            <div class="row mt-4 align-text-top">
+                <div class="col-md-4 ">
+                    <label for="serch" class="form-label">Search</label>
+                    <input type="text" class="form-control" id="searchUser" placeholder="Search for users...">
+                </div>
+                <div class="col-md-8">
+                    <form id="sales-filter-form" method="get" action="/salesReport" class="mb-4">
+                        <div class="row align-items-end">
+                            <div class="col-md-4">
+                                <label for="filterType" class="form-label">Filter By</label>
+                                <select name="filterType" id="filterType" class="form-select"
+                                    onchange="toggleDateFields()">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 custom-date-range" id="custom-date-range-start" style="display: none;">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date" name="startDate" id="startDate" class="form-control">
+                            </div>
+
+                            <div class="col-md-4 custom-date-range" id="custom-date-range-end" style="display: none;">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date" name="endDate" id="endDate" class="form-control">
+                            </div>
+
+                            <div class="col-md-4 mt-3">
+                                <button type="submit" class="btn btn-outline-warning">Generate Report</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a href="/salesReport/download/pdf" class="btn btn-danger me-2">Download PDF</a>
+                    <a href="/salesReport/download/excel" class="btn btn-success">Download Excel</a>
+                </div>
+            </div>
+
+
+
+
+            <!-- Table -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Total Sales</th>
+                                    <th>Order Count</th>
+                                    <th>Total Discount</th>
+                                    <th>Coupon Discount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#if salesReport}}
+                                {{#each salesReport}}
+                                <tr>
+                                    <td>₹{{totalSales}}</td>
+                                    <td>{{orderCount}}</td>
+                                    <td>₹{{totalDiscount}}</td>
+                                    <td>₹{{totalCouponDiscount}}</td>
+                                </tr>
+                                {{/each }}
+                                {{else}}
+                                <tr>
+                                    <td colspan="4" class="text-center">No data available for the selected range</td>
+                                </tr>
+                                {{/if}}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center pages custom-pagination">
+                            {{#if (gt currentPage 1)}}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{sub currentPage 1}}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {{/if}}
+
+                            {{#each (range 1 totalPages)}}
+                            <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                                <a class="page-link" href="?page={{this}}">{{this}}</a>
+                            </li>
+                            {{/each}}
+
+                            {{#if (lt currentPage totalPages)}}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{add currentPage 1}}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            {{/if}}
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="toast align-items-center text-white bg-danger border-0" id="errorToast" role="alert" aria-live="assertive"
+    aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1100; min-width: 250px;">
+    <div class="d-flex">
+        <div class="toast-body" id="toastBody">
+
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+            aria-label="Close"></button>
+    </div>
+</div>
+
+<script src="/javaScript/admin/sales.js"></script>

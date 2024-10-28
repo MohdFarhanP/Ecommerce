@@ -21,10 +21,11 @@ wishlistIcons.forEach(icon => {
 
 // Function to show toast
 function showToast(title, message) {
-
+  const toastTitle = document.getElementById('toast-title');
   const toastBody = document.getElementById('toast-body');
   const toastElement = document.getElementById('toast');
 
+  toastTitle.textContent = title;
   toastBody.textContent = message;
 
   const toast = new bootstrap.Toast(toastElement);
