@@ -21,7 +21,7 @@ function submitEditCategoryForm() {
     const bandColor = document.getElementById('bandColor').value;
 
     fetch('/editCategory', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -52,8 +52,8 @@ function submitEditCategoryForm() {
 function validateAddCategoryForm() {
 
     const errorDiv = document.getElementById('addCategoryError');
-    errorDiv.style.display = 'none'; 
-    errorDiv.innerHTML = ''; 
+    errorDiv.style.display = 'none';
+    errorDiv.innerHTML = '';
 
     const brandName = document.getElementById('addBrandName').value.trim();
     const displayType = document.getElementById('addDisplayType').value.trim();
@@ -78,16 +78,16 @@ function validateAddCategoryForm() {
     }
 
     if (errors.length > 0) {
-        errorDiv.style.display = 'block'; 
-        errorDiv.innerHTML = errors.join('<br>'); 
-        return false; 
+        errorDiv.style.display = 'block';
+        errorDiv.innerHTML = errors.join('<br>');
+        return false;
     }
 
-    return true; 
+    return true;
 }
 
 
-document.getElementById("addCategoryForm").addEventListener("submit", async function(event) {
+document.getElementById("addCategoryForm").addEventListener("submit", async function (event) {
     event.preventDefault();
     if (!validateAddCategoryForm()) {
         return;
@@ -111,7 +111,7 @@ document.getElementById("addCategoryForm").addEventListener("submit", async func
         const result = await response.json();
 
         if (response.ok) {
-            window.location.href = "/category"; 
+            window.location.href = "/category";
         } else {
             document.getElementById("addCategoryError").style.display = "block";
             document.getElementById("addCategoryError").innerText = result.errorMessage;

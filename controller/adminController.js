@@ -10,9 +10,9 @@ const path = require('path');
 const Order = require('../module/orderModel')
 const fs = require('fs');
 const Coupon = require('../module/coupenModel');
-const { log } = require('console');
+
 const Offer = require('../module/offerModel');
-const { body, validationResult } = require('express-validator');
+
 const PDFDocument = require('pdfkit');
 const pdfMake = require('pdfmake/build/pdfmake');
 const pdfFonts = require('pdfmake/build/vfs_fonts');
@@ -100,7 +100,8 @@ const categoryPage = async (req, res) => {
         res.render('admin/category', {
             category: categories,
             currentPage: page,
-            totalPages
+            totalPages,
+            totalCategories
         });
     } catch (error) {
         console.error("Error fetching categories:", error);
@@ -189,41 +190,82 @@ const productPage = async (req, res) => {
         const totalPages = Math.ceil(totalProducts / limit);
         const categories = await Category.find();
 
-        res.render('admin/products', { products, categories, currentPage: page, totalPages });
+        res.render('admin/products', { products, categories, currentPage: page, totalPages, totalProducts });
 
     } catch (err) {
         console.log("product listing error", { err });
     }
 };
 const addProduct = async (req, res) => {
-    const errors = [];
+
+    let errors = '';
 
     // Validate required fields
     const { productName, productStock, productPrice, description, category, highlights } = req.body;
-    console.log(req.file)
-
-    if (!productName) errors.push("Product name is required.");
-    if (!productStock) errors.push("Product stock is required.");
-    if (!productPrice) errors.push("Product price is required.");
-    if (!description) errors.push("Description is required.");
-    if (!category) errors.push("Category is required.");
-    if (!highlights.brand) errors.push("Brand is required ");
-    if (!highlights.model) errors.push("Model is required ");
-    if (!highlights.caseMaterial) errors.push("caseMaterial is required ");
-    if (!highlights.dialColor) errors.push("dialColor is required");
-    if (!highlights.waterResistance) errors.push("waterResistance ");
-    if (!highlights.movementType) errors.push("movementType is required");
-    if (!highlights.caseMaterial) errors.push("caseMaterial is required ");
-    if (!highlights.bandMaterial) errors.push("bandMaterial is required ");
-    if (!highlights.features) errors.push("features is required");
-    if (!highlights.warranty) errors.push("warranty is required");
 
 
-    if (!req.files || req.files.length !== 3) {
-        errors.push('Please upload at least 3 images.');
+    if (!productName) {
+        errors = "Product name is required.";
+        return res.status(400).json({ errors });
     }
-
-    if (errors.length > 0) {
+    if (!productStock) {
+        errors = "Product stock is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!productPrice) {
+        errors = "Product price is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!description) {
+        errors = "Description is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!category) {
+        errors = "Category is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.brand) {
+        errors = "Brand is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.model) {
+        errors = "Model is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.caseMaterial) {
+        errors = "caseMaterial is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.dialColor) {
+        errors = "dialColor is required";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.waterResistance) {
+        errors = "waterResistance ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.movementType) {
+        errors = "movementType is required";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.caseMaterial) {
+        errors = "caseMaterial is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.bandMaterial) {
+        errors = "bandMaterial is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.features) {
+        errors = "features is required";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.warranty) {
+        errors = "warranty is required";
+        return res.status(400).json({ errors });
+    }
+    if (!req.files || req.files.length !== 3) {
+        errors = 'Please upload at least 3 images.';
         return res.status(400).json({ errors });
     }
 
@@ -232,7 +274,7 @@ const addProduct = async (req, res) => {
 
         const existingProduct = await Products.findOne({ productName: productName });
         if (existingProduct) {
-            return res.status(400).json({ errors: ["Product with the same name already exists."] });
+            return res.status(400).json({ errors: "Product with the same name already exists." });
         }
 
         const images = [];
@@ -261,7 +303,8 @@ const addProduct = async (req, res) => {
                 bandMaterial: highlights.bandMaterial,
                 features: highlights.features.split(','),
                 warranty: highlights.warranty
-            }
+            },
+            maxQtyPerPerson: Math.min(Math.floor(productStock / 3), 10)
         });
 
         await newProduct.save();
@@ -272,8 +315,75 @@ const addProduct = async (req, res) => {
     }
 };
 const editProduct = async (req, res) => {
+
+    const { productName, productStock, productPrice, id, categories, description, highlights } = req.body;
+
+    let errors = '';
+
+    if (!productName) {
+        errors = "Product name is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!productStock) {
+        errors = "Product stock is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!productPrice) {
+        errors = "Product price is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!description) {
+        errors = "Description is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!categories) {
+        errors = "Category is required.";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.brand) {
+        errors = "Brand is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.model) {
+        errors = "Model is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.caseMaterial) {
+        errors = "caseMaterial is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.dialColor) {
+        errors = "dialColor is required";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.waterResistance) {
+        errors = "waterResistance ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.movementType) {
+        errors = "movementType is required";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.caseMaterial) {
+        errors = "caseMaterial is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.bandMaterial) {
+        errors = "bandMaterial is required ";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.features) {
+        errors = "features is required";
+        return res.status(400).json({ errors });
+    }
+    if (!highlights.warranty) {
+        errors = "warranty is required";
+        return res.status(400).json({ errors });
+    }
+
+
     try {
-        const { productName, productStock, productPrice, id, categories, description, highlights } = req.body;
+
         const product = await Products.findById(id);
 
         if (!product) {
@@ -286,7 +396,7 @@ const editProduct = async (req, res) => {
         product.productPrice = productPrice;
         product.description = description;
         product.category = categories;
-
+        product.maxQtyPerPerson = Math.min(Math.floor(productStock / 3), 10);
         console.log(req.files)
         // Replace images if new files are uploaded
         if (req.files && req.files.length > 0) {
@@ -393,6 +503,7 @@ const orders = async (req, res) => {
             orders,
             currentPage: page,
             totalPages,
+            totalOrders
         });
     } catch (error) {
         console.error(error);
@@ -445,6 +556,7 @@ const inventory = async (req, res) => {
             products,
             currentPage: page,
             totalPages,
+            totalProducts
         });
     } catch (error) {
         console.error(error);
@@ -454,7 +566,15 @@ const inventory = async (req, res) => {
 const editInventory = async (req, res) => {
     const { id, productName, productStock, productPrice, isFeatured } = req.body;
     try {
-        await Products.findByIdAndUpdate(id, { productName, productStock, productPrice, isFeatured });
+        const updateProducut = await Products.findByIdAndUpdate(id, {
+            productName,
+            productStock,
+            productPrice,
+            isFeatured,
+            maxQtyPerPerson: Math.min(Math.floor(productStock / 3), 10)
+        }, { new: true }
+        );
+
         res.redirect('/inventory');
     } catch (error) {
         console.error(error);
@@ -474,7 +594,10 @@ const deleteInventory = async (req, res) => {
 const updateStock = async (req, res) => {
     const { id, productStock } = req.body;
     try {
-        await Products.findByIdAndUpdate(id, { productStock });
+        await Products.findByIdAndUpdate(id, {
+            productStock,
+            maxQtyPerPerson: Math.min(Math.floor(productStock / 3), 10),
+        });
         res.redirect('/inventory');
     } catch (error) {
         console.error(error);
@@ -505,7 +628,8 @@ const coupon = async (req, res) => {
             products,
             categories,
             currentPage: page,
-            totalPages
+            totalPages,
+            totalCoupons
         });
     } catch (error) {
         console.log('Error:', error);
@@ -575,7 +699,7 @@ const offer = async (req, res) => {
 
         const products = await Products.find({ isDeleted: false });
         const categories = await Category.find({ isDelete: false });
-console.log(offers);
+        console.log(offers);
 
         res.render('admin/offer', {
             offers,
@@ -583,6 +707,7 @@ console.log(offers);
             categories,
             currentPage: page,
             totalPages,
+            totalOffers
         });
     } catch (error) {
         console.error('Error fetching offers:', error);
@@ -785,7 +910,8 @@ const salesReport = async (req, res) => {
             totalPages,
             filterType,
             startDate,
-            endDate
+            endDate,
+            totalCount
         });
     } catch (err) {
         console.log(err);
@@ -796,15 +922,69 @@ const downloadSalesReportPdf = async (req, res) => {
     try {
         const { filterType, startDate, endDate } = req.query;
         const salesReportData = await getSalesReportData(filterType, startDate, endDate);
+        const logoPath = path.join(__dirname, '..', 'public', 'image', 'admin', 'WATCH.png');
+        console.log(logoPath);
+        
+        const imageBuffer = fs.readFileSync(logoPath);
+        const logoBase64 = imageBuffer.toString('base64');
+        const logoDataUrl = `data:image/png;base64,${logoBase64}`;
 
-        // Prepare the PDF content
         const docDefinition = {
             content: [
+                // Logo and Site Details
+                {
+                    stack: [
+                        // Logo on the top
+                        {
+                            image: logoDataUrl,
+                            width: 100,
+                            margin: [0, 0, 0, 10] // Bottom margin to separate from site details
+                        },
+                        // Site Details directly under the logo
+                        {
+                            text: 'watchly', // Replace with your site name
+                            style: 'siteName'
+                        },
+                        {
+                            text: 'Email: watchlysupport@gmail.com', // Your site's email
+                            style: 'siteEmail'
+                        },
+                        {
+                            text: 'Website: www.WATCHLY.com', // Your site's URL
+                            style: 'siteUrl'
+                        }
+                    ],
+                    alignment: 'left', // Align site details to the left
+                    margin: [0, 0, 0, 20] // Margin below the site details
+                },
+        
+                // Horizontal Line
+                {
+                    canvas: [
+                        {
+                            type: 'line',
+                            x1: 0,
+                            y1: 0,
+                            x2: 520,
+                            y2: 0,
+                            lineWidth: 1,
+                            lineColor: '#D3D3D3'
+                        }
+                    ],
+                    margin: [0, 0, 0, 20]
+                },
+        
+                // Report Title
                 { text: 'Sales Report', style: 'header' },
+                { text: `Reporting Period: ${startDate} to ${endDate}`, style: 'subheader' },
+        
+                // Table with Sales Data
                 {
                     table: {
+                        headerRows: 1,
+                        widths: ['*', '*', '*', '*'],
                         body: [
-                            // Header Row
+                            // Table Header
                             [
                                 { text: 'Total Sales', style: 'tableHeader' },
                                 { text: 'Order Count', style: 'tableHeader' },
@@ -813,14 +993,25 @@ const downloadSalesReportPdf = async (req, res) => {
                             ],
                             // Data Rows
                             ...salesReportData.map(data => [
-                                `₹${data.totalSales}`,
-                                data.orderCount,
-                                `₹${data.totalDiscount}`,
-                                `₹${data.totalCouponDiscount}`
+                                { text: `₹${data.totalSales}`, style: 'tableCell' },
+                                { text: data.orderCount.toString(), style: 'tableCell' },
+                                { text: `₹${data.totalDiscount}`, style: 'tableCell' },
+                                { text: `₹${data.totalCouponDiscount}`, style: 'tableCell' }
                             ])
                         ]
                     },
-                    layout: 'lightHorizontalLines' // Optional: Adds lines between rows
+                    layout: {
+                        fillColor: function (rowIndex) {
+                            return rowIndex % 2 === 0 ? '#F3F3F3' : null;
+                        }
+                    }
+                },
+        
+                // Footnote for contact information
+                {
+                    text: 'For any inquiries, please contact us at support@myecommercesite.com or visit our website at www.myecommercesite.com.',
+                    style: 'contactInfo',
+                    margin: [0, 10, 0, 10]
                 }
             ],
             styles: {
@@ -828,15 +1019,60 @@ const downloadSalesReportPdf = async (req, res) => {
                     fontSize: 20,
                     bold: true,
                     alignment: 'center',
-                    margin: [0, 0, 0, 20] // [left, top, right, bottom]
+                    margin: [0, 10, 0, 20]
+                },
+                subheader: {
+                    fontSize: 12,
+                    alignment: 'center',
+                    margin: [0, 0, 0, 20]
                 },
                 tableHeader: {
-                    bold: true,
                     fontSize: 12,
-                    color: 'black'
+                    bold: true,
+                    color: 'black',
+                    fillColor: '#D3D3D3',
+                    alignment: 'center'
+                },
+                tableCell: {
+                    fontSize: 10,
+                    alignment: 'center',
+                    margin: [0, 5, 0, 5]
+                },
+                contactInfo: {
+                    fontSize: 8,
+                    alignment: 'center',
+                    color: 'grey',
+                    margin: [0, 10, 0, 0]
+                },
+                siteName: {
+                    fontSize: 12,
+                    bold: true,
+                    margin: [0, 0, 0, 2]
+                },
+                siteEmail: {
+                    fontSize: 10,
+                    margin: [0, 0, 0, 1]
+                },
+                siteUrl: {
+                    fontSize: 10,
+                    margin: [0, 0, 0, 5]
                 }
+            },
+            footer: function (currentPage, pageCount) {
+                return {
+                    columns: [
+                        {
+                            text: `Page ${currentPage} of ${pageCount}`,
+                            alignment: 'left',
+                            fontSize: 8,
+                            margin: [10, 10, 0, 0]
+                        }
+                    ]
+                };
             }
         };
+        
+
 
         // Generate PDF and send it to the user
         const pdfDoc = pdfMake.createPdf(docDefinition);
@@ -856,16 +1092,39 @@ const downloadSalesReportPdf = async (req, res) => {
         res.status(500).send('Could not generate PDF');
     }
 };
-const downloadSalesReportExcel = async (req,res) => {
+const downloadSalesReportExcel = async (req, res) => {
     try {
         const { filterType, startDate, endDate } = req.query;
-
         const salesReportData = await getSalesReportData(filterType, startDate, endDate);
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
-        
 
+        // Site Details
+        worksheet.mergeCells('A1:D2'); // Merge cells for the site name
+        worksheet.getCell('A1').value = 'WATCHLY'; // Site name
+        worksheet.getCell('A3').value = 'Email: watchlysupport@gmail.com'; // Site email
+        worksheet.getCell('A4').value = 'Website: www.WATCHLY.com'; // Website URL
+
+        // Style site details
+        worksheet.getCell('A1').font = { bold: true, size: 14 }; // Site name bold and larger
+        worksheet.getCell('A3').font = { size: 12 }; // Email style
+        worksheet.getCell('A4').font = { size: 12 }; // Website style
+
+        // Sales Report Heading
+        worksheet.mergeCells('A6:D6'); // Merge cells for the heading
+        worksheet.getCell('A6').value = 'Sales Report'; // Sales report heading
+        worksheet.getCell('A6').font = { bold: true, size: 16 }; // Heading style
+        worksheet.getCell('A6').alignment = { vertical: 'middle', horizontal: 'center' }; // Center alignment
+
+        // Adding a little bit of space after the heading
+        worksheet.getCell('A7').value = ''; // Empty row for spacing
+
+        // Add column headers starting from row 8
+        worksheet.addRow(['Total Sales', 'Order Count', 'Total Discount', 'Coupon Discount']);
+        worksheet.getRow(8).font = { bold: true }; // Make header row bold
+
+        // Set the widths of the columns
         worksheet.columns = [
             { header: 'Total Sales', key: 'totalSales', width: 15 },
             { header: 'Order Count', key: 'orderCount', width: 15 },
@@ -873,7 +1132,7 @@ const downloadSalesReportExcel = async (req,res) => {
             { header: 'Coupon Discount', key: 'totalCouponDiscount', width: 20 }
         ];
 
-        // Add rows
+        // Add rows with sales data starting from row 9
         salesReportData.forEach(data => {
             worksheet.addRow({
                 totalSales: data.totalSales,
@@ -884,7 +1143,7 @@ const downloadSalesReportExcel = async (req,res) => {
         });
 
         // File path
-        const filePath = 'C:/Users/hp/Downloads/salesReport.exel';
+        const filePath = 'C:/Users/hp/Downloads/salesReport.xlsx';
 
         // Write to file and send download response
         await workbook.xlsx.writeFile(filePath);
@@ -899,6 +1158,8 @@ const downloadSalesReportExcel = async (req,res) => {
         res.status(500).send('Could not generate Excel file');
     }
 };
+
+
 const getSalesReportData = async (filterType, startDate, endDate) => {
     let matchQuery = {};
 

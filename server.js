@@ -12,6 +12,7 @@ const authRouter = require('./routes/auth');
 const session = require('express-session');
 const passport = require('passport');
 const { format } = require('date-fns');
+const methodOverride = require('method-override');
 const Razorpay = require('razorpay');
 
 
@@ -85,7 +86,7 @@ app.engine('hbs', exphbs.engine({
         }
     },
 }));
-
+app.use(methodOverride('_method'));
 app.use((req, res, next) => {
     res.locals.loginMethod = req.session.loginMethod;
     next();

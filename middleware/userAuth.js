@@ -5,28 +5,28 @@ const checkSession = async (req, res, next) => {
         const userId = req.session.userId;
 
         if (!userId) {
-            return res.redirect('/authPrompt'); 
+            return res.redirect('/authPrompt');
         }
 
         const user = await User.findById(userId);
 
         if (!user) {
-            return res.redirect('/authPrompt'); 
+            return res.redirect('/authPrompt');
         }
 
         if (user.isBlocked) {
-            return res.redirect('/blocked');  
+            return res.redirect('/blocked');
         }
         next();
     } catch (err) {
         console.error('Error in checkSession middleware:', err);
-        res.redirect('/error');  
+        res.redirect('/error');
     }
 };
-const isLogin = (req,res,next)=>{
-    if(req.session.userId){
+const isLogin = (req, res, next) => {
+    if (req.session.userId) {
         res.redirect('/home');
-    }else{
+    } else {
         next();
     }
 };

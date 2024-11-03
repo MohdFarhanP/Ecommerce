@@ -88,7 +88,8 @@
                                     </td>
 
                                     <td class="align-middle text-center">
-                                        <form action="/changeOrderStatus" method="post" style="display:inline;">
+                                        <form action="/changeOrderStatus?_method=PATCH" method="post"
+                                            style="display:inline;">
                                             <input type="hidden" name="orderId" value="{{_id}}">
                                             <select name="status" class="form-select">
                                                 <option value="Pending" {{#if (eq status "Pending" )}}selected{{/if}}>
@@ -104,7 +105,7 @@
                                         </form>
                                     </td>
                                     <td class="align-middle text-center">
-                                        <form action="/cancelOrder" method="post"
+                                        <form action="/cancelOrder?_method=DELETE" method="post"
                                             onsubmit="return confirm('Are you sure you want to cancel this order?');"
                                             style="display:inline;">
                                             <input type="hidden" name="orderId" value="{{_id}}">
@@ -116,6 +117,7 @@
                             </tbody>
                         </table>
                     </div>
+                    {{#if (gt totalOrders 5)}}
                     <!-- Pagination Controls -->
                     <nav aria-label="Page navigation">
                         <ul class="pagination justify-content-center pages custom-pagination">
@@ -142,7 +144,7 @@
                             {{/if}}
                         </ul>
                     </nav>
-
+                    {{/if}}
                 </div>
             </div>
         </div>

@@ -1,5 +1,6 @@
-const { registerHelper } = require('hbs');
+
 const mongoose = require('mongoose');
+const { bool } = require('sharp');
 
 const userSchema = mongoose.Schema({
     userName:String,
@@ -13,6 +14,12 @@ const userSchema = mongoose.Schema({
         default:false,
     },
     walletBalance: { type: Number, default: 0 },
+
+    isFirstPurchase:{type:Boolean,default:true},
+    
+    referralCode: { type: String, unique: true },
+    
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'user', default: null },
 },
 { timestamps: true });
 

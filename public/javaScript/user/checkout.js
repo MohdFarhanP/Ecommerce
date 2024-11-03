@@ -46,8 +46,151 @@ function populateEditModal(id, firstName, lastName, email, mobile, addressLine, 
         }
     }
 
-    document.querySelector('#editAddress form').action = `/editAddress/${id}`;
+    document.querySelector('#editAddress form').action = `/editAddress/${id}?_method=PUT`;
 }
+
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Edit Address validation 
+    const form = document.getElementById('editAddressForm');
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
+    const email = document.getElementById('email');
+    const mobile = document.getElementById('mobile');
+    const addressLine = document.getElementById('addressLine');
+    const city = document.getElementById('city');
+    const pinCode = document.getElementById('pinCode');
+    const country = document.getElementById('country');
+
+    // Helper function to show error
+    function showError(input, message) {
+        const errorElement = input.nextElementSibling;
+        errorElement.textContent = message;
+        input.classList.add('is-invalid');
+    }
+
+    // Helper function to show success
+    function showSuccess(input) {
+        const errorElement = input.nextElementSibling;
+        errorElement.textContent = '';
+        input.classList.remove('is-invalid');
+    }
+
+    // Validate functions
+    function validateNotEmpty(input, fieldName) {
+        if (input.value.trim() === '') {
+            showError(input, `${fieldName} is required.`);
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
+        }
+    }
+
+    function validateEmail(input) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(input.value.trim())) {
+            showError(input, 'Please enter a valid email address.');
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
+        }
+    }
+
+    function validateMobile(input) {
+        const mobileRegex = /^[0-9]{10}$/;
+        if (!mobileRegex.test(input.value.trim())) {
+            showError(input, 'Please enter a valid 10-digit mobile number.');
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
+        }
+    }
+
+    function validatePinCode(input) {
+        const pinCodeRegex = /^[0-9]{5,6}$/;
+        if (!pinCodeRegex.test(input.value.trim())) {
+            showError(input, 'Please enter a valid 5 or 6-digit pin code.');
+            return false;
+        } else {
+            showSuccess(input);
+            return true;
+        }
+    }
+
+    // Event listeners for inline validation
+    firstName.addEventListener('input', () => validateNotEmpty(firstName, 'First Name'));
+    lastName.addEventListener('input', () => validateNotEmpty(lastName, 'Last Name'));
+    email.addEventListener('input', () => validateEmail(email));
+    mobile.addEventListener('input', () => validateMobile(mobile));
+    addressLine.addEventListener('input', () => validateNotEmpty(addressLine, 'Address'));
+    city.addEventListener('input', () => validateNotEmpty(city, 'City'));
+    pinCode.addEventListener('input', () => validatePinCode(pinCode));
+    country.addEventListener('change', () => validateNotEmpty(country, 'Country'));
+
+    // Form submission validation
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const isValid =
+            validateNotEmpty(firstName, 'First Name') &&
+            validateNotEmpty(lastName, 'Last Name') &&
+            validateEmail(email) &&
+            validateMobile(mobile) &&
+            validateNotEmpty(addressLine, 'Address') &&
+            validateNotEmpty(city, 'City') &&
+            validatePinCode(pinCode) &&
+            validateNotEmpty(country, 'Country');
+
+        if (isValid) {
+            form.submit();
+        }
+    });
+
+    // Add Address Form Validation 
+    const addAddressForm = document.querySelector('form[action="/addAddress"]');
+    const addFirstName = addAddressForm.querySelector('input[name="firstName"]');
+    const addLastName = addAddressForm.querySelector('input[name="lastName"]');
+    const addEmail = addAddressForm.querySelector('input[name="email"]');
+    const addMobile = addAddressForm.querySelector('input[name="mobile"]');
+    const addAddressLine = addAddressForm.querySelector('input[name="addressLine"]');
+    const addCity = addAddressForm.querySelector('input[name="city"]');
+    const addPinCode = addAddressForm.querySelector('input[name="pinCode"]');
+    const addCountry = addAddressForm.querySelector('select[name="country"]');
+
+    // Event listeners for inline validation
+    addFirstName.addEventListener('input', () => validateNotEmpty(addFirstName, 'First Name'));
+    addLastName.addEventListener('input', () => validateNotEmpty(addLastName, 'Last Name'));
+    addEmail.addEventListener('input', () => validateEmail(addEmail));
+    addMobile.addEventListener('input', () => validateMobile(addMobile));
+    addAddressLine.addEventListener('input', () => validateNotEmpty(addAddressLine, 'Address'));
+    addCity.addEventListener('input', () => validateNotEmpty(addCity, 'City'));
+    addPinCode.addEventListener('input', () => validatePinCode(addPinCode));
+    addCountry.addEventListener('change', () => validateNotEmpty(addCountry, 'Country'));
+
+    // Form submission validation for Add Address
+    addAddressForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const isFormValid =
+            validateNotEmpty(addFirstName, 'First Name') &&
+            validateNotEmpty(addLastName, 'Last Name') &&
+            validateEmail(addEmail) &&
+            validateMobile(addMobile) &&
+            validateNotEmpty(addAddressLine, 'Address') &&
+            validateNotEmpty(addCity, 'City') &&
+            validatePinCode(addPinCode) &&
+            validateNotEmpty(addCountry, 'Country');
+
+        if (isFormValid) {
+            addAddressForm.submit();
+        }
+    });
+
+});
 
 
 document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
@@ -55,7 +198,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
 
     const selectedAddressId = document.getElementById('selectedAddress').value;
     if (!selectedAddressId) {
-        alert('Please select a shipping address.');
+        showError('Please select a shipping address.');
         return;
     }
 
@@ -69,11 +212,18 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
 
     const selectedPayment = document.querySelector('input[name="paymentOption"]:checked').value;
     document.getElementById('selectedPaymentMethod').value = selectedPayment;
+   
+    const totalAmount = document.querySelector('input[name="totalAmount"]').value;
+    console.log(totalAmount);
+
+    if (selectedPayment === 'COD' && totalAmount > 10000) {
+        showError('Cash on Delivery is not available for orders above ₹10000.');
+        return; // Stop form submission
+    }
 
     if (selectedPayment === 'Razorpay') {
         // Call backend to create a Razorpay order
-        const totalAmount = document.querySelector('input[name="totalAmount"]').value;
-        console.log(totalAmount);
+
 
         const response = await fetch('/create-razorpay-order', {
             method: 'POST',
@@ -110,12 +260,14 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
     }
 });
 
-async function verifyRazorpayPayment(response, shippingAddressId, paymentMethod, totalAmount, products, couponCode, couponDiscount, discount) {
+async function verifyRazorpayPayment(response, selectedAddressId, paymentMethod, totalAmount, products, couponCode, couponDiscount, discount) {
+    console.log(selectedAddressId);
+
     const verificationData = {
         order_id: response.razorpay_order_id,
         payment_id: response.razorpay_payment_id,
         signature: response.razorpay_signature,
-        selectedAddressId: shippingAddressId,
+        selectedAddressId: selectedAddressId,
         paymentMethod: paymentMethod,
         totalAmount: totalAmount,
         products: products,
@@ -136,6 +288,15 @@ async function verifyRazorpayPayment(response, shippingAddressId, paymentMethod,
         window.location.href = `/orderSuccess/${verificationResult.orderId}`;
     } else {
         if (!verificationResult.success)
-            alert(verificationResult.message);
+            showError(verificationResult.message);
     }
+}
+
+function showError(message) {
+    toastBody.textContent = message;
+    const toast = new bootstrap.Toast(errorToast);
+    toast.show();
+    setTimeout(() => {
+        toast.hide();
+    }, 3000);
 }

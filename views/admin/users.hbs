@@ -67,14 +67,15 @@
                             <td>{{userName}}</td>
                             <td>{{email}}</td>
                             <td>{{formatDate createdAt 'dd/MM/yyyy'}}</td>
-                            <td>{{#if isBlocked}}<span class="text-danger">Blocked</span>{{else}}<span class="text-success">Active</span>{{/if}}</td>
+                            <td>{{#if isBlocked}}<span class="text-danger">Blocked</span>{{else}}<span
+                                    class="text-success">Active</span>{{/if}}</td>
                             <td>
                                 {{#if isBlocked}}
-                                <form action="/unblock/{{_id}}" method="POST" class="d-inline">
+                                <form action="/unblock/{{_id}}?_method=PATCH" method="POST" class="d-inline">
                                     <button class="btn btn-warning" type="submit">Unblock</button>
                                 </form>
                                 {{else}}
-                                <form action="/block/{{_id}}" method="POST" class="d-inline">
+                                <form action="/block/{{_id}}?_method=PATCH" method="POST" class="d-inline">
                                     <button class="btn btn-danger" type="submit">Block</button>
                                 </form>
                                 {{/if}}
@@ -84,6 +85,7 @@
                     </tbody>
                 </table>
 
+                {{#if (gt totalUsers 5)}}
                 <!-- Pagination Controls -->
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center pages custom-pagination">
@@ -110,6 +112,7 @@
                         {{/if}}
                     </ul>
                 </nav>
+                {{/if}}
             </div>
         </div>
     </div>

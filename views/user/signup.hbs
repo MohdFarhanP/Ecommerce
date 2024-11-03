@@ -24,24 +24,31 @@
                 <div class="card-body mt-2">
                     <form class="signup" id="signupForm" action="/sent-otp" method="post">
                         <div class="mb-3">
-                            <input type="text" class="form-control" id="name" name="userName" placeholder="username">
+                            <span class="invalid-feedback d-block" id="nameError"></span>
+                            <input type="text" class="form-control" id="name" name="userName" placeholder="Username">
                         </div>
                         <div class="mb-3">
+                            <span class="invalid-feedback d-block" id="emailError"></span>
                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
                         </div>
                         <div class="mb-3">
+                            <span class="invalid-feedback d-block" id="passwordError"></span>
                             <input type="password" class="form-control" id="password" name="password"
                                 placeholder="Enter password">
                         </div>
                         <div class="mb-3">
+                            <span class="invalid-feedback d-block" id="confirmPasswordError"></span>
                             <input type="password" class="form-control" id="conformPassword" name="conformPassword"
-                                placeholder="Conform password">
+                                placeholder="Confirm password">
                         </div>
-
-
+                        <div class="mb-3">
+                         <input type="text" name="referralCode" class="form-control" placeholder="Referral Code (Optional)">
+                        </div>
+                    
                         <div class="d-grid col-6 mx-auto mb-4">
-                            <button type="submit" class="btn btn-dark text-white">signup</button>
+                            <button type="submit" class="btn btn-dark text-white">Signup</button>
                         </div>
+                    </form>
                 </div>
             </div>
         </div>

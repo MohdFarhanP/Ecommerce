@@ -2,7 +2,8 @@ let cropper;
 let currentReplaceInput = null; // To track which image is being replaced
 
 // Function to show the product details in the modal for editing
-function showEditProduct(productName, productStock, productPrice, description, id, category, highlights, images) {0.
+function showEditProduct(productName, productStock, productPrice, description, id, category, highlights, images) {
+
     // Populate basic fields
     document.getElementById("productName").value = productName;
     document.getElementById("productStock").value = productStock;
@@ -25,96 +26,103 @@ function showEditProduct(productName, productStock, productPrice, description, i
     document.getElementById("highlightWarranty").value = highlights.warranty;
 
     // Display existing images and add replace functionality
-    console.log(images);
-    
     const imagePreview = document.querySelector(".product-images");
     imagePreview.innerHTML = "";  // Clear current images
 
     images.forEach((image, index) => {
         const imageContainer = document.createElement("div");
-        imageContainer.classList.add("image-wrapper");
+        imageContainer.classList.add("image-wrapper", "m-2");
 
         // Display the current image
         const imgElement = document.createElement("img");
         imgElement.src = `/uploads/${image}`;
-        imgElement.width = 100;
-        imgElement.height = 100;
-        imgElement.className = "m-2";
+        imgElement.width = 150;
+        imgElement.height = 150;
+        imgElement.classList.add("preview-image");
+        imgElement.id = `preview-image-${index}`;
         imageContainer.appendChild(imgElement);
 
-        // Add file input for replacing the image
+        // Add file input for replacing the image (hidden)
         const replaceInput = document.createElement("input");
         replaceInput.type = "file";
-        replaceInput.className = "replace-image-input";
+        replaceInput.classList.add("replace-image-input", "d-none");
         replaceInput.name = `images[${index}]`;
-        replaceInput.addEventListener("change", (event) => openCropper(event.target, index));
+
+        // Handle file input change event
+        replaceInput.addEventListener("change", (event) => {
+            openCropper(event.target, index);
+        });
 
         imageContainer.appendChild(replaceInput);
+
+        // Add a "Change" button to trigger the file input
+        const changeButton = document.createElement("button");
+        changeButton.classList.add("btn", "btn-outline-primary", "mt-2");
+        changeButton.innerText = "Change Image";
+        changeButton.onclick = (event) => {
+            event.preventDefault();
+            replaceInput.click();
+        };
+
+        imageContainer.appendChild(changeButton);
         imagePreview.appendChild(imageContainer);
     });
-}
 
-// Open the cropper when a new image is selected
-function openCropper(input, index) {
-    const file = input.files[0];
-    currentReplaceInput = input;  // Track which input is being updated
+    // Function to open the cropper
+    function openCropper(input, index) {
+        const file = input.files[0];
+        currentReplaceInput = input;  // Track which input is being updated
 
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const imageToCrop = document.getElementById('imageToCrop');
-            imageToCrop.src = e.target.result;
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageToCrop = document.getElementById('imageToCrop');
+                imageToCrop.src = e.target.result;
+                imageToCrop.style.display = "block"; // Show the image
 
-            // Initialize or reinitialize the cropper
-            if (cropper) cropper.destroy();
-            cropper = new Cropper(imageToCrop, {
-                aspectRatio: 1,
-                viewMode: 1,
-                autoCropArea: 1
+                // Initialize or reinitialize the cropper
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1,
+                    viewMode: 0,
+                    autoCropArea: 1,
+                    ready: () => {
+                        document.getElementById('cropper-container').style.display = 'flex'; // Show the cropper container
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Crop the image and update the preview
+    document.getElementById('cropImage').addEventListener('click', function () {
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas({
+                width: 500,
+                height: 500,
+                fillColor: '#fff',
             });
 
-            showCropperModal();
-        };
-        reader.readAsDataURL(file);
-    }
+            canvas.toBlob((blob) => {
+                const croppedFile = new File([blob], "croppedImage.png", { type: "image/png" });
+
+                // Use DataTransfer to simulate file input behavior
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(croppedFile);
+                currentReplaceInput.files = dataTransfer.files;
+
+                // Show the preview of the cropped image
+                const index = currentReplaceInput.name.match(/\d+/)[0];
+                const imgElement = document.getElementById(`preview-image-${index}`);
+                imgElement.src = URL.createObjectURL(croppedFile);
+
+                document.getElementById('cropper-container').style.display = 'none';
+            });
+        }
+    });
+
 }
-
-// Crop the image and update the file input
-document.getElementById('cropImage').addEventListener('click', function () {
-    if (cropper) {
-        const canvas = cropper.getCroppedCanvas({
-            width: 500,
-            height: 500
-        });
-
-        canvas.toBlob((blob) => {
-            const croppedFile = new File([blob], "croppedImage.png", { type: "image/png" });
-
-            // Use DataTransfer to simulate file input behavior
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(croppedFile);
-
-            // Update the file input with the cropped file
-            currentReplaceInput.files = dataTransfer.files;
-
-            hideCropperModal();
-        });
-    }
-});
-
-// Show the cropper modal
-function showCropperModal() {
-    const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'));
-    cropperModal.show();
-}
-
-// Hide the cropper modal
-function hideCropperModal() {
-    const cropperModal = bootstrap.Modal.getInstance(document.getElementById('cropperModal'));
-    cropperModal.hide();
-}
-
-
 
 
 
@@ -228,7 +236,7 @@ document.getElementById('addProduct').addEventListener('click', function (event)
             .then(response => {
                 if (!response.ok) {
                     return response.json().then(data => {
-                        displayErrors(data.errors);
+                        showError(data.errors);
                         throw new Error('Validation errors occurred');
                     });
                 }
@@ -243,13 +251,11 @@ document.getElementById('addProduct').addEventListener('click', function (event)
     });
 });
 
-function displayErrors(errors) {
-    const errorContainer = document.getElementById('addProductError');
-    errorContainer.innerHTML = '';
-    errors.forEach(error => {
-        const errorItem = document.createElement('div');
-        errorItem.textContent = error;
-        errorContainer.appendChild(errorItem);
-    });
-    errorContainer.style.display = 'block';
+function showError(message) {
+    toastBody.textContent = message;
+    const toast = new bootstrap.Toast(errorToast);
+    toast.show();
+    setTimeout(() => {
+        toast.hide();
+    }, 3000);
 }

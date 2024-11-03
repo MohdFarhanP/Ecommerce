@@ -1,14 +1,16 @@
-#head{
+#head {
     text-decoration: none;
 }
+
 .shadow-navbar {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    z-index: 1000; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
     position: relative;
 
 }
-.mbtn{
-    margin-top: .9rem;   
+
+.mbtn {
+    margin-top: .9rem;
 }
 
 /* wallet transaction history table and the wallet balance  */
@@ -22,16 +24,19 @@
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
+
 h2 {
     margin-bottom: 20px;
     color: #6c757d;
     text-align: center;
 }
+
 h3 {
     color: #495057;
     margin-bottom: 20px;
     text-align: center;
 }
+
 .balance {
     font-size: 2rem;
     font-weight: bold;
@@ -39,21 +44,26 @@ h3 {
     text-align: center;
     margin-bottom: 30px;
 }
+
 .table th {
     background-color: #28a745;
     color: white;
     text-align: center;
 }
+
 .table td {
     vertical-align: middle;
     text-align: center;
 }
+
 .table tbody tr:nth-child(odd) {
     background-color: #f8f9fa;
 }
+
 .table tbody tr:hover {
     background-color: #d4edda;
 }
+
 .footer {
     text-align: center;
     margin-top: 30px;

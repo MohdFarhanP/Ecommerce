@@ -1,37 +1,41 @@
 <link rel="stylesheet" href="/styles/user/address.css">
 
 <header>
-  <nav class="navbar navbar-expand-lg  shadow-navbar">
-    <div class="container-fluid py-auto px-auto ">
-      <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
+    <nav class="navbar navbar-expand-lg  shadow-navbar">
+        <div class="container-fluid py-auto px-auto ">
+            <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a></li>
-        </ul>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a>
+                    </li>
+                </ul>
 
-        <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-          <div class="input-group">
-            <form class="d-flex" action="/search" method="GET">
-              <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
-                aria-label="Search">
-              <button class="btn btn-outline" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </form>
-          </div>  
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
-                class="fa-regular fa-heart"></i></a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
-                class="fa-regular fa-user"></i></a></li>
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/cart"><i
-                class="fa-solid fa-cart-shopping"></i></a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <div class="input-group">
+                        <form class="d-flex" action="/filterProducts" method="POST">
+                            <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
+                                aria-label="Search">
+                            <button class="btn btn-outline" type="submit"><i
+                                    class="fa-solid fa-magnifying-glass"></i></button>
+                        </form>
+                    </div>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/whishList"><i
+                                class="fa-regular fa-heart"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
+                                class="fa-regular fa-user"></i></a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/cart"><i
+                                class="fa-solid fa-cart-shopping"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <div class="container mt-3">
@@ -42,12 +46,13 @@
                 <span class="fw-bold">Account & Settings</span>
                 <hr>
             </div>
-             <nav class="nav flex-column mt-2">
+            <nav class="nav flex-column mt-2">
                 <a href="/userProfile" class="btn btn-outline-warning mb-2 active">User Details</a>
                 <a href="/orders" class="btn btn-outline-warning mb-2 ">Orders</a>
                 <a href="/whishList" class="btn btn-outline-warning mb-2 ">whishList</a>
-                <a href="/wallet" class="btn btn-outline-warning mb-2 active">wallet</a>
-                <a href="/logOut" class="btn text-warning mb-2  mt-4 px-auto"><i class="fa-solid fa-right-from-bracket me-3"></i>Log out</a>
+                <a href="/wallet" class="btn btn-outline-warning mb-2">wallet</a>
+                <a href="/logOut" class="btn text-warning mb-2  mt-4 px-auto"><i
+                        class="fa-solid fa-right-from-bracket me-3"></i>Log out</a>
             </nav>
         </div>
 
@@ -114,7 +119,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            Are you sure you want to delete this product?
+                            Are you sure you want to delete this Address?
 
                         </div>
                         <div class="modal-footer">
@@ -143,11 +148,13 @@
                                                 <label class="form-label">First Name:</label>
                                                 <input type="text" name="firstName" class="form-control"
                                                     placeholder="Please enter your First name">
+                                                    <small class="error-message text-danger"></small>
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Last name:</label>
                                                 <input type="text" name="lastName" class="form-control"
                                                     placeholder="Please enter your Last name">
+                                                    <small class="error-message text-danger"></small>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -155,11 +162,13 @@
                                                 <label class="form-label">Email Address:</label>
                                                 <input type="email" name="email" class="form-control"
                                                     placeholder="Please enter your Email Address">
+                                                    <small class="error-message text-danger"></small>
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Mobail Number:</label>
                                                 <input type="tel" name="mobile" class="form-control"
                                                     placeholder="Please enter your Mobail Number">
+                                                    <small class="error-message text-danger"></small>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -167,11 +176,13 @@
                                                 <label class="form-label">Address:</label>
                                                 <input type="text" name="addressLine" class="form-control"
                                                     placeholder="Please enter your Address">
+                                                    <small class="error-message text-danger"></small>
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Town/City:</label>
                                                 <input type="text" name="city" class="form-control"
                                                     placeholder="Please enter your City Name">
+                                                    <small class="error-message text-danger"></small>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -179,6 +190,7 @@
                                                 <label class="form-label">Pin Code:</label>
                                                 <input type="text" name="pinCode" class="form-control"
                                                     placeholder="Please enter your Pin Code">
+                                                    <small class="error-message text-danger"></small>
                                             </div>
                                             <div class="col">
                                                 <label for="dropdown" class="form-label">Country</label>
@@ -189,6 +201,7 @@
                                                     <option value="USA">USA</option>
                                                     <option value="UAE">UAE</option>
                                                 </select>
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                         </div>
                                         <div class="row d-flex justify-content-center">
@@ -214,42 +227,49 @@
                         <div class="modal-body">
                             <div class=" row mt-2">
                                 <div class="col-md-12 me-2 ">
-                                    <form action="/editAddress" id="editForm" method="post">
+                                    <form action="/editAddress?_method=PUT" id="editForm" method="post">
 
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">First Name:</label>
                                                 <input type="text" name="firstName" class="form-control">
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Last name:</label>
                                                 <input type="text" name="lastName" class="form-control">
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">Email Address:</label>
                                                 <input type="email" name="email" class="form-control">
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Mobail Number:</label>
                                                 <input type="tel" name="mobile" class="form-control">
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">Address:</label>
                                                 <input type="text" name="addressLine" class="form-control">
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                             <div class="col">
                                                 <label class="form-label">Town/City:</label>
                                                 <input type="text" name="city" class="form-control">
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col">
                                                 <label class="form-label">Pin Code:</label>
                                                 <input type="text" name="pinCode" class="form-control">
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                             <div class="col">
                                                 <label for="dropdown" class="form-label">Country</label>
@@ -260,10 +280,12 @@
                                                     <option value="USA">USA</option>
                                                     <option value="UAE">UAE</option>
                                                 </select>
+                                                <small class="error-message text-danger"></small>
                                             </div>
                                         </div>
                                         <div class="row d-flex justify-content-center">
-                                            <button type="submit" class="btn btn-outline-warning mt-5 w-75 ">Edit Address</button>
+                                            <button type="submit" class="btn btn-outline-warning mt-5 w-75 ">Edit
+                                                Address</button>
                                         </div>
                                     </form>
                                 </div>

@@ -1,11 +1,13 @@
 #head {
     text-decoration: none;
 }
+
 .shadow-navbar {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     position: relative;
 }
+
 .address-list {
     display: flex;
     overflow-x: auto;
@@ -18,22 +20,31 @@
     transition: box-shadow 0.3s ease;
     min-width: 20rem;
     min-height: 17.5rem;
-    margin-right: 15px; /* Space between cards */
-    padding: 15px; /* Padding for better spacing inside card */
-    border: 1px solid #ddd; /* Border for card */
-    border-radius: 8px; /* Rounded corners */
-    background-color: #fff; /* Background color for card */
+    margin-right: 15px;
+    /* Space between cards */
+    padding: 15px;
+    /* Padding for better spacing inside card */
+    border: 1px solid #ddd;
+    /* Border for card */
+    border-radius: 8px;
+    /* Rounded corners */
+    background-color: #fff;
+    /* Background color for card */
     display: inline-block;
-    white-space: normal; /* Ensure content wraps inside the card */
+    white-space: normal;
+    /* Ensure content wraps inside the card */
 }
 
 .address-card span {
-    display: block; /* Each span should appear on its own line */
-    margin-bottom: 5px; /* Add spacing between lines */
+    display: block;
+    /* Each span should appear on its own line */
+    margin-bottom: 5px;
+    /* Add spacing between lines */
 }
 
 .address-card.selected {
-    box-shadow: 0 0 10px rgba(255, 166, 0, 0.5); /* Highlight selected card */
+    box-shadow: 0 0 10px rgba(255, 166, 0, 0.5);
+    /* Highlight selected card */
     border-color: rgb(255, 179, 0);
 }
 
@@ -58,7 +69,8 @@
     background-color: orange;
     border-color: orange;
 }
+
 .custom-radio {
-    accent-color: orange; 
+    accent-color: orange;
     cursor: pointer;
 }

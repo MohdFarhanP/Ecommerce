@@ -61,7 +61,7 @@ function handleButtonState(button, quantity, maxQty, stock) {
 
 function updateCartQuantity(productId, quantity) {
   fetch('/updateCartQuantity', {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           cartTotalElement.textContent = `₹${data.finalTotal}`;
           alert('Coupon applied successfully!');
-          window.location.reload();   
+          window.location.reload();
         } else {
           showError(data.message);
         }
@@ -144,25 +144,25 @@ document.addEventListener('DOMContentLoaded', function () {
   // Removing coupon 
   if (removeCouponButton) {
     removeCouponButton.addEventListener('click', function () {
-        fetch('/removeCoupon', { 
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+      fetch('/removeCoupon', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            cartTotalElement.textContent = `₹${data.grandTotal}`;
+            alert('Coupon removed successfully!');
+            window.location.reload();
+          } else {
+            showError(data.message);
+          }
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    cartTotalElement.textContent = `₹${data.grandTotal}`;
-                    alert('Coupon removed successfully!');
-                    window.location.reload(); 
-                } else {
-                  showError(data.message); 
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        .catch(error => {
+          console.error('Error:', error);
+        });
     });
-}
+  }
 });

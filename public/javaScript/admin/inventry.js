@@ -6,17 +6,17 @@ function showEditProduct(id, productName, productStock, productPrice, isFeatured
     document.getElementById('editFeatured').value = isFeatured === 'true' ? 'true' : 'false';
 }
 function validateEditProductForm() {
- 
+
     const errorDiv = document.getElementById('editProductError');
-    errorDiv.style.display = 'none'; 
-    errorDiv.innerHTML = ''; 
+    errorDiv.style.display = 'none';
+    errorDiv.innerHTML = '';
 
     const productName = document.getElementById('editProductName').value.trim();
     const productStock = document.getElementById('editStock').value;
     const productPrice = document.getElementById('editPrice').value;
 
     let errors = [];
-    if(!productName || !productStock || !productPrice){
+    if (!productName || !productStock || !productPrice) {
         errors.push('All fields are required');
     }
     if (productName.length < 3) {
@@ -32,18 +32,18 @@ function validateEditProductForm() {
     }
 
     if (errors.length > 0) {
-       
-        errorDiv.style.display = 'block'; 
-        errorDiv.innerHTML = errors.join('<br>'); 
-        return false; 
+
+        errorDiv.style.display = 'block';
+        errorDiv.innerHTML = errors.join('<br>');
+        return false;
     }
 
-    return true; 
+    return true;
 }
-document.getElementById('editProductForm').addEventListener('submit',(e)=>{
+document.getElementById('editProductForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const result = validateEditProductForm();
-    if(result){
+    if (result) {
         e.target.submit();
     }
 })

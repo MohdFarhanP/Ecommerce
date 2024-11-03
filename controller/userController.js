@@ -1,19 +1,18 @@
 const bcrypt = require('bcrypt');
 const User = require("../module/userModel");
 const nodemailer = require('nodemailer');
-const { template } = require('handlebars');
 const path = require('path');
-const { emit } = require('process');
 require('dotenv').config();
 const Products = require('../module/products');
 const Category = require('../module/categoryModel');
 const Review = require('../module/reviewModel');
 const Address = require('../module/addressModel');
 const Cart = require('../module/cartModel');
-const { error, log } = require('console');
 const Order = require('../module/orderModel');
 const Wishlist = require('../module/whishlistModel');
 const Coupon = require('../module/coupenModel');
+const easyinvoice = require('easyinvoice');
+const fs = require('fs');
 const Razorpay = require('razorpay');
 const WalletTransaction = require('../module/wlletModel');
 
@@ -107,19 +106,47 @@ const signupPage = (req, res) => {
 }
 const signupBtn = async (req, res) => {
     try {
-        const { userName, email, password } = req.body;
+        const { userName, email, password, referralCode } = req.body;
         const exist = await User.findOne({ email });
         if (exist) {
             return res.render('user/signup', { msg: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        const generateReferralCode = () => `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+
+        let referredByUser = null;
+        if (referralCode) {
+            // Check if the referral code is valid
+            referredByUser = await User.findOne({ referralCode });
+            if (!referredByUser) {
+                return res.render('user/signup', { msg: 'Invalid referral code' });
+            }
+            req.session.appliedReferralCode = referralCode
+        }
+
         const newUser = new User({
             userName,
             email,
             password: hashedPassword,
+            referralCode: generateReferralCode(),
+            referredBy: referredByUser ? referredByUser._id : null,
         });
         await newUser.save();
+
+        if (referredByUser) {
+            const walletTransaction = new WalletTransaction({
+                userId: referredByUser._id,
+                amount: 50,
+                transactionType: 'Credit',
+                description: 'Referral bonus for new signup',
+            });
+            await walletTransaction.save();
+            // Update the referring user's wallet balance
+            referredByUser.walletBalance += 50;
+            await referredByUser.save();
+        }
 
 
         req.session.userId = newUser._id;
@@ -143,7 +170,7 @@ const signupBtn = async (req, res) => {
         await transporter.sendMail(mailOptions);
         console.log("OTP email sent");
         const remainTime = 60;
-        return res.render('user/otp', { remainTime, id: req.session.userId });
+        res.render('user/otp', { remainTime, id: req.session.userId });
 
     } catch (error) {
         console.error('Signup error:', error);
@@ -151,7 +178,7 @@ const signupBtn = async (req, res) => {
     }
 };
 const otpPage = (req, res) => {
-    res.render('otp')
+    res.render('user/otp')
 };
 const verifyOtp = async (req, res) => {
     try {
@@ -159,17 +186,20 @@ const verifyOtp = async (req, res) => {
         const otpAge = Date.now() - req.session.otpTimestamp;
         const otpExp = 1 * 60 * 1000;
 
+        console.log('verifiying otp');
+
         if (otpAge > otpExp) {
             return res.render('user/otp', { error: "OTP expired, please request a new one." });
         }
 
         const remainTime = Math.floor(Math.max(0, otpExp - otpAge) / 1000);
+        console.log(remainTime)
         if (req.session.otp) {
             const existOtp = req.session.otp.toString();
             if (userOtp === existOtp) {
 
                 req.session.userId = req.session.userId;
-                return res.render('user/home', { msg: "User created successfully" });
+                return res.render('user/home');
             } else {
                 return res.render('user/otp', { error: "Invalid OTP, please try again.", remainTime });
             }
@@ -213,7 +243,7 @@ const resendOtp = async (req, res) => {
     }
 };
 const ProductList = async (req, res) => {
-    const productsPerPage = 5;
+    const productsPerPage = 6;
     const page = parseInt(req.query.page) || 1;
 
     try {
@@ -263,7 +293,7 @@ const ProductList = async (req, res) => {
 };
 const filterProducts = async (req, res) => {
     try {
-        const { brands = [], displayTypes = [], colors = [], showOutOfStock, sortCriteria } = req.body;
+        const { searchQuery, brands = [], displayTypes = [], colors = [], showOutOfStock, sortCriteria } = req.body;
         const minPrice = parseInt(req.body.minPrice, 10) || 0;
         const maxPrice = parseInt(req.body.maxPrice, 10) || Infinity;
 
@@ -279,8 +309,9 @@ const filterProducts = async (req, res) => {
         }
 
         let categoryIds = [];
-        if (brands.length > 0 || displayTypes.length > 0 || colors.length > 0) {
+        if (brands.length > 0 || displayTypes.length > 0 || colors.length > 0 || searchQuery) {
             const categoryQuery = {};
+
             if (brands.length > 0) {
                 categoryQuery.brandName = { $in: brands };
             }
@@ -291,6 +322,13 @@ const filterProducts = async (req, res) => {
                 categoryQuery.bandColor = { $in: colors };
             }
 
+            if (searchQuery) {
+                categoryQuery.$or = [
+                    { brandName: { $regex: searchQuery, $options: 'i' } },
+                    { bandColor: { $regex: searchQuery, $options: 'i' } },
+                    { displayType: { $regex: searchQuery, $options: 'i' } }
+                ];
+            }
 
             const matchingCategories = await Category.find(categoryQuery).collation({ locale: 'en', strength: 2 });
             categoryIds = matchingCategories.map(category => category._id);
@@ -300,6 +338,14 @@ const filterProducts = async (req, res) => {
             query.category = { $in: categoryIds };
         }
 
+        if (searchQuery) {
+            query.$or = [
+                { productName: { $regex: searchQuery, $options: 'i' } },
+                { description: { $regex: searchQuery, $options: 'i' } },
+                { "highlights.brand": { $regex: searchQuery, $options: 'i' } },
+                { "highlights.model": { $regex: searchQuery, $options: 'i' } }
+            ];
+        }
 
         let sortQuery = {};
         let collation = { locale: 'en', strength: 2 };
@@ -342,28 +388,8 @@ const filterProducts = async (req, res) => {
         res.status(500).json({ message: 'Error occurred while filtering products' });
     }
 };
-const search = async (req, res) => {
-    try {
-        const searchQuery = req.query.q;
-
-        const products = await Products.find({
-            $or: [
-                { productName: { $regex: searchQuery, $options: 'i' } },
-                { description: { $regex: searchQuery, $options: 'i' } },
-                { "highlights.brand": { $regex: searchQuery, $options: 'i' } },
-                { "highlights.model": { $regex: searchQuery, $options: 'i' } }
-            ],
-            isDeleted: false
-        });
-        console.log(products);
-
-        res.render('user/ProductList', { products, searchQuery });
-    } catch (err) {
-        console.error('Search error:', err);
-        res.status(500).send('Server Error');
-    }
-};
 const productPage = async (req, res) => {
+
     const getProductRatingSummary = async (ProductId) => {
         const reviews = await Review.find({ productId: ProductId });
         const totalReviews = reviews.length;
@@ -486,6 +512,7 @@ const userProfile = async (req, res) => {
 };
 const passwordUpdate = async (req, res) => {
     try {
+        const userId = req.session.userId;
         const { id, oldPassword, password } = req.body;
 
         const user = await User.findById(id);
@@ -495,9 +522,12 @@ const passwordUpdate = async (req, res) => {
                 const salt = await bcrypt.genSalt(10);
                 user.password = await bcrypt.hash(password, salt);
                 await user.save();
-                res.render('user/passwordUpdate', { msg: 'Password changed successfully' });
+                res.render('user/passwordUpdate', { msg: 'Password changed successfully', userId });
+                console.log('changed successfully ');
+
             } else {
-                res.render('user/passwordUpdate', { err: 'passoword not matching ' });
+                res.render('user/passwordUpdate', { err: 'passoword not matching ', userId });
+                console.log('password is not matching ');
             }
         } else {
             res.render('user/passwordUpdate', { err: 'User not exist ' });
@@ -609,12 +639,12 @@ const setDefaultAddress = async (req, res) => {
     try {
         const userId = req.session.userId;
         const { addressId } = req.body;
-
+        console.log(userId, addressId)
         await Address.updateMany({ user: userId }, { $set: { isDefault: false } });
 
         await Address.findByIdAndUpdate(addressId, { $set: { isDefault: true } });
-
-        res.json({ success: true });
+        console.log("success");
+        return res.json({ success: true });
 
     } catch (err) {
 
@@ -701,10 +731,15 @@ const cancelProduct = async (req, res) => {
             { _id: orderId, "products.productId": productId, 'products.status': { $in: ['Pending', 'Confirmed'] } },
             { $set: { "products.$.status": 'Cancelled' } }
         );
-       
+        const product = await Products.findById(productId);
+        const newStock = product.productStock + productToCancel.quantity;
+        const newMaxQty = Math.min(Math.floor(newStock / 3), 10);
         await Products.updateOne(
             { _id: productId },
-            { $inc: { productStock: productToCancel.quantity } }
+            {
+                $inc: { productStock: productToCancel.quantity },
+                $set: { maxQtyPerPerson: newMaxQty },
+            }
         );
 
         if (order.paymentMethod !== 'COD') {
@@ -806,7 +841,7 @@ const placeOrder = async (req, res) => {
                     userId: userId,
                     amount: totalAmount,
                     transactionType: 'Debit',
-                    description: `Payment for order ${newOrder.products}`
+                    description: `Payment for order `
                 });
 
                 await Cart.findOneAndDelete({ user: userId });
@@ -829,7 +864,7 @@ const placeOrder = async (req, res) => {
             const newOrder = new Order({
                 userId,
                 products,
-                shippingAddress:{
+                shippingAddress: {
                     firstName: shippingAddress.firstName,
                     lastName: shippingAddress.lastName,
                     email: shippingAddress.email,
@@ -875,59 +910,74 @@ const createRazorpayOrder = async (req, res) => {
         res.json({ success: false, error: error.message });
     }
 };
+
 const verifyRazorpayPayment = async (req, res) => {
     const userId = req.session.userId;
-    try {
-        const { order_id, payment_id, signature, shippingAddressId, paymentMethod, totalAmount, products, couponCode, couponDiscount, discount } = req.body;
+    const crypto = require('crypto');
 
-        const crypto = require('crypto');
+    try {
+        const { order_id, payment_id, signature, selectedAddressId, paymentMethod, totalAmount, products, couponCode, couponDiscount, discount } = req.body;
+
+        // Verify Razorpay payment signature
         const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
             .update(order_id + "|" + payment_id)
             .digest('hex');
-           
-            const shippingAddress = await Address.findById(shippingAddressId);
-            
+
+        const shippingAddress = await Address.findById(selectedAddressId);
+
+        // Initialize the new order with a default 'Pending' payment status
+        const newOrderData = {
+            userId: req.session.userId,
+            products,
+            shippingAddress: {
+                firstName: shippingAddress.firstName || "",
+                lastName: shippingAddress.lastName,
+                email: shippingAddress.email,
+                mobile: shippingAddress.mobile,
+                addressLine: shippingAddress.addressLine,
+                city: shippingAddress.city,
+                pinCode: shippingAddress.pinCode,
+                country: shippingAddress.country,
+            },
+            totalAmount,
+            paymentMethod,
+            paymentStatus: 'Pending',
+            status: 'Pending',
+            deliveryDate: new Date(new Date().setDate(new Date().getDate() + 5)),
+            couponCode,
+            couponDiscount,
+            discount
+        };
+
         if (generatedSignature === signature) {
-            // Payment is verified, save the order
-            const newOrder = new Order({
-                userId: req.session.userId,
-                products: products,
-                shippingAddress:{
-                    firstName: shippingAddress.firstName,
-                    lastName: shippingAddress.lastName,
-                    email: shippingAddress.email,
-                    mobile: shippingAddress.mobile,
-                    addressLine: shippingAddress.addressLine,
-                    city: shippingAddress.city,
-                    pinCode: shippingAddress.pinCode,
-                    country: shippingAddress.country,
-                },
-                totalAmount,
-                paymentMethod,
-                paymentStatus: 'Paid',
-                status: 'Confirmed',
-                deliveryDate: new Date(new Date().setDate(new Date().getDate() + 5)),
-                couponCode,
-                couponDiscount,
-                discount
-            });
-
-            await newOrder.save();
-            console.log('order saved ');
-
-            await Cart.findOneAndDelete({ user: userId });
-            console.log("cart item deleted ");
-
-            delete req.session.appliedCouponCode;
-            
-            res.json({ success: true, orderId: newOrder._id });
-        } else {
-            res.json({ success: false, message: "Payment verification failed" });
+            // Payment verified, update paymentStatus to 'Paid' and order status to 'Confirmed'
+            newOrderData.paymentStatus = 'Paid';
+            newOrderData.status = 'Confirmed';
         }
+
+        // Save the order, whether verified or not
+        const newOrder = new Order(newOrderData);
+        await newOrder.save();
+        console.log('Order saved with status:', newOrderData.paymentStatus);
+
+        if (newOrderData.paymentStatus === 'Paid') {
+            // If payment was successful, clear the cart
+            await Cart.findOneAndDelete({ user: userId });
+            console.log("Cart items deleted");
+            delete req.session.appliedCouponCode;
+        }
+
+        res.json({
+            success: newOrderData.paymentStatus === 'Paid',
+            message: newOrderData.paymentStatus === 'Paid' ? "Payment verified and order confirmed" : "Payment verification failed, order placed with pending payment",
+            orderId: newOrder._id
+        });
     } catch (err) {
-        console.log("razorpay verification error: ", err)
+        console.error("Razorpay verification error:", err);
+        res.json({ success: false, message: "An error occurred during payment verification" });
     }
 };
+
 const orderSuccess = async (req, res) => {
     try {
         const orderId = req.params.orderId;
@@ -944,6 +994,82 @@ const orderSuccess = async (req, res) => {
     } catch (err) {
         console.error('Error loading order success page:', err);
         res.status(500).send('Server error');
+    }
+};
+const downloadInvoice = async (req, res) => {
+    try {
+        console.log('Order ID:', req.params.orderId);
+        const tmpDir = './tmp';
+        if (!fs.existsSync(tmpDir)) {
+            fs.mkdirSync(tmpDir);
+        }
+
+
+        const order = await Order.findById(req.params.orderId).populate('products.productId');
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        const logoPath = path.join(__dirname, '..', 'public', 'image', 'user', 'WATCH.png'); 
+     
+
+        const data = {
+            client: {
+                company: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
+                address: order.shippingAddress.addressLine,
+                zip: order.shippingAddress.pinCode,
+                city: order.shippingAddress.city,
+                country: order.shippingAddress.country
+            },
+            sender: {
+                company: "WATCHLY", 
+                address: "Bangelore,Karnataka", 
+                zip: "4587631", 
+                city: "Bangelre city", 
+                country: "India"
+            },
+            images: {
+                logo: fs.readFileSync(logoPath, 'base64'),
+            },
+            information: {
+                number: order._id.toString(),
+                date: new Date(order.createdAt).toLocaleDateString(),
+                "due-date": new Date(order.deliveryDate).toLocaleDateString()
+            },
+            products: order.products.map(item => ({
+                quantity: item.quantity,
+                description: item.productId.productName,
+                "tax-rate": 0, 
+                price: item.price
+            })),
+            bottomNotice: "Thank you for shopping with WATCHLY!",
+            settings: {
+                currency: "INR",
+            },
+        };
+
+
+        easyinvoice.createInvoice(data, (result) => {
+            if (result.pdf) {
+                const filePath = path.join(tmpDir, `invoice_${req.params.orderId}.pdf`);
+                fs.writeFileSync(filePath, result.pdf, 'base64');
+
+           
+                res.download(filePath, 'invoice.pdf', (err) => {
+                    if (err) {
+                        console.error('Error downloading invoice:', err);
+                        return res.status(500).send('Error downloading invoice');
+                    }
+                    fs.unlinkSync(filePath); 
+                });
+            } else {
+                console.error('Invoice creation failed:', result);
+                res.status(500).send('Error generating invoice');
+            }
+        });
+    } catch (error) {
+        console.error('Error generating invoice:', error); 
+        res.status(500).send('Error generating invoice');
     }
 };
 const cart = async (req, res) => {
@@ -976,12 +1102,20 @@ const cart = async (req, res) => {
         const totalPrice = paginatedItems.reduce((acc, item) => acc + item.itemTotal, 0);
 
         const grandTotal = req.session.discountedTotal || totalPrice;
+        const productIds = cart.items.map(item => item.product._id);
+        const categoryIds = cart.items.map(item => item.product.category);
 
+
+        // Fetch applicable coupons based on criteria
         const coupons = await Coupon.find({
             expiryDate: { $gte: new Date() },
-            usageLimit: { $gt: 0 }
+            usageLimit: { $gt: 0 },
+            $or: [
+                { applicableProducts: { $in: productIds } },
+                { applicableCategories: { $in: categoryIds } }
+            ],
+            minimumCartValue: { $lte: grandTotal }
         });
-
         const appliedCouponCode = req.session.appliedCouponCode || null;
 
         res.render('user/cart', {
@@ -1017,6 +1151,7 @@ const removeCartItem = async (req, res) => {
 
         const product = await Products.findById(productId);
         product.productStock += itemToRemove.quantity;
+        product.maxQtyPerPerson = Math.min(Math.floor(product.productStock / 3), 10);
         await product.save();
 
         res.redirect('/cart');
@@ -1032,6 +1167,8 @@ const addToCart = async (req, res) => {
     try {
         const product = await Products.findById(productId)
             .populate('category offersApplied');
+
+
 
         if (!product || product.isDeleted || product.productStock < quantity) {
             const relatedProducts = await Products.find({ category: product.category }).limit(5).lean();
@@ -1088,7 +1225,13 @@ const addToCart = async (req, res) => {
 
         await cart.save();
         product.productStock -= quantity;
+        product.maxQtyPerPerson = Math.min(Math.floor(product.productStock / 3), 10);
         await product.save();
+
+        await Wishlist.updateOne(
+            { userId: userId },
+            { $pull: { products: productId } }
+        );
 
         res.redirect('/cart');
 
@@ -1124,8 +1267,10 @@ const updateCartQuantity = async (req, res) => {
                     return res.json({ success: false, message: 'Not enough stock available' });
                 }
                 product.productStock -= quantityDifference;
+                product.maxQtyPerPerson = Math.min(Math.floor(product.productStock / 3), 10);
             } else {
                 product.productStock += Math.abs(quantityDifference);
+                product.maxQtyPerPerson = Math.min(Math.floor(product.productStock / 3), 10);
             }
 
             cart.items[itemIndex].quantity = quantity;
@@ -1156,56 +1301,59 @@ const updateCartQuantity = async (req, res) => {
         res.json({ success: false, message: 'Error updating cart quantity' });
     }
 };
-const checkoutbtn = (req, res) => {
-    res.redirect('/checkout');
-}
 const checkout = async (req, res) => {
     try {
         const userId = req.session.userId;
-
+        const user = await User.findById(userId);
         const cart = await Cart.findOne({ user: userId }).populate('items.product');
 
-        if (!cart) {
-            return res.status(404).send('No cart found for this user.');
+        if (!cart || cart.items.length === 0) {
+            return res.redirect('/cart');
         }
 
+        // Calculate item totals
         const cartItems = cart.items.map(item => {
-            // Check if the product has a discount price; if not, use the regular price
             const productPrice = item.product.discountPrice || item.product.productPrice;
-
             return {
                 product: item.product,
                 quantity: item.quantity,
-                itemTotal: item.quantity * productPrice // Calculate total using the effective price
+                itemTotal: item.quantity * productPrice
             };
         });
 
+        // Calculate cart totals
         const subTotal = cartItems.reduce((acc, item) => acc + item.itemTotal, 0);
         const shippingCharge = 100;
         const deliveryCharge = 50;
-        const grandTotal = subTotal + shippingCharge + deliveryCharge;
+        let grandTotal = subTotal + shippingCharge + deliveryCharge;
 
         // Access the applied coupon code from the session
         const appliedCouponCode = req.session.appliedCouponCode || null;
-        let discountAmount = 0;
+        let couponDiscountAmount = 0;
 
         if (appliedCouponCode) {
             const coupon = await Coupon.findOne({ code: appliedCouponCode });
-
             if (coupon) {
-
-                if (coupon.discountType === 'percentage') {
-                    discountAmount = (subTotal * coupon.discountValue) / 100;
-                } else if (coupon.discountType === 'fixed') {
-                    discountAmount = coupon.discountValue;
-                }
+                couponDiscountAmount = coupon.discountType === 'percentage'
+                    ? (subTotal * coupon.discountValue) / 100
+                    : coupon.discountValue;
             }
         }
 
-        const finalTotal = grandTotal - discountAmount;
+        // Apply referral discount only if it’s the first purchase
+        let referralDiscountAmount = 0;
+        let appliedReferralCode = req.session.appliedReferralCode || null;
 
+        if (user.isFirstPurchase && appliedReferralCode) {
+            referralDiscountAmount = 30; // Set your referral discount amount here
+        }
+
+        // Calculate final total after all discounts
+        let finalTotal = grandTotal - couponDiscountAmount - referralDiscountAmount;
+        finalTotal = Math.max(0, finalTotal);
+
+        // Fetch user addresses
         const userAddresses = await Address.find({ user: userId });
-        const user = await User.findOne({ _id: userId });
 
         res.render('user/checkout', {
             cartItems,
@@ -1213,7 +1361,9 @@ const checkout = async (req, res) => {
             shippingCharge,
             grandTotal: finalTotal,
             appliedCouponCode,
-            discountAmount,
+            couponDiscountAmount,
+            appliedReferralCode,
+            referralDiscountAmount,
             userAddresses,
             deliveryCharge,
             razorpayKey: process.env.RAZORPAY_KEY_ID,
@@ -1483,7 +1633,6 @@ module.exports = {
     resendOtp,
     ProductList,
     filterProducts,
-    search,
     productPage,
     review,
     logoutbtn,
@@ -1504,7 +1653,6 @@ module.exports = {
     addToCart,
     removeCartItem,
     updateCartQuantity,
-    checkoutbtn,
     placeOrder,
     cancelProduct,
     orderDetails,
@@ -1517,5 +1665,6 @@ module.exports = {
     createRazorpayOrder,
     verifyRazorpayPayment,
     walletpage,
-    returnProduct
+    returnProduct,
+    downloadInvoice
 }

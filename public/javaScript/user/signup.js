@@ -1,59 +1,71 @@
+document.getElementById('signupForm').addEventListener('submit', (event) => {
+    event.preventDefault();
 
-     document.getElementById('signupForm').addEventListener('submit', (event) => {
-        event.preventDefault(); 
+    clearErrors(); // Clear previous error messages
+    let accept = formValidate();
+    if (accept) {
+        event.target.submit();
+    }
+});
 
-        let accept = formValidate();
-        if (accept) {
-            event.target.submit();
-        }
+function clearErrors() {
+    // Remove is-invalid classes and clear error messages
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.classList.remove('is-invalid');
     });
+    document.getElementById('nameError').textContent = '';
+    document.getElementById('emailError').textContent = '';
+    document.getElementById('passwordError').textContent = '';
+    document.getElementById('confirmPasswordError').textContent = '';
+}
 
+function formValidate() {
+    let name = document.getElementById('name').value;
+    let email = document.getElementById('email').value;
+    let password = document.getElementById('password').value;
+    let confirmPassword = document.getElementById('conformPassword').value;
 
-    function formValidate() {
-        let name = document.getElementById('name').value;
-        let password = document.getElementById('password').value;
-        let email = document.getElementById('email').value;
-        let conformPassword = document.getElementById('conformPassword').value;
+    let isValid = true;
 
-        if (name == '' || password == ''|| email == ''||conformPassword == '') {
-            Swal.fire('All fields are required');
-            return false;
-        }
-        if (!/^[a-zA-Z0-9_]{5,20}$/.test(name)) {
-            Swal.fire({
-                icon: "error",
-                text: "Username must be 5-20 characters long and contain only letters, numbers, and underscores.",
-              });
-              return false;
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-            Swal.fire({
-                icon: "error",
-                text: "Please enter valid email. eg: example@domain.com",
-              });
-              return false;
-        }
-        if( !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)){
-            Swal.fire({
-                icon: "error",
-                text: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number"
-              }); 
-              return false;
-        }if(password !== conformPassword){
-            Swal.fire({
-                icon: "error",
-                text: "The passwords you entered do not match. Please try again."
-              });
-            return false;
-        }
-        return true;
+    if (name === '') {
+        document.getElementById('nameError').textContent = 'Username is required';
+        document.getElementById('name').classList.add('is-invalid');
+        isValid = false;
+    } else if (!/^[a-zA-Z0-9_]{5,20}$/.test(name)) {
+        document.getElementById('nameError').textContent = 'Username must be 5-20 characters long and contain only letters, numbers, and underscores.';
+        document.getElementById('name').classList.add('is-invalid');
+        isValid = false;
     }
 
-  
-  const msg = document.getElementById('msg').textContent;
-  if(msg){
-    Swal.fire({
-        icon: "error",
-        title: msg,
-      });
-  }
+    if (email === '') {
+        document.getElementById('emailError').textContent = 'Email is required';
+        document.getElementById('email').classList.add('is-invalid');
+        isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('emailError').textContent = 'Please enter a valid email. e.g., example@domain.com';
+        document.getElementById('email').classList.add('is-invalid');
+        isValid = false;
+    }
+
+    if (password === '') {
+        document.getElementById('passwordError').textContent = 'Password is required';
+        document.getElementById('password').classList.add('is-invalid');
+        isValid = false;
+    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
+        document.getElementById('passwordError').textContent = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number';
+        document.getElementById('password').classList.add('is-invalid');
+        isValid = false;
+    }
+
+    if (confirmPassword === '') {
+        document.getElementById('confirmPasswordError').textContent = 'Confirm password is required';
+        document.getElementById('conformPassword').classList.add('is-invalid');
+        isValid = false;
+    } else if (password !== confirmPassword) {
+        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match. Please try again.';
+        document.getElementById('conformPassword').classList.add('is-invalid');
+        isValid = false;
+    }
+
+    return isValid;
+}

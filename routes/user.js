@@ -6,19 +6,18 @@ const userAuth = require('../middleware/userAuth');
 
 
 // Public routes (no session required)
-router.get('/login', userAuth.isLogin, userController.loginPage); 
-router.post('/login', userAuth.isLogin, userController.loginBtn);  
-router.get('/signup', userAuth.isLogin, userController.signupPage); 
-router.post('/sent-otp', userAuth.isLogin, userController.signupBtn);
-router.get('/otp', userAuth.isLogin, userController.otpPage);
-router.post('/verifyOtp', userAuth.isLogin, userController.verifyOtp);
+router.get('/login', userAuth.isLogin, userController.loginPage);
+router.post('/login', userAuth.isLogin, userController.loginBtn);
+router.get('/signup', userAuth.isLogin, userController.signupPage);
+router.post('/sent-otp', userController.signupBtn);
+router.get('/otp', userController.otpPage);
+router.post('/verifyOtp', userController.verifyOtp);
 router.post('/resendOtp', userController.resendOtp);
 router.post('/demoLogin', userController.demoLogin);
-router.get('/authPrompt',userController.authPromptPage);
-router.get('/search',userController.search)
+router.get('/authPrompt', userController.authPromptPage);
 
 // Protected routes (session required)
-router.get('/',userController.gestUser)
+router.get('/', userController.gestUser)
 router.get('/home', userController.homePage);
 router.get('/ProductList', userController.ProductList);
 router.post('/filterProducts', userController.filterProducts);
@@ -28,35 +27,35 @@ router.get('/logOut', userAuth.checkSession, userController.logoutbtn);
 
 // User profile and settings (session required)
 router.get('/userProfile', userAuth.checkSession, userController.userProfile);
-router.post('/userEdit', userAuth.checkSession, userController.editUserProfile);
+router.patch('/userEdit', userAuth.checkSession, userController.editUserProfile);
 router.get('/passwordUpdate', userAuth.checkSession, userController.passwordUpdatePage);
-router.post('/passwordUpdate',userAuth.checkSession,userController.passwordUpdate)
+router.patch('/passwordUpdate', userAuth.checkSession, userController.passwordUpdate)
 router.get('/address', userAuth.checkSession, userController.addressPage);
-router.post('/addAddress',userAuth.checkSession,userController.addAddress);
-router.post('/editAddress/:id',userAuth.checkSession,userController.editAddress);
-router.post('/deleteAddress/:id',userAuth.checkSession,userController.deleteAddress)
-router.post('/setDefaultAddress',userAuth.checkSession,userController.setDefaultAddress)
+router.post('/addAddress', userAuth.checkSession, userController.addAddress);
+router.put('/editAddress/:id', userAuth.checkSession, userController.editAddress);
+router.delete('/deleteAddress/:id', userAuth.checkSession, userController.deleteAddress)
+router.patch('/setDefaultAddress', userAuth.checkSession, userController.setDefaultAddress)
 router.get('/orders', userAuth.checkSession, userController.orders);
-router.get('/orderDetails/:orderId/:productId',userAuth.checkSession,userController.orderDetails)
-router.post('/placeOrder',userAuth.checkSession,userController.placeOrder);
-router.get('/orderSuccess/:orderId',userAuth.checkSession,userController.orderSuccess)
-router.post('/cancelProduct',userAuth.checkSession,userController.cancelProduct);
-router.post('/returnProduct',userAuth.checkSession,userController.returnProduct);
+router.get('/orderDetails/:orderId/:productId', userAuth.checkSession, userController.orderDetails);
+router.get('/downloadInvoice/:orderId', userController.downloadInvoice);
+router.post('/placeOrder', userAuth.checkSession, userController.placeOrder);
+router.get('/orderSuccess/:orderId', userAuth.checkSession, userController.orderSuccess)
+router.patch('/cancelProduct', userAuth.checkSession, userController.cancelProduct);
+router.patch('/returnProduct', userAuth.checkSession, userController.returnProduct);
 // Shopping and checkout (session required)
 router.get('/cart', userAuth.checkSession, userController.cart);
-router.post('/addToCart',userAuth.checkSession,userController.addToCart);
-router.post('/removeCartItem/:id',userAuth.checkSession,userController.removeCartItem);
-router.post('/updateCartQuantity',userAuth.checkSession,userController.updateCartQuantity)
-router.post('/checkoutbtn',userAuth.checkSession,userController.checkoutbtn);
+router.post('/addToCart', userAuth.checkSession, userController.addToCart);
+router.delete('/removeCartItem/:id', userAuth.checkSession, userController.removeCartItem);
+router.patch('/updateCartQuantity', userAuth.checkSession, userController.updateCartQuantity)
 router.get('/checkout', userAuth.checkSession, userController.checkout);
-router.get("/whishList",userAuth.checkSession,userController.whishlist);
+router.get("/whishList", userAuth.checkSession, userController.whishlist);
 router.post("/wishlistAdd", userAuth.checkSession, userController.addWishlist);
-router.post("/wishlistRemove", userAuth.checkSession, userController.removeWishlist);
-router.post("/applyCoupon",userAuth.checkSession,userController.couponApply);
-router.post('/removeCoupon',userAuth.checkSession,userController.removeCoupon);
-router.post('/create-razorpay-order',userAuth.checkSession,userController.createRazorpayOrder);
-router.post('/verify-razorpay-payment',userAuth.checkSession,userController.verifyRazorpayPayment);
-router.get('/wallet',userAuth.checkSession,userController.walletpage);
+router.delete("/wishlistRemove", userAuth.checkSession, userController.removeWishlist);
+router.post("/applyCoupon", userAuth.checkSession, userController.couponApply);
+router.patch('/removeCoupon', userAuth.checkSession, userController.removeCoupon);
+router.post('/create-razorpay-order', userAuth.checkSession, userController.createRazorpayOrder);
+router.post('/verify-razorpay-payment', userAuth.checkSession, userController.verifyRazorpayPayment);
+router.get('/wallet', userAuth.checkSession, userController.walletpage);
 
 // Blocked page for users who are blocked
 router.get('/blocked', userController.blocked);

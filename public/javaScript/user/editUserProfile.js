@@ -1,33 +1,47 @@
-document.querySelector('form').addEventListener('submit', (event) => {
-    event.preventDefault(); // Prevent form submission for validation
-    
+document.getElementById('editUserForm').addEventListener('submit', (event) => {
+    event.preventDefault(); 
+
+    // Clear previous error messages
+    document.getElementById('userNameError').style.display = 'none';
+    document.getElementById('mobileError').style.display = 'none';
+    document.getElementById('emailError').style.display = 'none';
+    document.getElementById('countryError').style.display = 'none';
+
     const userName = document.querySelector('input[name="userName"]').value.trim();
     const mobile = document.querySelector('input[name="mobile"]').value.trim();
     const email = document.querySelector('input[name="email"]').value.trim();
     const country = document.querySelector('select[name="country"]').value;
 
+    let isValid = true;
+
+    // Validate username
     if (!userName) {
-        Swal.fire('Error', 'Username is required', 'error');
-        return false;
+        document.getElementById('userNameError').style.display = 'block';
+        isValid = false;
     }
 
+    // Validate email
     if (!email || !validateEmail(email)) {
-        Swal.fire('Error', 'A valid email is required', 'error');
-        return false;
+        document.getElementById('emailError').style.display = 'block';
+        isValid = false;
     }
 
+    // Validate mobile
     if (!mobile || !validateMobile(mobile)) {
-        Swal.fire('Error', 'A valid mobile number is required', 'error');
-        return false;
+        document.getElementById('mobileError').style.display = 'block';
+        isValid = false;
     }
 
-    if (!country || country === "") {
-        Swal.fire('Error', 'Please select a country', 'error');
-        return false;
+    // Validate country
+    if (!country) {
+        document.getElementById('countryError').style.display = 'block';
+        isValid = false;
     }
 
     // If all validations pass, submit the form
-    event.target.submit();
+    if (isValid) {
+        event.target.submit();
+    }
 });
 
 // Helper function to validate email format

@@ -1,65 +1,70 @@
-#head{
-    text-decoration: none;
+#head {
+  text-decoration: none;
 }
+
 .shadow-navbar {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    z-index: 1000; 
-    position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  position: relative;
 
 }
-.mbtn{
-    margin-top: .9rem;   
-}
-.details{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 3rem;
-}
-.input{
-    margin-top: 1rem;
+
+.mbtn {
+  margin-top: .9rem;
 }
 
-  
-  /*  pagination color */
-  .custom-pagination .page-link {
-    background-color: #fff;
-    color: #ff8c00;
-  }
-  
-  .custom-pagination .page-link:hover {
-    background-color: #FF7F00;
-    color: #ffff;
-  }
-  
-  .custom-pagination .active .page-link {
-    background-color: #ff8c00;
-    color: white;
-  
-    border: none;
-  }
-  
-  .custom-pagination .active {
-    background-color: #ff8c00;
-  }
-  .custom-pagination{
-    padding-left: 54.3rem;
-  }
+.details {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3rem;
+}
 
-  .cancel-overlay {
-    pointer-events: none;
-    z-index: 2;
+.input {
+  margin-top: 1rem;
+}
+
+
+/*  pagination color */
+.custom-pagination .page-link {
+  background-color: #fff;
+  color: #ff8c00;
+}
+
+.custom-pagination .page-link:hover {
+  background-color: #FF7F00;
+  color: #ffff;
+}
+
+.custom-pagination .active .page-link {
+  background-color: #ff8c00;
+  color: white;
+
+  border: none;
+}
+
+.custom-pagination .active {
+  background-color: #ff8c00;
+}
+
+.custom-pagination {
+  padding-left: 54.3rem;
+}
+
+.cancel-overlay {
+  pointer-events: none;
+  z-index: 2;
 }
 
 .cancel-overlay .fa-ban {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 }
 
 /* Optional: Highlight card when cancelled */
 .card .row.mb-3 {
-    transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .card .row.mb-3:hover {
-    transform: scale(1.02);
+  transform: scale(1.02);
 }

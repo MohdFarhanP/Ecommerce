@@ -19,8 +19,8 @@
                 aria-label="Search">
               <button class="btn btn-outline" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
-          </div>  
-          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/logOut"><i
+          </div>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/whishList"><i
                 class="fa-regular fa-heart"></i></a></li>
           <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
                 class="fa-regular fa-user"></i></a></li>
@@ -33,28 +33,30 @@
 </header>
 
 <div class="container mt-4">
-    <div class="card">
-        <div class="row g-0">
-            <div class="col-md-4">
-                <img src="/uploads/{{product.productId.images.[0]}}" class="img-fluid rounded-start" alt="{{product.productId.productName}}">
-            </div>
-            <div class="col-md-8">
-                <div class="card-body">
-                    <h5 class="card-title">Product Name: {{product.productId.productName}}</h5>
-                    <p class="card-text">Price: ₹{{product.price}}</p>
-                    <p class="card-text">Quantity: {{product.quantity}}</p>
-                    <p class="card-text">Total Amount: ₹{{order.totalAmount}}</p>
-                    <p class="card-text">Order Status: {{product.status}}</p>
-                    <p class="card-text">Payment Status: {{order.paymentStatus}}</p>
-                    <p class="card-text">Ordered Date: {{formatDate order.createdAt 'dd/MM/yyyy'}}</p>
-                    <p class="card-text">Delivery Date: {{formatDate order.deliveryDate 'dd/MM/yyyy'}}</p>
-                    <p class="card-text">Shipping Address: {{order.shippingAddress.addressLine}}, {{order.shippingAddress.city}}</p>
-                    <div class="d-flex">
-                        <p class="card-text"><small class="text-muted">Order ID: {{order._id}}</small></p>
-                    </div>
-                    <a href="/orders" class="btn btn-outline-warning mt-3">Back to Orders</a>
-                </div>
-            </div>
+  <div class="card">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img src="/uploads/{{product.productId.images.[0]}}" class="img-fluid rounded-start"
+          alt="{{product.productId.productName}}">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">Product Name: {{product.productId.productName}}</h5>
+          <p class="card-text">Price: ₹{{product.price}}</p>
+          <p class="card-text">Quantity: {{product.quantity}}</p>
+          <p class="card-text">Total Amount: ₹{{order.totalAmount}}</p>
+          <p class="card-text">Order Status: {{product.status}}</p>
+          <p class="card-text">Payment Status: {{order.paymentStatus}}</p>
+          <p class="card-text">Ordered Date: {{formatDate order.createdAt 'dd/MM/yyyy'}}</p>
+          <p class="card-text">Delivery Date: {{formatDate order.deliveryDate 'dd/MM/yyyy'}}</p>
+          <p class="card-text">Shipping Address: {{order.shippingAddress.addressLine}}, {{order.shippingAddress.city}}
+          </p>
+          <div class="d-flex">
+            <p class="card-text"><small class="text-muted">Order ID: {{order._id}}</small></p>
+          </div>
+          <a href="/orders" class="btn btn-outline-warning mt-3">Back to Orders</a>
         </div>
+      </div>
     </div>
+  </div>
 </div>

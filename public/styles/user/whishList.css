@@ -1,30 +1,36 @@
-#head{
+#head {
     text-decoration: none;
 }
+
 .shadow-navbar {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    z-index: 1000; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
     position: relative;
 
 }
-.mbtn{
-    margin-top: .9rem;   
+
+.mbtn {
+    margin-top: .9rem;
 }
+
 .card {
-    width: 100%; /* Make sure it fits within its column */
-    max-width: 25rem; /* Set a maximum width for the card */
-    height: 22rem; /* Set a fixed height for the card */
+    width: 100%;
+    max-width: 25rem;
+    height: 22rem;
+
 }
 
 .card-img-top {
-    height: 10rem; /* Set a fixed height for the image */
-    object-fit: contain; /* Ensure the image covers the area without distortion */
+    height: 10rem;
+    object-fit: contain;
+
 }
 
 .card-body {
 
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Space elements evenly */
+    justify-content: space-between;
+
 
 }

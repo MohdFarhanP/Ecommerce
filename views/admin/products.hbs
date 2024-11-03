@@ -106,13 +106,13 @@
                                     </td>
                                     <td class="align-middle text-center">
                                         {{#if isDeleted}}
-                                        <form action="/activeProduct" method="post"
+                                        <form action="/activeProduct?_method=PATCH" method="post"
                                             onsubmit="return confirm('Are you sure you want to activate this product?')">
                                             <input type="hidden" name="id" value="{{_id}}">
                                             <button type="submit" class="btn btn-success btn-sm">Activate</button>
                                         </form>
                                         {{else}}
-                                        <form action="/deleteProduct" method="post"
+                                        <form action="/deleteProduct?_method=PATCH" method="post"
                                             onsubmit="return confirm('Are you sure you want to delete this product?')">
                                             <input type="hidden" name="id" value="{{_id}}">
                                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
@@ -126,7 +126,7 @@
                     </div>
                 </div>
             </div>
-
+{{#if (gt totalProducts 5)}}
             <!-- Pagination Controls -->
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center pages custom-pagination">
@@ -153,7 +153,7 @@
                     {{/if}}
                 </ul>
             </nav>
-
+{{/if}}
         </div>
 
 
@@ -167,36 +167,29 @@
                         <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Product</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <div id="addProductError" class="alert alert-danger" role="alert" style="display: none;">
-                        </div>
 
-                    </div>
                     <form action="/addProduct" method="post" id="form1" enctype="multipart/form-data">
                         <div class="card-body">
                             <div class="mb-3">
-                                <input type="text" class="form-control" name="productName" placeholder="Product Name"
-                                    required>
+                                <input type="text" class="form-control" name="productName" placeholder="Product Name">
                             </div>
 
                             <div class="mb-3">
-                                <input type="number" class="form-control" name="productStock" placeholder="Stock"
-                                    required>
+                                <input type="number" class="form-control" name="productStock" placeholder="Stock">
                             </div>
 
                             <div class="mb-3">
-                                <input type="number" class="form-control" name="productPrice" placeholder="Price"
-                                    required>
+                                <input type="number" class="form-control" name="productPrice" placeholder="Price">
                             </div>
 
                             <div class="mb-3">
                                 <textarea class="form-control" name="description" placeholder="Description"
-                                    id="exampleFormControlTextarea1" rows="3" required></textarea>
+                                    id="exampleFormControlTextarea1" rows="3"></textarea>
                             </div>
 
                             <div class="form-group mb-3">
                                 <label for="categories">Categories</label>
-                                <select class="form-control" id="categories" name="category" required>
+                                <select class="form-control" id="categories" name="category">
                                     <option value="" disabled selected>Select Category</option>
                                     {{#each categories}}
                                     <option value="{{_id}}">{{brandName}} - {{displayType}} - {{bandColor}}
@@ -207,32 +200,30 @@
 
                             <h6>Product Highlights</h6>
                             <div class="mb-3">
-                                <input type="text" class="form-control" name="highlights[brand]" placeholder="Brand"
-                                    required>
+                                <input type="text" class="form-control" name="highlights[brand]" placeholder="Brand">
                             </div>
                             <div class="mb-3">
-                                <input type="text" class="form-control" name="highlights[model]" placeholder="Model"
-                                    required>
+                                <input type="text" class="form-control" name="highlights[model]" placeholder="Model">
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[caseMaterial]"
-                                    placeholder="Case Material" required>
+                                    placeholder="Case Material">
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[dialColor]"
-                                    placeholder="Dial Color" required>
+                                    placeholder="Dial Color">
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[waterResistance]"
-                                    placeholder="Water Resistance (e.g., 50 meters)" required>
+                                    placeholder="Water Resistance (e.g., 50 meters)">
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[movementType]"
-                                    placeholder="Movement Type (e.g., Automatic)" required>
+                                    placeholder="Movement Type (e.g., Automatic)">
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[bandMaterial]"
-                                    placeholder="Band Material" required>
+                                    placeholder="Band Material">
                             </div>
                             <div class="mb-3">
                                 <label for="features">Features</label>
@@ -242,13 +233,12 @@
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[warranty]"
-                                    placeholder="Warranty (e.g., 2 years)" required>
+                                    placeholder="Warranty (e.g., 2 years)">
                             </div>
 
                             <h6>Images</h6>
                             <div class="mb-3">
-                                <input type="file" class="form-control" id="imageInput" accept="image/*" multiple
-                                    required>
+                                <input type="file" class="form-control" id="imageInput" accept="image/*" multiple>
                             </div>
 
                             <div id="imagePreviewContainer" class="row g-2 mb-3"></div>
@@ -280,33 +270,34 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/editProduct" method="post" enctype="multipart/form-data">
+                        <form action="/editProduct?_method=PUT" id="editProduct" method="post"
+                            enctype="multipart/form-data">
                             <input type="hidden" name="id" id="productId">
 
                             <!-- Product Details -->
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="productName" id="productName"
-                                    placeholder="Product Name" required>
+                                    placeholder="Product Name">
                             </div>
 
                             <div class="mb-3">
                                 <input type="number" class="form-control" name="productStock" id="productStock"
-                                    placeholder="Stock" required>
+                                    placeholder="Stock">
                             </div>
 
                             <div class="mb-3">
                                 <input type="number" class="form-control" name="productPrice" id="productPrice"
-                                    placeholder="Price" required>
+                                    placeholder="Price">
                             </div>
 
                             <div class="mb-3">
                                 <textarea class="form-control" name="description" id="productDescription"
-                                    placeholder="Description" rows="3" required></textarea>
+                                    placeholder="Description" rows="3"></textarea>
                             </div>
 
                             <div class="form-group mb-3">
                                 <label for="productCategories">Categories</label>
-                                <select class="form-control" id="productCategories" name="categories" required>
+                                <select class="form-control" id="productCategories" name="categories">
                                     <option value="" disabled>Select Category</option>
                                     {{#each categories}}
                                     <option value="{{_id}}" {{#if (isSelected _id
@@ -321,37 +312,37 @@
                             <h6>Product Highlights</h6>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[brand]" id="highlightBrand"
-                                    placeholder="Brand" required>
+                                    placeholder="Brand">
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[model]" id="highlightModel"
-                                    placeholder="Model" required>
+                                    placeholder="Model">
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[caseMaterial]"
-                                    id="highlightCaseMaterial" placeholder="Case Material" required>
+                                    id="highlightCaseMaterial" placeholder="Case Material">
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[dialColor]"
-                                    id="highlightDialColor" placeholder="Dial Color" required>
+                                    id="highlightDialColor" placeholder="Dial Color">
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[waterResistance]"
-                                    id="highlightWaterResistance" placeholder="Water Resistance" required>
+                                    id="highlightWaterResistance" placeholder="Water Resistance">
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[movementType]"
-                                    id="highlightMovementType" placeholder="Movement Type" required>
+                                    id="highlightMovementType" placeholder="Movement Type">
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[bandMaterial]"
-                                    id="highlightBandMaterial" placeholder="Band Material" required>
+                                    id="highlightBandMaterial" placeholder="Band Material">
                             </div>
 
                             <div class="mb-3">
@@ -363,24 +354,19 @@
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[warranty]"
-                                    id="highlightWarranty" placeholder="Warranty" required>
+                                    id="highlightWarranty" placeholder="Warranty">
                             </div>
 
                             <!-- Images Section -->
                             <h6>Images (Max 3)</h6>
-                            <div class="product-images row">
-                                {{#each product.images}}
-                                <div class="col-md-4 text-center">
-                                    <div class="image-wrapper">
-                                        <img src="/uploads/{{this}}" alt="Product Image" class="product-img mb-2" />
-                                        <label for="replaceImage-{{@index}}" class="form-label">Replace this
-                                            image:</label>
-                                        <input type="file" name="images" class="form-control">
-                                    </div>
+                            <div class="row card">
+                                <div class="product-images"></div>
+                                <div id="cropper-container" style="display: none;">
+                                    <h5>Crop Image</h5>
+                                    <img id="imageToCrop" style="max-width: 100%; display: none;" />
+                                    <button id="cropImage" class="btn btn-success">Crop Image</button>
                                 </div>
-                                {{/each}}
                             </div>
-
                             <div class="text-center mt-3">
                                 <button type="submit" class="btn btn-success">Submit</button>
                             </div>
@@ -390,33 +376,20 @@
             </div>
         </div>
 
-        <!-- Cropper Modal -->
-        <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <img id="imageToCrop" />
-                    </div>
-                    <div class="modal-footer">
-                        <button id="cropImage" type="button" class="btn btn-primary">Crop</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-
-
     </div>
 </div>
 
 
 
+<div class="toast align-items-center text-white bg-danger border-0" id="errorToast" role="alert" aria-live="assertive"
+    aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1100; min-width: 250px;">
+    <div class="d-flex">
+        <div class="toast-body" id="toastBody">
 
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+            aria-label="Close"></button>
+    </div>
+</div>
 
 <script src="/javaScript/admin/products.js"></script>

@@ -1,66 +1,75 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const loginForm = document.getElementById('loginform');
 
-	 document.addEventListener('DOMContentLoaded', function() {
-     document.getElementById('loginform').addEventListener('submit', (event) => {
-        event.preventDefault(); 
-
-        let accept = formValidate();
-        if (accept) {
-            event.target.submit();
+    loginForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (formValidate()) {
+            loginForm.submit();
         }
     });
 
-
     function formValidate() {
-        let email = document.getElementById('email').value;
-        let password = document.getElementById('password').value;
+        let email = document.getElementById('email');
+        let password = document.getElementById('password');
+        let isValid = true;
 
-        if (password == ''|| email == '') {
-            Swal.fire('All fields are required');
-            return false;
+        // Reset previous validation
+        email.classList.remove('is-invalid');
+        password.classList.remove('is-invalid');
+        document.getElementById('emailError').style.display = 'none';
+        document.getElementById('passwordError').style.display = 'none';
+
+        // Validate email
+        if (email.value.trim() === '') {
+            email.classList.add('is-invalid');
+            document.getElementById('emailError').style.display = 'block';
+            isValid = false;
         }
-        return true;
-    }
-  });
-  
-  const msg = document.getElementById('msg').textContent;
-  const error = document.getElementById('err').textContent;
-  if(msg){
-    Swal.fire({
-        position: "center",
-        icon: "success",
-        title: msg,
-        showConfirmButton: false,
-        timer: 1500
-      });
-  }
-  if(error){
-    Swal.fire({
-        position: "center",
-        icon: "error",
-        title: error,
-        showConfirmButton: false,
-        timer: 1500
-      });
-  }
 
-  document.getElementById('demoLogin').addEventListener('click', function() {
+        // Validate password
+        if (password.value.trim() === '') {
+            password.classList.add('is-invalid');
+            document.getElementById('passwordError').style.display = 'block';
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Display server-rendered messages inline if they exist
+    const msg = document.getElementById('msg').textContent.trim();
+    const error = document.getElementById('err').textContent.trim();
+
+    if (msg) {
+        document.getElementById('emailError').textContent = msg;
+        document.getElementById('emailError').style.display = 'block';
+        document.getElementById('email').classList.add('is-valid');
+    }
+    if (error) {
+        document.getElementById('emailError').textContent = error;
+        document.getElementById('emailError').style.display = 'block';
+        document.getElementById('email').classList.add('is-invalid');
+    }
+});
+
+document.getElementById('demoLogin').addEventListener('click', function () {
     fetch('/demoLogin', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
     })
-    .then(response => {
-        if (response.redirected) {
-            window.location.href = response.url;  
-        } else {
-            return response.text();  
-        }
-    })
-    .then(data => {
-        console.error('Error during demo login:', data);
-    })
-    .catch(error => {
-        console.error('Error during demo login:', error);
-    });
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.text();
+            }
+        })
+        .then(data => {
+            console.error('Error during demo login:', data);
+        })
+        .catch(error => {
+            console.error('Error during demo login:', error);
+        });
 });

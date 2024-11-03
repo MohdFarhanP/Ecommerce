@@ -68,14 +68,14 @@ function addToWishlist(productId) {
 
 function removeFromWishlist(productId) {
   fetch('/wishlistRemove', {
-    method: 'POST',
+    method: 'DELETE',
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ productId })
   })
     .then(response => {
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -84,15 +84,15 @@ function removeFromWishlist(productId) {
     .then(data => {
       if (data.success) {
         console.log('Product removed from wishlist successfully!');
-        showToast('Success', data.message); 
+        showToast('Success', data.message);
       } else {
         console.error('Failed to remove product from wishlist');
-        showToast('Error', data.message); 
+        showToast('Error', data.message);
       }
     })
     .catch(err => {
       console.error('Error:', err);
-      showToast('Error', 'An error occurred while removing from wishlist.'); 
+      showToast('Error', 'An error occurred while removing from wishlist.');
     });
 }
 

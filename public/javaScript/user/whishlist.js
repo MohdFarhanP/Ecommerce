@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log(`Found ${wishlistForms.length} wishlist forms.`);
         wishlistForms.forEach(function (form) {
             form.addEventListener('submit', function (e) {
-                e.preventDefault(); 
+                e.preventDefault();
                 console.log('Remove Wishlist Form submitted.');
 
                 const productId = form.querySelector('input[name="productId"]').value;
@@ -23,9 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function removeFromWishlist(productId) {
-    console.log('removewhislistfun:',productId)
+    console.log('removewhislistfun:', productId)
     fetch('/wishlistRemove', {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
             "Content-Type": "application/json"
         },
@@ -39,7 +39,7 @@ function removeFromWishlist(productId) {
         })
         .then(data => {
             if (data.success) {
-            
+
                 showToast('Success', data.message);
 
                 const productElement = document.querySelector(`#wishlist-item-${productId}`);

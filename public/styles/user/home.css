@@ -1,111 +1,132 @@
-#head{
+#head {
     text-decoration: none;
 }
+
 .shadow-navbar {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    z-index: 1000; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
     position: relative;
 
 }
- 
+
 .htxt {
-    
+
     color: rgb(255, 187, 60);
     width: 20rem;
     height: 5rem;
-    
+
 }
-.heading{
+
+.heading {
     width: 30rem;
     margin-left: 20rem;
     margin-top: 11rem;
 }
-.btn{
+
+.btn {
     border-radius: 2rem;
 }
-.heading1{
+
+.heading1 {
     margin-top: 10rem;
     margin-left: 10rem;
 }
-.img-fluid{
+
+.img-fluid {
     margin-left: 20rem;
     height: 25rem;
     margin-top: 2rem;
     margin-bottom: 2rem;
- 
+
 }
-.bgcolor{
+
+.bgcolor {
     background-color: #eaeaea;
 }
-.align1{
+
+.align1 {
     margin-top: 1rem;
 }
-.text-left{
+
+.text-left {
     color: black;
 }
-.Card-image{
-    object-fit: cover;  
+
+.Card-image {
+    object-fit: cover;
 }
-.product-price{
+
+.product-price {
     color: #ffac33;
 }
-.size2{
+
+.size2 {
     width: 40.5rem;
     height: 20rem;
 }
-.bgStyle{
+
+.bgStyle {
     background-color: rgba(236, 236, 236, 0.586);
 }
-.productImg{
+
+.productImg {
     background-color: rgba(236, 236, 236, 0.586);
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
 }
-.size1{
+
+.size1 {
     width: 40rem;
     height: 20rem;
 }
-.imgSt{
+
+.imgSt {
     width: 12rem;
     height: 12rem;
 }
-.pcard{
+
+.pcard {
     width: 12rem;
-    margin-right: 0.5rem;   
+    margin-right: 0.5rem;
 }
-.product-card{
+
+.product-card {
     border-radius: 0.5rem;
 }
+
 .card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-    transform: translateY(-5px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
     transition: all 0.3s ease;
-  }
-.star{
+}
+
+.star {
     color: #ffac33;
 }
+
 .footer {
     background-color: #333;
     color: #fff;
     padding: 20px 0;
-        font-family: sans-serif;
-        font-weight: 300;
-        font-size: small;
-    
-  }
-  .footer a {
+    font-family: sans-serif;
+    font-weight: 300;
+    font-size: small;
+
+}
+
+.footer a {
     color: #fff;
-  }
-.price{
+}
+
+.price {
     color: #ffac33;
 }
 
 a {
-    text-decoration: none; 
-    color: inherit;        
-  }
-  
-  a:hover {
     text-decoration: none;
-  }
-  
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: none;
+}
