@@ -8,7 +8,7 @@
                 <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
             </div>
             <nav class="nav flex-column mt-5">
-                <a href="#" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
+                <a href="/dashboard" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
                 <a href="/users" class="btn mbtn btn-outline-warning mb-2 ">USERS</a>
                 <a href="/products" class="btn mbtn btn-outline-warning mb-2 active">PRODUCTS</a>
                 <a href="/category" class="btn mbtn btn-outline-warning mb-2 ">CATEGORIES</a>
@@ -17,6 +17,7 @@
                 <a href="/coupon" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
                 <a href="/offer" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
                 <a href="/salesReport" class="btn mbtn btn-outline-warning mb-2">SALES</a>
+                <a href="/ledger" class="btn mbtn btn-outline-warning mb-2 ">LEDGER</a>
                 <form action="/logout" method="post" class="text-center">
                     <button class="mt-3 btn btn-outline-warning"> Logout</button>
                 </form>
@@ -126,7 +127,7 @@
                     </div>
                 </div>
             </div>
-{{#if (gt totalProducts 5)}}
+            {{#if (gt totalProducts 5)}}
             <!-- Pagination Controls -->
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center pages custom-pagination">
@@ -153,7 +154,7 @@
                     {{/if}}
                 </ul>
             </nav>
-{{/if}}
+            {{/if}}
         </div>
 
 
@@ -172,19 +173,23 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="productName" placeholder="Product Name">
+                                <div class="invalid-feedback d-block"></div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="number" class="form-control" name="productStock" placeholder="Stock">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="number" class="form-control" name="productPrice" placeholder="Price">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
 
                             <div class="mb-3">
                                 <textarea class="form-control" name="description" placeholder="Description"
                                     id="exampleFormControlTextarea1" rows="3"></textarea>
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
 
                             <div class="form-group mb-3">
@@ -196,49 +201,60 @@
                                     </option>
                                     {{/each}}
                                 </select>
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
 
                             <h6>Product Highlights</h6>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[brand]" placeholder="Brand">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[model]" placeholder="Model">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[caseMaterial]"
                                     placeholder="Case Material">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[dialColor]"
                                     placeholder="Dial Color">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[waterResistance]"
                                     placeholder="Water Resistance (e.g., 50 meters)">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[movementType]"
                                     placeholder="Movement Type (e.g., Automatic)">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[bandMaterial]"
                                     placeholder="Band Material">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="features">Features</label>
                                 <input type="text" class="form-control" name="highlights[features]"
                                     placeholder="Enter features (comma separated)">
                                 <div class="form-text">Example: Chronograph, Date Display, Tachymeter</div>
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[warranty]"
                                     placeholder="Warranty (e.g., 2 years)">
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
 
                             <h6>Images</h6>
                             <div class="mb-3">
                                 <input type="file" class="form-control" id="imageInput" accept="image/*" multiple>
+                                <div class="invalid-feedback d-block" id="productNameError"></div>
                             </div>
 
                             <div id="imagePreviewContainer" class="row g-2 mb-3"></div>
@@ -270,7 +286,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/editProduct?_method=PUT" id="editProduct" method="post"
+                        <form action="/editProduct?_method=PUT" id="editForm" method="post"
                             enctype="multipart/form-data">
                             <input type="hidden" name="id" id="productId">
 
@@ -278,27 +294,32 @@
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="productName" id="productName"
                                     placeholder="Product Name">
+                                <div class="invalid-feedback" id="nameError">Please enter a product name.</div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="number" class="form-control" name="productStock" id="productStock"
-                                    placeholder="Stock">
+                                    placeholder="Stock" min="0">
+                                <div class="invalid-feedback" id="stockError">Please enter a valid stock number.</div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="number" class="form-control" name="productPrice" id="productPrice"
-                                    placeholder="Price">
+                                    placeholder="Price" min="0">
+                                <div class="invalid-feedback" id="priceError">Please enter a valid price.</div>
                             </div>
 
                             <div class="mb-3">
                                 <textarea class="form-control" name="description" id="productDescription"
                                     placeholder="Description" rows="3"></textarea>
+                                <div class="invalid-feedback" id="descriptionError">Please enter a product description.
+                                </div>
                             </div>
 
                             <div class="form-group mb-3">
                                 <label for="productCategories">Categories</label>
                                 <select class="form-control" id="productCategories" name="categories">
-                                    <option value="" disabled>Select Category</option>
+                                    <option value="" disabled selected>Select Category</option>
                                     {{#each categories}}
                                     <option value="{{_id}}" {{#if (isSelected _id
                                         ../productCategoryId)}}selected{{/if}}>
@@ -306,6 +327,7 @@
                                     </option>
                                     {{/each}}
                                 </select>
+                                <div class="invalid-feedback" id="categoryError">Please select a category.</div>
                             </div>
 
                             <!-- Highlights Section -->
@@ -313,36 +335,48 @@
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[brand]" id="highlightBrand"
                                     placeholder="Brand">
+                                <div class="invalid-feedback" id="highlightBrandError">Please enter a brand.</div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[model]" id="highlightModel"
                                     placeholder="Model">
+                                <div class="invalid-feedback" id="highlightModelError">Please enter a model.</div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[caseMaterial]"
                                     id="highlightCaseMaterial" placeholder="Case Material">
+                                <div class="invalid-feedback" id="highlightCaseMaterialError">Please enter the case
+                                    material.</div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[dialColor]"
                                     id="highlightDialColor" placeholder="Dial Color">
+                                <div class="invalid-feedback" id="highlightDialColorError">Please enter the dial color.
+                                </div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[waterResistance]"
                                     id="highlightWaterResistance" placeholder="Water Resistance">
+                                <div class="invalid-feedback" id="highlightWaterResistanceError">Please enter the water
+                                    resistance.</div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[movementType]"
                                     id="highlightMovementType" placeholder="Movement Type">
+                                <div class="invalid-feedback" id="highlightMovementTypeError">Please enter the movement
+                                    type.</div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[bandMaterial]"
                                     id="highlightBandMaterial" placeholder="Band Material">
+                                <div class="invalid-feedback" id="highlightBandMaterialError">Please enter the band
+                                    material.</div>
                             </div>
 
                             <div class="mb-3">
@@ -350,11 +384,14 @@
                                 <input type="text" class="form-control" name="highlights[features]"
                                     id="highlightFeatures" placeholder="Enter features (comma separated)">
                                 <div class="form-text">Example: Chronograph, Date Display, Tachymeter</div>
+                                <div class="invalid-feedback" id="highlightFeaturesError">Please enter features.</div>
                             </div>
 
                             <div class="mb-3">
                                 <input type="text" class="form-control" name="highlights[warranty]"
                                     id="highlightWarranty" placeholder="Warranty">
+                                <div class="invalid-feedback" id="highlightWarrantyError">Please enter the warranty.
+                                </div>
                             </div>
 
                             <!-- Images Section -->
@@ -366,9 +403,11 @@
                                     <img id="imageToCrop" style="max-width: 100%; display: none;" />
                                     <button id="cropImage" class="btn btn-success">Crop Image</button>
                                 </div>
+                                <div class="invalid-feedback d-block"></div>
                             </div>
+
                             <div class="text-center mt-3">
-                                <button type="submit" class="btn btn-success">Submit</button>
+                                <button type="submit" id="editProduct" class="btn btn-success">Submit</button>
                             </div>
                         </form>
                     </div>

@@ -55,3 +55,9 @@ function validateMobile(mobile) {
     const regex = /^[0-9]{10,15}$/;
     return regex.test(mobile);
 }
+function copyReferralCode() {
+    const referralCodeField = document.getElementById("referralCode");
+    referralCodeField.select();
+    document.execCommand("copy");
+    alert("Referral code copied!");
+}

@@ -56,7 +56,7 @@
             </nav>
         </div>
 
-        <div class="col-md-10 mt-4  mb-5 pb-4 bg1 pe-5 ps-5">
+        <div class="col-md-10 mt-4  mb-5 pb-4  pe-5 ps-5">
             <div class="row d-flex justify-content-center mt-4">
                 <div class="col-md-3">
                     <a href="/userProfile">
@@ -81,11 +81,13 @@
                         <button type="button" class="btn btn-success" data-bs-toggle="modal"
                             data-bs-target="#addUser">Add Address</button>
                     </div>
-                    <h5>Addresses:</h5>
-                    <p>Please select one address to set your address </p>
+                    <div class="col-12 text-center mb-3">
+                        <h5>Addresses:</h5>
+                        <p>Please select one address to set your address</p>
+                    </div>
                     {{#each addresses }}
                     <div class="col-sm-12 col-md-4 mb-3">
-                        <div class="card text-left p-3 {{#if isDefault}} active{{/if}}"
+                        <div class="card shadow text-left p-3 {{#if isDefault}} active{{/if}}"
                             onclick="selectCard(this,'{{_id}}')">
                             <span><strong>First Name:</strong> {{firstName}}</span>
                             <span><strong>Last Name:</strong> {{lastName}}</span>

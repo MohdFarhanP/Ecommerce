@@ -6,40 +6,41 @@ function showEditProduct(id, productName, productStock, productPrice, isFeatured
     document.getElementById('editFeatured').value = isFeatured === 'true' ? 'true' : 'false';
 }
 function validateEditProductForm() {
+    // Form fields and error divs
+    const fields = [
+        { id: 'editProductName', minLength: 3, errorMsg: 'Product Name must be at least 3 characters long.' },
+        { id: 'editStock', minValue: 0, errorMsg: 'Stock cannot be negative.' },
+        { id: 'editPrice', minValue: 0, errorMsg: 'Price cannot be negative.' }
+    ];
 
-    const errorDiv = document.getElementById('editProductError');
-    errorDiv.style.display = 'none';
-    errorDiv.innerHTML = '';
+    let isValid = true;
 
-    const productName = document.getElementById('editProductName').value.trim();
-    const productStock = document.getElementById('editStock').value;
-    const productPrice = document.getElementById('editPrice').value;
+    fields.forEach(({ id, minLength, minValue, errorMsg }) => {
+        const input = document.getElementById(id);
+        const errorDiv = document.getElementById(`${id}Error`);
+        const value = input.value.trim();
 
-    let errors = [];
-    if (!productName || !productStock || !productPrice) {
-        errors.push('All fields are required');
-    }
-    if (productName.length < 3) {
-        errors.push('Product Name must be at least 3 characters long.');
-    }
+        input.classList.remove('is-invalid');
+        errorDiv.textContent = '';
 
-    if (productStock < 0) {
-        errors.push('Stock cannot be negative.');
-    }
+        if (!value) {
+            errorDiv.textContent = `${input.previousElementSibling.textContent} is required.`;
+            input.classList.add('is-invalid');
+            isValid = false;
+        } else if (minLength && value.length < minLength) {
+            errorDiv.textContent = errorMsg;
+            input.classList.add('is-invalid');
+            isValid = false;
+        } else if (minValue !== undefined && Number(value) < minValue) {
+            errorDiv.textContent = errorMsg;
+            input.classList.add('is-invalid');
+            isValid = false;
+        }
+    });
 
-    if (productPrice < 0) {
-        errors.push('Price cannot be negative.');
-    }
-
-    if (errors.length > 0) {
-
-        errorDiv.style.display = 'block';
-        errorDiv.innerHTML = errors.join('<br>');
-        return false;
-    }
-
-    return true;
+    return isValid; 
 }
+
 document.getElementById('editProductForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const result = validateEditProductForm();

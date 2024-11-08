@@ -23,29 +23,37 @@ function showToast(message, success = false) {
 const editButtons = document.querySelectorAll('.edit-offer-button');
 const editOfferForm = document.getElementById('editOfferForm');
 
-// Event listener for the submit event
-editOfferForm.addEventListener('submit', function (event) {
-    event.preventDefault(); // Prevent default form submission
 
-    // Validate required fields
+editOfferForm.addEventListener('submit', function (event) {
+    event.preventDefault(); 
+
+
+    document.getElementById('discountTypeError').innerText = '';
+    document.getElementById('discountValueError').innerText = '';
+    document.getElementById('expirationDateError').innerText = '';
+
     const discountType = document.getElementById('editDiscountType').value;
     const discountValue = document.getElementById('editDiscountValue').value;
     const expirationDate = document.getElementById('editExpirationDate').value;
 
+    let isValid = true;
+
     if (!discountType) {
-        showToast('Please select a discount type.', false);
-        return;
+        document.getElementById('discountTypeError').innerText = 'Please select a discount type.';
+        isValid = false;
     }
 
     if (!discountValue || isNaN(discountValue) || discountValue <= 0) {
-        showToast('Please provide a valid discount value.', false);
-        return;
+        document.getElementById('discountValueError').innerText = 'Please provide a valid discount value.';
+        isValid = false;
     }
 
     if (!expirationDate) {
-        showToast('Please provide a valid expiration date.', false);
-        return;
+        document.getElementById('expirationDateError').innerText = 'Please provide a valid expiration date.';
+        isValid = false;
     }
+
+    if (!isValid) return;
 
     const formData = new FormData(editOfferForm);
 
@@ -56,16 +64,16 @@ editOfferForm.addEventListener('submit', function (event) {
         .then(response => response.json())
         .then(data => {
             if (!data.success) {
-                showToast(data.message, false);
+                document.getElementById('discountTypeError').innerText = data.message; 
             } else {
-                showToast('Offer edited successfully', true);
                 location.reload();
             }
         })
         .catch(error => {
-            showToast('An error occurred. Please try again.', false);
+            document.getElementById('discountTypeError').innerText = 'An error occurred. Please try again.';
         });
 });
+
 
 // Populate modal with offer data
 editButtons.forEach(button => {
@@ -88,52 +96,81 @@ editButtons.forEach(button => {
     });
 });
 
-
-// Create Offer Form Submission with Validation
 document.getElementById('createOfferForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
     // Collect form data
-    const discountType = document.getElementById('discountType').value;
-    const discountValue = document.getElementById('discountValue').value;
-    const description = document.getElementById('description').value;
-    const expirationDate = document.getElementById('expirationDate').value;
-    const isActive = document.getElementById('isActive').checked;
-
+    const form = event.target;
+    const discountType = document.getElementById('discountType');
+    const discountValue = document.getElementById('discountValue');
+    const description = document.getElementById('description');
+    const expirationDate = document.getElementById('expirationDate');
     const productCheckboxes = document.querySelectorAll('#applicableProducts input[type="checkbox"]');
     const categoryCheckboxes = document.querySelectorAll('#applicableCategories input[type="checkbox"]');
-    const selectedProducts = Array.from(productCheckboxes).filter(checkbox => checkbox.checked);
-    const selectedCategories = Array.from(categoryCheckboxes).filter(checkbox => checkbox.checked);
+    
+    const productSelectionError = document.getElementById('productSelectionError');
+    const categorySelectionError = document.getElementById('categorySelectionError');
 
-    // Validation logic
-    if (!discountType) {
-        showToast('Please select a discount type.', false);
-        return;
+    let isValid = true;
+
+    // Clear previous error states
+    function clearError(element) {
+        element.classList.remove('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        if (errorDiv) errorDiv.style.display = 'none';
     }
 
-    if (!discountValue || isNaN(discountValue) || discountValue <= 0) {
-        showToast('Please provide a valid discount value.', false);
-        return;
+    // Show error
+    function showError(element, message) {
+        element.classList.add('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        isValid = false;
     }
 
-    if (!description.trim()) {
-        showToast('Please provide a description.', false);
-        return;
+    // Reset all previous errors
+    clearError(discountType);
+    clearError(discountValue);
+    clearError(description);
+    clearError(expirationDate);
+    productSelectionError.style.display = 'none';
+    categorySelectionError.style.display = 'none';
+
+    // Validation checks
+    if (!discountType.value) {
+        showError(discountType, 'Please select a discount type.');
     }
 
-    if (!expirationDate) {
-        showToast('Please provide an expiration date.', false);
-        return;
+    if (!discountValue.value || isNaN(discountValue.value) || discountValue.value <= 0) {
+        showError(discountValue, 'Please provide a valid discount value greater than 0.');
     }
 
-    const formData = new FormData(this);
+    if (!description.value.trim()) {
+        showError(description, 'Please provide a description.');
+    }
 
-    selectedProducts.forEach(checkbox => {
-        formData.append('applicableProducts', checkbox.value);
+    if (!expirationDate.value) {
+        showError(expirationDate, 'Please provide an expiration date.');
+    }
+
+    const anyProductSelected = Array.from(productCheckboxes).some(cb => cb.checked);
+    const anyCategorySelected = Array.from(categoryCheckboxes).some(cb => cb.checked);
+
+
+    if (!isValid) return; 
+
+
+    const formData = new FormData(form);
+
+    Array.from(productCheckboxes).forEach(checkbox => {
+        if (checkbox.checked) formData.append('applicableProducts', checkbox.value);
     });
 
-    selectedCategories.forEach(checkbox => {
-        formData.append('applicableCategories', checkbox.value);
+    Array.from(categoryCheckboxes).forEach(checkbox => {
+        if (checkbox.checked) formData.append('applicableCategories', checkbox.value);
     });
 
     try {
@@ -142,12 +179,11 @@ document.getElementById('createOfferForm').addEventListener('submit', async func
             body: formData
         });
 
+        const result = await response.json();
         if (!response.ok) {
-            const errorData = await response.json();
-            showToast(errorData.errors[0].msg, false);
+            showError(form, result.errors[0].msg);
         } else {
-            const successData = await response.json();
-            showToast(successData.message, true);
+            showToast(result.message, true);
             location.reload();
         }
     } catch (error) {

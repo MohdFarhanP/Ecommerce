@@ -8,7 +8,7 @@
                 <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
             </div>
             <nav class="nav flex-column mt-5">
-                <a href="#" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
+                <a href="/dashboard" class="btn mbtn btn-outline-warning mb-2">DASHBOARD</a>
                 <a href="/users" class="btn mbtn btn-outline-warning mb-2 ">USERS</a>
                 <a href="/products" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
                 <a href="/category" class="btn mbtn btn-outline-warning mb-2">CATEGORIES</a>
@@ -17,6 +17,7 @@
                 <a href="/coupon" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
                 <a href="/offer" class="btn mbtn btn-outline-warning mb-2  active">OFFERS</a>
                 <a href="/salesReport" class="btn mbtn btn-outline-warning mb-2">SALES</a>
+                <a href="/ledger" class="btn mbtn btn-outline-warning mb-2 ">LEDGER</a>
                 <form action="/logout" method="post" class="text-center">
                     <button class="mt-3 btn btn-outline-warning"> Logout</button>
                 </form>
@@ -172,22 +173,26 @@
                                 <div class="mb-3">
                                     <label for="discountType" class="form-label">Discount Type</label>
                                     <select id="discountType" name="discountType" class="form-select">
-                                        <option value="">Please select</option> <!-- Empty value for default -->
+                                        <option value="">Please select</option>
                                         <option value="percentage">Percentage</option>
                                         <option value="fixed">Fixed Amount</option>
                                     </select>
+                                    <div class="invalid-feedback">Please select a discount type.</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="discountValue" class="form-label">Discount Value</label>
                                     <input type="number" id="discountValue" name="discountValue" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="Description" class="form-label">Description</label>
-                                    <input type="text" class="form-control" id="description" name="description">
+                                    <div class="invalid-feedback">Please provide a valid discount value greater than 0.
+                                    </div>
                                 </div>
 
-                                <!-- Applicable Products Dropdown -->
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <input type="text" class="form-control" id="description" name="description">
+                                    <div class="invalid-feedback">Please provide a description.</div>
+                                </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">Applicable Products</label>
                                     <div class="dropdown">
@@ -209,9 +214,10 @@
                                             {{/each}}
                                         </ul>
                                     </div>
+                                    <div id="productSelectionError" class="invalid-feedback" style="display: none;">
+                                        Please select at least one product or category.</div>
                                 </div>
 
-                                <!-- Applicable Categories Dropdown -->
                                 <div class="mb-3">
                                     <label class="form-label">Applicable Categories</label>
                                     <div class="dropdown">
@@ -227,25 +233,31 @@
                                                         id="category-{{this._id}}" name="applicableCategories"
                                                         value="{{this._id}}">
                                                     <label class="form-check-label"
-                                                        for="category-{{this._id}}">{{this.brandName}} </label>
+                                                        for="category-{{this._id}}">{{this.brandName}}</label>
                                                 </div>
                                             </li>
                                             {{/each}}
                                         </ul>
                                     </div>
+                                    <div id="categorySelectionError" class="invalid-feedback" style="display: none;">
+                                        Please select at least one product or category.</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="expirationDate" class="form-label">Expiration Date</label>
                                     <input type="date" id="expirationDate" name="expirationDate" class="form-control">
+                                    <div class="invalid-feedback">Please provide an expiration date.</div>
                                 </div>
+
                                 <div class="mb-3 form-check">
                                     <input type="checkbox" class="form-check-input" id="isActive" name="isActive"
                                         checked>
                                     <label class="form-check-label" for="isActive">Active</label>
                                 </div>
+
                                 <button type="submit" class="btn btn-primary">Create Offer</button>
                             </form>
+
                         </div>
                     </div>
                 </div>
@@ -263,21 +275,26 @@
                         <div class="modal-body">
                             <form id="editOfferForm">
                                 <input type="hidden" id="editOfferId" name="offerId">
+
                                 <div class="mb-3">
                                     <label for="editDiscountType" class="form-label">Discount Type</label>
                                     <select id="editDiscountType" name="discountType" class="form-select">
+                                        <option value="">Please select</option>
                                         <option value="percentage">Percentage</option>
                                         <option value="fixed">Fixed Amount</option>
                                     </select>
+                                    <div class="error-message text-danger" id="discountTypeError"></div>
                                 </div>
+
                                 <div class="mb-3">
                                     <label for="editDiscountValue" class="form-label">Discount Value</label>
                                     <input type="number" id="editDiscountValue" name="discountValue"
                                         class="form-control">
+                                    <div class="error-message text-danger" id="discountValueError"></div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="Description" class="form-label">Description</label>
+                                    <label for="editDescription" class="form-label">Description</label>
                                     <input type="text" class="form-control" id="editDescription" name="description">
                                 </div>
 
@@ -285,13 +302,17 @@
                                     <label for="editExpirationDate" class="form-label">Expiration Date</label>
                                     <input type="date" id="editExpirationDate" name="expirationDate"
                                         class="form-control">
+                                    <div class="error-message text-danger" id="expirationDateError"></div>
                                 </div>
+
                                 <div class="mb-3 form-check">
                                     <input type="checkbox" class="form-check-input" id="editIsActive" name="isActive">
                                     <label class="form-check-label" for="editIsActive">Active</label>
                                 </div>
+
                                 <button type="submit" class="btn btn-primary">Update Offer</button>
                             </form>
+
                         </div>
                     </div>
                 </div>

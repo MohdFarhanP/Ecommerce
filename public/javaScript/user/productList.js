@@ -1,6 +1,6 @@
 // Function to show toast
-document.addEventListener('DOMContentLoaded', () => {
-  collectFilterValuesAndFilter();
+// document.addEventListener('DOMContentLoaded', () => {
+ 
 
   function showToast(title, message) {
     const toastTitle = document.getElementById('toast-title');
@@ -157,33 +157,47 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sortCriteria').addEventListener('change', collectFilterValuesAndFilter);
 
   function renderProducts(products) {
+    console.log(products);
     const productContainer = document.getElementById('product-container');
     productContainer.innerHTML = ''; // Clear previous products
 
-    products.forEach(product => {
-      const productHTML = `
-          <div class="col-md-4 mb-4">
-              <div class="card h-100">
-                  <a href="/singleProduct/${product._id}">
-                      <img src="/uploads/${product.images[0]}" class="card-img-top" alt="${product.productName}">
-                  </a>
-                  <div class="card-body">
-                      <div class="d-flex">
-                          <h5 class="card-title">${product.productName}</h5>
-                          <i class="fa-solid fa-heart wish-icon" data-id="${product._id}"></i>
-                      </div>  
-                      <p class="card-text text-warning">₹${product.productPrice}</p>
-                      <form action="/addToCart" method="POST" class="mt-auto">
-                        <input type="hidden" name="productId" value="${product._id}">
-                        <input type="number" name="quantity" value="1" min="1" hidden>
-                       <button type="submit" class="btn btn-outline-warning w-100">Add to Cart</button>
-                      </form>
-                  </div>
-              </div>
-          </div>
-      `;
-      productContainer.innerHTML += productHTML;
-    });
-  }
+    let productHTML = products.map(product => {
+        const imageUrl = product.images && product.images.length > 0 
+            ? `/uploads/${product.images[0]}`
+            : '/images/default-product.jpg'; // Default image if no product image is available
 
-}); 
+        return `
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <a href="/singleProduct/${product._id}">
+                        <img src="${imageUrl}" class="card-img-top" alt="${product.productName}">
+                    </a>
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <h5 class="card-title">${product.productName}</h5>
+                            <i class="fa-solid fa-heart wish-icon" data-id="${product._id}"></i>
+                        </div>
+                        ${product.hasDiscount ? `
+                            <div class="mb-2">
+                                <span class="text-muted text-decoration-line-through">₹${product.productPrice}</span>
+                                <span class="text-danger">₹${product.finalPrice}</span>
+                                <div class="badge bg-success">${product.discountLabel}</div>
+                            </div>
+                        ` : `
+                            <p class="card-text text-warning">₹${product.finalPrice}</p>
+                        `}
+                        <form action="/addToCart" method="POST" class="mt-auto">
+                            <input type="hidden" name="productId" value="${product._id}">
+                            <input type="number" name="quantity" value="1" min="1" hidden>
+                            <button type="submit" class="btn btn-outline-warning w-100">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join(''); // Join all product HTML to a single string
+
+    productContainer.innerHTML = productHTML; // Set HTML once for better performance
+}
+
+// }); 

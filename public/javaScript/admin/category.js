@@ -14,7 +14,43 @@ function showEditCategory(brandName, displayType, bandColor, id) {
     const myModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
     myModal.show();
 }
+
+
+function validateEditCategoryForm() {
+
+    const errorFields = ['brandName', 'displayType', 'bandColor'];
+    errorFields.forEach(fieldId => {
+        const inputField = document.getElementById(fieldId);
+        const errorDiv = document.getElementById(`${fieldId}Error`);
+        errorDiv.textContent = '';
+        inputField.classList.remove('is-invalid'); 
+    });
+
+    let isValid = true;
+
+  
+    errorFields.forEach(fieldId => {
+        const inputField = document.getElementById(fieldId);
+        if (!inputField.value.trim()) { 
+            const errorDiv = document.getElementById(`${fieldId}Error`);
+            errorDiv.textContent = `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} is required.`; 
+            inputField.classList.add('is-invalid'); 
+            isValid = false; 
+        }
+    });
+
+    return isValid; 
+}
+
+
+
+
 function submitEditCategoryForm() {
+    // Validate the form before submission
+    if (!validateEditCategoryForm()) {
+        return; // If the form is invalid, stop execution
+    }
+
     const categoryId = document.getElementById('categoryId').value;
     const brandName = document.getElementById('brandName').value;
     const displayType = document.getElementById('displayType').value;
@@ -39,7 +75,6 @@ function submitEditCategoryForm() {
                 errorMessage.textContent = data.error;
                 errorMessage.classList.remove('d-none');
             } else {
-
                 const modal = bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
                 modal.hide();
                 window.location.reload();
@@ -47,43 +82,43 @@ function submitEditCategoryForm() {
         })
         .catch(error => console.error('Error:', error));
 }
+
+
+
 // add the category
-
 function validateAddCategoryForm() {
+    const fields = [
+        { id: 'addBrandName', minLength: 2, errorId: 'addBrandNameError', name: 'Brand Name' },
+        { id: 'addDisplayType', minLength: 3, errorId: 'addDisplayTypeError', name: 'Display Type' },
+        { id: 'addBandColor', minLength: 3, errorId: 'addBandColorError', name: 'Band Color' }
+    ];
 
-    const errorDiv = document.getElementById('addCategoryError');
-    errorDiv.style.display = 'none';
-    errorDiv.innerHTML = '';
+    let isValid = true;
 
-    const brandName = document.getElementById('addBrandName').value.trim();
-    const displayType = document.getElementById('addDisplayType').value.trim();
-    const bandColor = document.getElementById('addBandColor').value.trim();
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        const errorDiv = document.getElementById(field.errorId);
+        const value = input.value.trim();
 
-    let errors = [];
+        errorDiv.style.display = 'none';
+        errorDiv.innerHTML = '';
+        input.classList.remove('is-invalid');
 
-    if (!brandName || !displayType || !bandColor) {
-        errors.push('All fields are required.');
-    }
+        if (!value) {
+            errorDiv.innerHTML = `${field.name} is required.`;
+            isValid = false;
+        } else if (value.length < field.minLength) {
+            errorDiv.innerHTML = `${field.name} must be at least ${field.minLength} characters long.`;
+            isValid = false;
+        }
 
-    if (brandName.length < 2) {
-        errors.push('Brand Name must be at least 2 characters long.');
-    }
+        if (!isValid) {
+            errorDiv.style.display = 'block';
+            input.classList.add('is-invalid');
+        }
+    });
 
-    if (displayType.length < 3) {
-        errors.push('Display Type must be at least 3 characters long.');
-    }
-
-    if (bandColor.length < 3) {
-        errors.push('Band Color must be at least 3 characters long.');
-    }
-
-    if (errors.length > 0) {
-        errorDiv.style.display = 'block';
-        errorDiv.innerHTML = errors.join('<br>');
-        return false;
-    }
-
-    return true;
+    return isValid;
 }
 
 

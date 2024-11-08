@@ -96,7 +96,8 @@ function showEditProduct(productName, productStock, productPrice, description, i
     }
 
     // Crop the image and update the preview
-    document.getElementById('cropImage').addEventListener('click', function () {
+    document.getElementById('cropImage').addEventListener('click', function (e) {
+        e.preventDefault()
         if (cropper) {
             const canvas = cropper.getCroppedCanvas({
                 width: 500,
@@ -123,7 +124,122 @@ function showEditProduct(productName, productStock, productPrice, description, i
     });
 
 }
+document.getElementById('editForm').addEventListener('submit', function (event) {
+   
+    clearErrors();
+    let isValid = true;
 
+    // Validate Product Name
+    const productName = document.getElementById('productName').value.trim();
+    if (!productName) {
+        showInputError('productName', 'nameError');
+        isValid = false;
+    }
+
+    // Validate Product Stock
+    const productStock = document.getElementById('productStock').value;
+    if (productStock < 0 || productStock === '') {
+        showInputError('productStock', 'stockError');
+        isValid = false;
+    }
+
+    // Validate Product Price
+    const productPrice = document.getElementById('productPrice').value;
+    if (productPrice < 0 || productPrice === '') {
+        showInputError('productPrice', 'priceError');
+        isValid = false;
+    }
+
+    // Validate Description
+    const productDescription = document.getElementById('productDescription').value.trim();
+    if (!productDescription) {
+        showInputError('productDescription', 'descriptionError');
+        isValid = false;
+    }
+
+    // Validate Categories
+    const productCategories = document.getElementById('productCategories').value;
+    if (!productCategories) {
+        showInputError('productCategories', 'categoryError');
+        isValid = false;
+    }
+
+    // Validate Highlights
+    const highlightBrand = document.getElementById('highlightBrand').value.trim();
+    if (!highlightBrand) {
+        showInputError('highlightBrand', 'highlightBrandError');
+        isValid = false;
+    }
+
+    const highlightModel = document.getElementById('highlightModel').value.trim();
+    if (!highlightModel) {
+        showInputError('highlightModel', 'highlightModelError');
+        isValid = false;
+    }
+
+    const highlightCaseMaterial = document.getElementById('highlightCaseMaterial').value.trim();
+    if (!highlightCaseMaterial) {
+        showInputError('highlightCaseMaterial', 'highlightCaseMaterialError');
+        isValid = false;
+    }
+
+    const highlightDialColor = document.getElementById('highlightDialColor').value.trim();
+    if (!highlightDialColor) {
+        showInputError('highlightDialColor', 'highlightDialColorError');
+        isValid = false;
+    }
+
+    const highlightWaterResistance = document.getElementById('highlightWaterResistance').value.trim();
+    if (!highlightWaterResistance) {
+        showInputError('highlightWaterResistance', 'highlightWaterResistanceError');
+        isValid = false;
+    }
+
+    const highlightMovementType = document.getElementById('highlightMovementType').value.trim();
+    if (!highlightMovementType) {
+        showInputError('highlightMovementType', 'highlightMovementTypeError');
+        isValid = false;
+    }
+
+    const highlightBandMaterial = document.getElementById('highlightBandMaterial').value.trim();
+    if (!highlightBandMaterial) {
+        showInputError('highlightBandMaterial', 'highlightBandMaterialError');
+        isValid = false;
+    }
+
+    const highlightFeatures = document.getElementById('highlightFeatures').value.trim();
+    if (!highlightFeatures) {
+        showInputError('highlightFeatures', 'highlightFeaturesError');
+        isValid = false;
+    }
+
+    const highlightWarranty = document.getElementById('highlightWarranty').value.trim();
+    if (!highlightWarranty) {
+        showInputError('highlightWarranty', 'highlightWarrantyError');
+        isValid = false;
+    }
+
+    if (!isValid) {
+        event.preventDefault(); 
+    }
+});
+
+function showInputError(inputId, errorId) {
+    document.getElementById(inputId).classList.add('is-invalid');
+    document.getElementById(errorId).style.display = 'block';
+}
+
+function clearErrors() {
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.classList.remove('is-invalid');
+    });
+
+    const errorMessages = document.querySelectorAll('.invalid-feedback');
+    errorMessages.forEach(msg => {
+        msg.style.display = 'none';
+    });
+}
 
 
 // Image cropping on add product
@@ -141,7 +257,7 @@ document.getElementById('imageInput').addEventListener('change', function (event
 
     for (const file of files) {
         if (!file.type.startsWith('image/')) {
-            alert(`${file.name} is not a valid image file. Please upload images only.`);
+            showError(`${file.name} is not a valid image file. Please upload images only.`);
             event.target.value = '';
             return;
         }
@@ -149,7 +265,7 @@ document.getElementById('imageInput').addEventListener('change', function (event
     }
 
     if (validImages.length > 3) {
-        alert('You can only upload a maximum of 3 images.');
+        showError('You can only upload a maximum of 3 images.');
         event.target.value = '';
         return;
     }
@@ -187,7 +303,7 @@ document.getElementById('imageInput').addEventListener('change', function (event
                         };
                         newReader.readAsDataURL(newFile);
                     } else {
-                        alert("Invalid image file");
+                        showError("Invalid image file");
                     }
                 };
             });
@@ -210,29 +326,33 @@ document.getElementById('imageInput').addEventListener('change', function (event
     });
 });
 
+
 // Adding product
 document.getElementById('addProduct').addEventListener('click', function (event) {
     event.preventDefault();
-
+    
     const form = document.getElementById('form1');
-    const formData = new FormData(form);
+    const isValid = validateProductForm(form);
+    
+    if (isValid) {
+        const formData = new FormData(form);
 
-    const promises = cropperInstances.map((cropper, index) => {
-        return new Promise((resolve) => {
-            cropper.getCroppedCanvas().toBlob((blob) => {
-                if (blob) {
-                    formData.append('images', blob, `croppedImage${index}.png`);
-                }
-                resolve();
+        const promises = cropperInstances.map((cropper, index) => {
+            return new Promise((resolve) => {
+                cropper.getCroppedCanvas().toBlob((blob) => {
+                    if (blob) {
+                        formData.append('images', blob, `croppedImage${index}.png`);
+                    }
+                    resolve();
+                });
             });
         });
-    });
 
-    Promise.all(promises).then(() => {
-        fetch('/addProduct', {
-            method: 'POST',
-            body: formData,
-        })
+        Promise.all(promises).then(() => {
+            fetch('/addProduct', {
+                method: 'POST',
+                body: formData,
+            })
             .then(response => {
                 if (!response.ok) {
                     return response.json().then(data => {
@@ -247,9 +367,71 @@ document.getElementById('addProduct').addEventListener('click', function (event)
             })
             .catch(error => {
                 console.error('Error in fetch request:', error);
-            })
-    });
+            });
+        });
+    }
 });
+
+function validateProductForm(form) {
+    const fields = [
+        { name: "productName", message: "Product name is required" },
+        { name: "productStock", message: "Stock must be a non-negative number", validate: (value) => parseInt(value) >= 0 },
+        { name: "productPrice", message: "Price must be a positive number", validate: (value) => parseFloat(value) > 0 },
+        { name: "description", message: "Description is required" },
+        { name: "category", message: "Please select a category", isSelect: true }
+    ];
+
+    let isValid = true;
+
+    fields.forEach(fieldConfig => {
+        const field = fieldConfig.isSelect
+            ? form.querySelector(`select[name="${fieldConfig.name}"]`)
+            : form.querySelector(`input[name="${fieldConfig.name}"], textarea[name="${fieldConfig.name}"]`);
+        
+        const errorElement = field.nextElementSibling;
+        const value = field.value.trim();
+        
+        // Reset previous error state
+        errorElement.textContent = '';
+        field.classList.remove('is-invalid');
+
+        // Validation check
+        if (!value || (fieldConfig.validate && !fieldConfig.validate(value))) {
+            errorElement.textContent = fieldConfig.message;
+            field.classList.add('is-invalid');
+            isValid = false;
+        }
+    });
+
+    const highlightFields = ['brand', 'model', 'caseMaterial', 'dialColor', 'waterResistance', 'movementType', 'bandMaterial', 'features', 'warranty'];
+    highlightFields.forEach(name => {
+        const field = form.querySelector(`input[name="highlights[${name}]"]`);
+        if (field) {
+            const errorElement = field.nextElementSibling;
+            errorElement.textContent = '';
+            field.classList.remove('is-invalid');
+
+            if (!field.value.trim()) {
+                errorElement.textContent = `${name} is required`;
+                field.classList.add('is-invalid');
+                isValid = false;
+            }
+        }
+    });
+
+    const imageInput = document.getElementById('imageInput');
+    const imageErrorElement = imageInput.nextElementSibling;
+    imageErrorElement.textContent = '';
+    imageInput.classList.remove('is-invalid');
+    if (imageInput.files.length === 0) {
+        imageErrorElement.textContent = "Please upload at least one image";
+        imageInput.classList.add('is-invalid');
+        isValid = false;
+    }
+
+    return isValid;
+}
+
 
 function showError(message) {
     toastBody.textContent = message;

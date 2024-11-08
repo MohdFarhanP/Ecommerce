@@ -1,0 +1,124 @@
+<link rel="stylesheet" href="/styles/admin/dashboard.css">
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2">
+            <div class="container-fluid m-3">
+                <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
+            </div>
+            <nav class="nav flex-column mt-5">
+                <a href="/dashboard" class="btn mbtn btn-outline-warning mb-2 active">DASHBOARD</a>
+                <a href="/users" class="btn mbtn btn-outline-warning mb-2 ">USERS</a>
+                <a href="/products" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
+                <a href="/category" class="btn mbtn btn-outline-warning mb-2 ">CATEGORIES</a>
+                <a href="/ordersList" class="btn mbtn btn-outline-warning mb-2 ">ORDERS</a>
+                <a href="/inventory" class="btn mbtn btn-outline-warning mb-2">INVENTORY</a>
+                <a href="/coupon" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
+                <a href="/offer" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
+                <a href="/salesReport" class="btn mbtn btn-outline-warning mb-2">SALES</a>
+                <a href="/ledger" class="btn mbtn btn-outline-warning mb-2 ">LEDGER</a>
+                <form action="/logout" method="post" class="text-center">
+                    <button class="mt-3 btn btn-outline-warning"> Logout</button>
+                </form>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10">
+            <!-- Header -->
+            <div class="row dashboard-header mt-5 mb-4">
+                <div class="col-md-12">
+                    <h1 class="text-center">DASHBOARD</h1>
+                </div>
+            </div>
+
+            <!-- Sales by Category Chart Card with Filter -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Sales by Category</h5>
+                    <select id="filterDropdown" class="form-select w-auto">
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+                <div class="card-body">
+                    <canvas id="categorySalesChart" style="height: 300px; width: 100%;"></canvas>
+                </div>
+            </div>
+
+            <!-- Row for Top-Selling Tables -->
+            <div class="row">
+                <!-- Top-Selling Products Table -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Top 10 Best-Selling Products</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>Price</th>
+                                        <th>Orders</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topProductsTable">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top-Selling Categories Table -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Top 10 Best-Selling Categories</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Category Name</th>
+                                        <th>Total Sales</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topCategoriesTable">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top-Selling Brands Table -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Top 10 Best-Selling Brands</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Brand Name</th>
+                                        <th>Total Sales</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topBrandsTable">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="/javaScript/admin/dashboard.js"></script>

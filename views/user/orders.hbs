@@ -19,9 +19,7 @@
 
                 <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
                     <div class="input-group">
-                        <form class="d-flex" action="/search" method="GET">
-                            <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
-                                aria-label="Search">
+                        <form class="d-flex" action="/ProductList" method="GET">
                             <button class="btn btn-outline" type="submit"><i
                                     class="fa-solid fa-magnifying-glass"></i></button>
                         </form>
@@ -116,6 +114,11 @@
                     </form>
                     {{/if}}
 
+                    {{#isPendingRazorpay this.paymentStatus this.paymentMethod this}}
+                    <p>Order ID: {{this._id}}</p>
+                    <p>Total Amount: {{this.totalAmount}}</p>
+                    <button id="retryPaymentButton" class="btn btn-primary" data-order-id="{{this._id}}">Retry Payment</button>
+                    {{/isPendingRazorpay}}
                 </div>
             </div>
             {{/each}}
@@ -152,3 +155,5 @@
         </div>
     </div>
 </div>
+
+<script src="/javaScript/user/order.js"></script>

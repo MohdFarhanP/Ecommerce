@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt')
 const Admin = require('../module/adminModel');
-const saltRound = 10;
 const User = require('../module/userModel');
 const Category = require('../module/categoryModel');
 const Products = require('../module/products');
@@ -10,17 +9,15 @@ const path = require('path');
 const Order = require('../module/orderModel')
 const fs = require('fs');
 const Coupon = require('../module/coupenModel');
-
+const Ledger = require('../module/ledgerModel');
 const Offer = require('../module/offerModel');
-
-const PDFDocument = require('pdfkit');
 const pdfMake = require('pdfmake/build/pdfmake');
 const pdfFonts = require('pdfmake/build/vfs_fonts');
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 const ExcelJS = require('exceljs');
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
 
 const loadLogin = (req, res) => {
     res.render('admin/login');
@@ -39,7 +36,7 @@ const loginBtn = async (req, res) => {
             return res.render('admin/login', { msg: 'password is incorrect' });
         }
         req.session.admin = true;
-        res.redirect("/users");
+        res.redirect("/dashboard");
     } catch (error) {
         console.error(error)
     }
@@ -199,75 +196,7 @@ const productPage = async (req, res) => {
 const addProduct = async (req, res) => {
 
     let errors = '';
-
-    // Validate required fields
     const { productName, productStock, productPrice, description, category, highlights } = req.body;
-
-
-    if (!productName) {
-        errors = "Product name is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!productStock) {
-        errors = "Product stock is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!productPrice) {
-        errors = "Product price is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!description) {
-        errors = "Description is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!category) {
-        errors = "Category is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.brand) {
-        errors = "Brand is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.model) {
-        errors = "Model is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.caseMaterial) {
-        errors = "caseMaterial is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.dialColor) {
-        errors = "dialColor is required";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.waterResistance) {
-        errors = "waterResistance ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.movementType) {
-        errors = "movementType is required";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.caseMaterial) {
-        errors = "caseMaterial is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.bandMaterial) {
-        errors = "bandMaterial is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.features) {
-        errors = "features is required";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.warranty) {
-        errors = "warranty is required";
-        return res.status(400).json({ errors });
-    }
-    if (!req.files || req.files.length !== 3) {
-        errors = 'Please upload at least 3 images.';
-        return res.status(400).json({ errors });
-    }
 
 
     try {
@@ -318,74 +247,9 @@ const editProduct = async (req, res) => {
 
     const { productName, productStock, productPrice, id, categories, description, highlights } = req.body;
 
-    let errors = '';
-
-    if (!productName) {
-        errors = "Product name is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!productStock) {
-        errors = "Product stock is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!productPrice) {
-        errors = "Product price is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!description) {
-        errors = "Description is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!categories) {
-        errors = "Category is required.";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.brand) {
-        errors = "Brand is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.model) {
-        errors = "Model is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.caseMaterial) {
-        errors = "caseMaterial is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.dialColor) {
-        errors = "dialColor is required";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.waterResistance) {
-        errors = "waterResistance ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.movementType) {
-        errors = "movementType is required";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.caseMaterial) {
-        errors = "caseMaterial is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.bandMaterial) {
-        errors = "bandMaterial is required ";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.features) {
-        errors = "features is required";
-        return res.status(400).json({ errors });
-    }
-    if (!highlights.warranty) {
-        errors = "warranty is required";
-        return res.status(400).json({ errors });
-    }
-
-
     try {
 
         const product = await Products.findById(id);
-
         if (!product) {
             return res.status(404).send('Product not found');
         }
@@ -862,13 +726,12 @@ const deleteOffer = async (req, res) => {
 };
 const salesReport = async (req, res) => {
     try {
-        const { filterType, startDate, endDate, page = 1, limit = 10 } = req.query;
-        const currentPage = parseInt(page);
-        const itemsPerPage = parseInt(limit);
-        console.log('this is the filter type:', filterType);
+        const { filterType, startDate, endDate } = req.query;
+        console.log(startDate, endDate);
 
         let matchQuery = {};
 
+        // Define date range based on filter type
         if (filterType === 'daily') {
             matchQuery.createdAt = { $gte: new Date(new Date().setHours(0, 0, 0, 0)) };
         } else if (filterType === 'weekly') {
@@ -881,37 +744,50 @@ const salesReport = async (req, res) => {
         } else if (filterType === 'custom' && startDate && endDate) {
             matchQuery.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
         }
-        console.log("match query:", matchQuery);
 
-        const totalCount = await Order.countDocuments(matchQuery);
-        const totalPages = Math.ceil(totalCount / itemsPerPage);
-
-        const skip = (currentPage - 1) * itemsPerPage;
-
-        const salesReport = await Order.aggregate([
+        const salesData = await Order.aggregate([
             { $match: matchQuery },
-            { $skip: skip },
-            { $limit: itemsPerPage },
+            {
+                $group: {
+                    _id: {
+                        $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+                    },
+                    totalSales: { $sum: '$totalAmount' },
+                    totalDiscount: { $sum: '$discount' },
+                    totalCouponDiscount: { $sum: '$couponDiscount' },
+                    orderCount: { $sum: 1 },
+                    totalItemsSold: { $sum: { $sum: '$products.quantity' } } // Adjusted to sum quantities
+                }
+            },
+            { $sort: { _id: -1 } } // Sort by date descending
+        ]);
+
+        // Calculate overall totals
+        const overallTotals = await Order.aggregate([
+            { $match: matchQuery },
             {
                 $group: {
                     _id: null,
                     totalSales: { $sum: '$totalAmount' },
                     totalDiscount: { $sum: '$discount' },
                     totalCouponDiscount: { $sum: '$couponDiscount' },
-                    orderCount: { $sum: 1 }
+                    totalOrders: { $sum: 1 }
                 }
             }
         ]);
 
+        // Get the first element for totals
+        const totals = overallTotals.length > 0 ? overallTotals[0] : { totalSales: 0, totalDiscount: 0, totalCouponDiscount: 0, totalOrders: 0 };
 
         res.render('admin/sales', {
-            salesReport,
-            currentPage,
-            totalPages,
+            salesReport: salesData,
+            totalSales: totals.totalSales,
+            totalOrders: totals.totalOrders,
+            totalDiscount: totals.totalDiscount,
+            currentPage: 1, // Adjust based on your pagination logic
             filterType,
             startDate,
             endDate,
-            totalCount
         });
     } catch (err) {
         console.log(err);
@@ -922,9 +798,11 @@ const downloadSalesReportPdf = async (req, res) => {
     try {
         const { filterType, startDate, endDate } = req.query;
         const salesReportData = await getSalesReportData(filterType, startDate, endDate);
+
+        // Log sales report data to inspect the values
+        console.log('Sales Report Data:', salesReportData);
+
         const logoPath = path.join(__dirname, '..', 'public', 'image', 'admin', 'WATCH.png');
-        console.log(logoPath);
-        
         const imageBuffer = fs.readFileSync(logoPath);
         const logoBase64 = imageBuffer.toString('base64');
         const logoDataUrl = `data:image/png;base64,${logoBase64}`;
@@ -934,157 +812,72 @@ const downloadSalesReportPdf = async (req, res) => {
                 // Logo and Site Details
                 {
                     stack: [
-                        // Logo on the top
-                        {
-                            image: logoDataUrl,
-                            width: 100,
-                            margin: [0, 0, 0, 10] // Bottom margin to separate from site details
-                        },
-                        // Site Details directly under the logo
-                        {
-                            text: 'watchly', // Replace with your site name
-                            style: 'siteName'
-                        },
-                        {
-                            text: 'Email: watchlysupport@gmail.com', // Your site's email
-                            style: 'siteEmail'
-                        },
-                        {
-                            text: 'Website: www.WATCHLY.com', // Your site's URL
-                            style: 'siteUrl'
-                        }
+                        { image: logoDataUrl, width: 100, margin: [0, 0, 0, 10] },
+                        { text: 'watchly', style: 'siteName' },
+                        { text: 'Email: watchlysupport@gmail.com', style: 'siteEmail' },
+                        { text: 'Website: www.WATCHLY.com', style: 'siteUrl' }
                     ],
-                    alignment: 'left', // Align site details to the left
-                    margin: [0, 0, 0, 20] // Margin below the site details
-                },
-        
-                // Horizontal Line
-                {
-                    canvas: [
-                        {
-                            type: 'line',
-                            x1: 0,
-                            y1: 0,
-                            x2: 520,
-                            y2: 0,
-                            lineWidth: 1,
-                            lineColor: '#D3D3D3'
-                        }
-                    ],
+                    alignment: 'left',
                     margin: [0, 0, 0, 20]
                 },
-        
-                // Report Title
+                {
+                    canvas: [{ type: 'line', x1: 0, y1: 0, x2: 520, y2: 0, lineWidth: 1, lineColor: '#D3D3D3' }],
+                    margin: [0, 0, 0, 20]
+                },
                 { text: 'Sales Report', style: 'header' },
                 { text: `Reporting Period: ${startDate} to ${endDate}`, style: 'subheader' },
-        
-                // Table with Sales Data
                 {
                     table: {
                         headerRows: 1,
-                        widths: ['*', '*', '*', '*'],
+                        widths: ['*', '*', '*', '*', '*', '*'],
                         body: [
-                            // Table Header
                             [
-                                { text: 'Total Sales', style: 'tableHeader' },
-                                { text: 'Order Count', style: 'tableHeader' },
-                                { text: 'Total Discount', style: 'tableHeader' },
-                                { text: 'Coupon Discount', style: 'tableHeader' }
+                                { text: 'Date', style: 'tableHeader' },
+                                { text: 'Total Sales Revenue', style: 'tableHeader' },
+                                { text: 'Discount Applied', style: 'tableHeader' },
+                                { text: 'Net Sales', style: 'tableHeader' },
+                                { text: 'Number of Orders', style: 'tableHeader' },
+                                { text: 'Total Items Sold', style: 'tableHeader' }
                             ],
-                            // Data Rows
                             ...salesReportData.map(data => [
-                                { text: `₹${data.totalSales}`, style: 'tableCell' },
-                                { text: data.orderCount.toString(), style: 'tableCell' },
-                                { text: `₹${data.totalDiscount}`, style: 'tableCell' },
-                                { text: `₹${data.totalCouponDiscount}`, style: 'tableCell' }
+                                { text: data._id || 'N/A', style: 'tableCell' },
+                                { text: `₹${data.totalSales || 0}`, style: 'tableCell' },
+                                { text: `₹${data.totalDiscount || 0}`, style: 'tableCell' },
+                                { text: `₹${(data.totalSales || 0) - (data.totalDiscount || 0)}`, style: 'tableCell' },
+                                { text: data.orderCount?.toString() || '0', style: 'tableCell' },
+                                { text: data.totalItemsSold?.toString() || '0', style: 'tableCell' }
                             ])
                         ]
                     },
                     layout: {
-                        fillColor: function (rowIndex) {
-                            return rowIndex % 2 === 0 ? '#F3F3F3' : null;
-                        }
+                        fillColor: function (rowIndex) { return rowIndex % 2 === 0 ? '#F3F3F3' : null; }
                     }
                 },
-        
-                // Footnote for contact information
-                {
-                    text: 'For any inquiries, please contact us at support@myecommercesite.com or visit our website at www.myecommercesite.com.',
-                    style: 'contactInfo',
-                    margin: [0, 10, 0, 10]
-                }
+                { text: 'For any inquiries, please contact us at support@myecommercesite.com or visit our website at www.myecommercesite.com.', style: 'contactInfo', margin: [0, 10, 0, 10] }
             ],
             styles: {
-                header: {
-                    fontSize: 20,
-                    bold: true,
-                    alignment: 'center',
-                    margin: [0, 10, 0, 20]
-                },
-                subheader: {
-                    fontSize: 12,
-                    alignment: 'center',
-                    margin: [0, 0, 0, 20]
-                },
-                tableHeader: {
-                    fontSize: 12,
-                    bold: true,
-                    color: 'black',
-                    fillColor: '#D3D3D3',
-                    alignment: 'center'
-                },
-                tableCell: {
-                    fontSize: 10,
-                    alignment: 'center',
-                    margin: [0, 5, 0, 5]
-                },
-                contactInfo: {
-                    fontSize: 8,
-                    alignment: 'center',
-                    color: 'grey',
-                    margin: [0, 10, 0, 0]
-                },
-                siteName: {
-                    fontSize: 12,
-                    bold: true,
-                    margin: [0, 0, 0, 2]
-                },
-                siteEmail: {
-                    fontSize: 10,
-                    margin: [0, 0, 0, 1]
-                },
-                siteUrl: {
-                    fontSize: 10,
-                    margin: [0, 0, 0, 5]
-                }
+                header: { fontSize: 20, bold: true, alignment: 'center', margin: [0, 10, 0, 20] },
+                subheader: { fontSize: 12, alignment: 'center', margin: [0, 0, 0, 20] },
+                tableHeader: { fontSize: 12, bold: true, color: 'black', fillColor: '#D3D3D3', alignment: 'center' },
+                tableCell: { fontSize: 10, alignment: 'center', margin: [0, 5, 0, 5] },
+                contactInfo: { fontSize: 8, alignment: 'center', color: 'grey', margin: [0, 10, 0, 0] },
+                siteName: { fontSize: 12, bold: true, margin: [0, 0, 0, 2] },
+                siteEmail: { fontSize: 10, margin: [0, 0, 0, 1] },
+                siteUrl: { fontSize: 10, margin: [0, 0, 0, 5] }
             },
             footer: function (currentPage, pageCount) {
-                return {
-                    columns: [
-                        {
-                            text: `Page ${currentPage} of ${pageCount}`,
-                            alignment: 'left',
-                            fontSize: 8,
-                            margin: [10, 10, 0, 0]
-                        }
-                    ]
-                };
+                return { columns: [{ text: `Page ${currentPage} of ${pageCount}`, alignment: 'left', fontSize: 8, margin: [10, 10, 0, 0] }] };
             }
         };
-        
 
-
-        // Generate PDF and send it to the user
         const pdfDoc = pdfMake.createPdf(docDefinition);
         const filePath = 'C:/Users/hp/Downloads/SalesReport.pdf';
 
         pdfDoc.getBuffer((buffer) => {
             fs.writeFileSync(filePath, buffer);
             res.download(filePath, 'SalesReport.pdf', (err) => {
-                if (err) {
-                    console.error('Download error:', err);
-                }
-                fs.unlinkSync(filePath); // Delete the file after download
+                if (err) { console.error('Download error:', err); }
+                fs.unlinkSync(filePath);
             });
         });
     } catch (err) {
@@ -1158,11 +951,10 @@ const downloadSalesReportExcel = async (req, res) => {
         res.status(500).send('Could not generate Excel file');
     }
 };
-
-
 const getSalesReportData = async (filterType, startDate, endDate) => {
     let matchQuery = {};
 
+    // Define the date range based on filterType
     if (filterType === 'daily') {
         matchQuery.createdAt = { $gte: new Date(new Date().setHours(0, 0, 0, 0)) };
     } else if (filterType === 'weekly') {
@@ -1177,22 +969,245 @@ const getSalesReportData = async (filterType, startDate, endDate) => {
     }
 
     return await Order.aggregate([
-        { $match: matchQuery },
+        { $match: matchQuery },  // Match based on the given filter
+        { $unwind: "$products" },  // Unwind the products array to handle each product separately
         {
             $group: {
-                _id: null,
+                _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Group by date
                 totalSales: { $sum: '$totalAmount' },
                 totalDiscount: { $sum: '$discount' },
                 totalCouponDiscount: { $sum: '$couponDiscount' },
-                orderCount: { $sum: 1 }
+                orderCount: { $sum: 1 },
+                totalItemsSold: { $sum: '$products.quantity' }  // Sum the quantity of products
             }
-        }
+        },
+        { $sort: { _id: -1 } } // Sort by date in descending order
     ]);
+    
 };
+const dashboard = (req, res) => {
+    res.render('admin/dashboard');
+};
+const getCategorySalesData = async (req, res) => {
+    try {
+        const categorySales = await Products.aggregate([
+            {
+                $match: { isDeleted: false } // Only count active products
+            },
+            {
+                $unwind: "$category" // Decompose array of categories for products with multiple categories
+            },
+            {
+                $group: {
+                    _id: "$category", // Group by category ID
+                    totalSales: { $sum: "$popularity" } // Replace with a relevant field for sales
+                }
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            {
+                $unwind: "$categoryDetails"
+            },
+            {
+                $project: {
+                    categoryName: "$categoryDetails.brandName",
+                    totalSales: 1
+                }
+            }
+        ]);
+
+        res.json(categorySales);
+    } catch (error) {
+        console.error("Error fetching category sales data:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+};
+const getTopSellingProducts = async (req, res) => {
+    try {
+        const topProducts = await Order.aggregate([
+            { $unwind: "$products" },  // Deconstruct products array in each order
+            { $match: { "paymentStatus": "Paid" } },  // Count only orders that have been paid
+            {
+                $group: {
+                    _id: "$products.productId",  // Group by product ID
+                    totalOrders: { $sum: "$products.quantity" }  // Sum up the quantity ordered
+                }
+            },
+            { $sort: { totalOrders: -1 } },  // Sort by order count
+            { $limit: 10 },  // Limit to top 10 products
+            {
+                $lookup: {  // Join with Products collection to get product details
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },  // Deconstruct product details array
+            {
+                $project: {
+                    productName: "$productDetails.productName",
+                    totalOrders: 1,
+                    productPrice: "$productDetails.productPrice",
+                }
+            }
+        ]);
+
+        res.json(topProducts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch top-selling products" });
+    }
+};
+const getTopSellingCategories = async (req, res) => {
+    try {
+        const topCategories = await Order.aggregate([
+            { $unwind: "$products" },  // Unwind products in each order
+            { $match: { paymentStatus: "Paid" } },  // Only count paid orders
+            {
+                $lookup: {  // Join with Products collection to get category details
+                    from: "products",
+                    localField: "products.productId",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            { $unwind: "$productDetails.category" },  // Unwind categories within each product
+            {
+                $group: {
+                    _id: "$productDetails.category",  // Group by category ID
+                    totalOrders: { $sum: "$products.quantity" }  // Sum quantities for each category
+                }
+            },
+            { $sort: { totalOrders: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {  // Join with Category collection to get category names
+                    from: "categories",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            { $unwind: "$categoryDetails" },
+            {
+                $project: {
+                    categoryName: "$categoryDetails.brandName",  // Assuming "brandName" represents category name
+                    totalOrders: 1
+                }
+            }
+        ]);
+
+        res.json(topCategories);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch top-selling categories" });
+    }
+};
+const getTopSellingBrands = async (req, res) => {
+    try {
+        const topBrands = await Order.aggregate([
+            { $unwind: "$products" },
+            { $match: { paymentStatus: "Paid" } },  // Only count paid orders
+            {
+                $lookup: {  // Join with Products to get category/brand info
+                    from: "products",
+                    localField: "products.productId",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            { $unwind: "$productDetails.category" },
+            {
+                $lookup: {  // Join with Category to get brand name
+                    from: "categories",
+                    localField: "productDetails.category",
+                    foreignField: "_id",
+                    as: "brandDetails"
+                }
+            },
+            { $unwind: "$brandDetails" },
+            {
+                $group: {
+                    _id: "$brandDetails.brandName",  // Group by brand name
+                    totalOrders: { $sum: "$products.quantity" }  // Sum quantities for each brand
+                }
+            },
+            { $sort: { totalOrders: -1 } },
+            { $limit: 10 },
+            {
+                $project: {
+                    brandName: "$_id",
+                    totalOrders: 1
+                }
+            }
+        ]);
+
+        res.json(topBrands);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch top-selling brands" });
+    }
+};
+const getledger = async (req, res) => {
+    try {
+        const entries = await Ledger.find().populate('orderId'); // Populate order details if needed
+        res.render('admin/ledger', { entries });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching ledger entries');
+    }
+};
+const getSingleOrder = async (req, res) => {
+    const { orderId } = req.params; // Extract orderId from request parameters
+
+    try {
+        // Fetch the order by ID and populate necessary fields
+        const order = await Order.findById(orderId)
+            .populate({
+                path: 'userId',
+                select: 'userName email',
+            })
+            .populate({
+                path: 'shippingAddress',
+                select: 'addressLine city state postalCode country',
+            })
+            .populate({
+                path: 'products.productId',
+                select: 'productName price images', // Include price if needed
+            });
+
+        // Check if the order exists
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Send the order details back as JSON
+        res.json(order);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error while fetching order details' });
+    }
+};
+
 module.exports = {
     loadLogin,
+    getledger,
+    getSingleOrder,
+    getTopSellingBrands,
+    getTopSellingCategories,
+    getTopSellingProducts,
     loginBtn,
     usersPage,
+    dashboard,
     categoryPage,
     addCategory,
     editCategory,
@@ -1224,7 +1239,8 @@ module.exports = {
     salesReport,
     getSalesReportData,
     downloadSalesReportPdf,
-    downloadSalesReportExcel
+    downloadSalesReportExcel,
+    getCategorySalesData
 
 
 }

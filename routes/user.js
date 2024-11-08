@@ -53,8 +53,10 @@ router.post("/wishlistAdd", userAuth.checkSession, userController.addWishlist);
 router.delete("/wishlistRemove", userAuth.checkSession, userController.removeWishlist);
 router.post("/applyCoupon", userAuth.checkSession, userController.couponApply);
 router.patch('/removeCoupon', userAuth.checkSession, userController.removeCoupon);
-router.post('/create-razorpay-order', userAuth.checkSession, userController.createRazorpayOrder);
-router.post('/verify-razorpay-payment', userAuth.checkSession, userController.verifyRazorpayPayment);
+router.post('/createRazorpayOrder', userAuth.checkSession, userController.createRazorpayOrder);
+router.post('/verifyRazorpayPayment', userAuth.checkSession, userController.verifyRazorpayPayment);
+router.get('/retryPayment/:orderId', userAuth.checkSession,userController.retryPayment);
+router.post('/verifyPayment', userAuth.checkSession,userController.verifyPayment);
 router.get('/wallet', userAuth.checkSession, userController.walletpage);
 
 // Blocked page for users who are blocked

@@ -34,80 +34,65 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 document.getElementById('createCouponForm').addEventListener('submit', async function (e) {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault(); // Prevent default form submission behavior
 
     const form = e.target;
-    const errorToast = document.getElementById('errorToast');
-    const toastBody = document.getElementById('toastBody');
 
-    // Form fields
-    const couponCode = form['code'];
-    const discountType = form['discountType'];
-    const discountValue = form['discountValue'];
-    const minimumCartValue = form['minimumCartValue'];
-    const usageLimit = form['usageLimit'];
-    const expiryDate = form['expiryDate'];
-    const description = form['description'];
-    const productCheckboxes = document.querySelectorAll('.product-checkbox');
-    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+    // Form fields with validation messages
+    const fields = [
+        { element: form['code'], error: 'Coupon Code is required.' },
+        { element: form['discountType'], error: 'Please select a Discount Type.' },
+        { element: form['discountValue'], error: 'Discount Value must be greater than 0.', min: 1 },
+        { element: form['minimumCartValue'], error: 'Minimum Cart Value must be 0 or more.', min: 0 },
+        { element: form['usageLimit'], error: 'Usage Limit must be greater than 0.', min: 1 },
+        { element: form['expiryDate'], error: 'Please select an Expiry Date.' },
+        { element: form['description'], error: 'Description is required.' }
+    ];
 
-    // Function to show the error toast
-    function showError(message) {
-        toastBody.textContent = message;
-        const toast = new bootstrap.Toast(errorToast);
-        toast.show();
+    // Function to set error message
+    function setError(element, message) {
+        element.classList.add('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        if (errorDiv) {
+            errorDiv.classList.add('invalid-feedback');
+            errorDiv.textContent = message;
+        }
     }
 
-    // Sequential Validation
-    if (!couponCode.value.trim()) {
-        showError("Coupon Code is required.");
-
-        return;
+    // Function to clear error message
+    function clearError(element) {
+        element.classList.remove('is-invalid');
+        const errorDiv = element.nextElementSibling;
+        if (errorDiv) {
+            errorDiv.textContent = '';
+        }
     }
 
-    if (!discountType.value) {
-        showError("Please select a Discount Type.");
-        discountType.focus();
-        return;
-    }
+    // Validate each field
+    let isValid = true;
+    fields.forEach(({ element, error, min }) => {
+        clearError(element);
+        const value = element.value.trim();
+        if (!value || (min !== undefined && +value < min)) {
+            setError(element, error);
+            isValid = false;
+        }
+    });
 
-    if (!discountValue.value || discountValue.value <= 0) {
-        showError("Discount Value must be greater than 0.");
-        discountValue.focus();
-        return;
-    }
+    // Validate checkbox selection for products and categories
+    const anyProductSelected = Array.from(document.querySelectorAll('.product-checkbox')).some(cb => cb.checked);
+    const anyCategorySelected = Array.from(document.querySelectorAll('.category-checkbox')).some(cb => cb.checked);
 
-    if (!minimumCartValue.value || minimumCartValue.value < 0) {
-        showError("Minimum Cart Value must be 0 or more.");
-        minimumCartValue.focus();
-        return;
-    }
+    // if (!anyProductSelected && !anyCategorySelected) {
+    //     showError("Please select at least one product or category."); 
+    //     isValid = false;
+    // }
 
-    if (!usageLimit.value || usageLimit.value <= 0) {
-        showError("Usage Limit must be greater than 0.");
-        usageLimit.focus();
-        return;
-    }
+    if (!isValid) return;
 
-    if (!expiryDate.value) {
-        showError("Please select an Expiry Date.");
-        expiryDate.focus();
-        return;
-    }
-    if (!description.value.trim()) {
-        showError("Please Enter description.");
-
-        return;
-    }
-
-    const anyProductSelected = Array.from(productCheckboxes).some(checkbox => checkbox.checked);
-    const anyCategorySelected = Array.from(categoryCheckboxes).some(checkbox => checkbox.checked);
-
-    // If no errors, submit the form
+    // Form submission 
     try {
         const formData = new FormData(form);
-
-        console.log(...formData);
         const response = await fetch('/createCoupon', {
             method: 'POST',
             body: formData,
@@ -120,12 +105,15 @@ document.getElementById('createCouponForm').addEventListener('submit', async fun
             console.log('Coupon created successfully');
             const modal = bootstrap.Modal.getInstance(document.getElementById('couponModal'));
             modal.hide();
-
             location.reload();
         }
     } catch (err) {
-        console.log("Coupon fetch error: ", err);
+        console.error("Coupon fetch error: ", err);
         showError('An error occurred, please try again later.');
     }
 });
-
+function showError(message) {
+    toastBody.textContent = message;
+    const toast = new bootstrap.Toast(errorToast);
+    toast.show();
+}

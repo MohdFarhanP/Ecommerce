@@ -1,10 +1,9 @@
 <link rel="stylesheet" href="/styles/user/userProfile.css">
 
 <header>
-    <nav class="navbar navbar-expand-lg  shadow-navbar">
+    <nav class="navbar navbar-expand-lg shadow-navbar">
         <div class="container-fluid py-auto px-auto ">
             <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
-
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
@@ -16,12 +15,9 @@
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a>
                     </li>
                 </ul>
-
                 <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
                     <div class="input-group">
-                        <form class="d-flex" action="/search" method="GET">
-                            <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
-                                aria-label="Search">
+                        <form class="d-flex" action="/ProductList" method="GET">
                             <button class="btn btn-outline" type="submit"><i
                                     class="fa-solid fa-magnifying-glass"></i></button>
                         </form>
@@ -39,99 +35,129 @@
 </header>
 
 <div class="container mt-3">
-    <div class="row mt-5 ">
+    <div class="row mt-5">
         <!-- Sidebar -->
         <div class="col-md-2">
             <div class="container-fluid">
                 <span class="fw-bold">Account & Settings</span>
                 <hr>
             </div>
-
             <nav class="nav flex-column mt-2">
                 <a href="/userProfile" class="btn btn-outline-warning mb-2 active">User Details</a>
-                <a href="/orders" class="btn btn-outline-warning mb-2 ">Orders</a>
-                <a href="/whishList" class="btn btn-outline-warning mb-2 ">whishList</a>
-                <a href="/wallet" class="btn btn-outline-warning mb-2 ">wallet</a>
-                <a href="/logOut" class="btn text-warning mb-2  mt-4 px-auto"><i
+                <a href="/orders" class="btn btn-outline-warning mb-2">Orders</a>
+                <a href="/whishList" class="btn btn-outline-warning mb-2">Wishlist</a>
+                <a href="/wallet" class="btn btn-outline-warning mb-2">Wallet</a>
+                <a href="/logOut" class="btn text-warning mb-2 mt-4 px-auto"><i
                         class="fa-solid fa-right-from-bracket me-3"></i>Log out</a>
             </nav>
         </div>
 
-        <div class="col-md-10 mt-4 bg1">
-            <div class="row d-flex justify-content-center mt-4">
+        <!-- Main Content -->
+        <div class="col-md-10 mt-4">
+            <!-- Top Navigation Buttons -->
+            <div class="row d-flex justify-content-center mb-4">
                 <div class="col-md-3">
                     <a href="/userProfile">
-                        <button class="btn mbtn btn-outline-warning w-100 active">Update User</button>
+                        <button class="btn btn-outline-warning w-100 active">Update User</button>
                     </a>
                 </div>
                 <div class="col-md-3">
                     <a href="/passwordUpdate">
-                        <button class="btn mbtn btn-outline-warning w-100">Password</button>
+                        <button class="btn btn-outline-warning w-100">Password</button>
                     </a>
                 </div>
                 <div class="col-md-3">
                     <a href="/address">
-                        <button class="btn mbtn btn-outline-warning w-100">Address</button>
+                        <button class="btn btn-outline-warning w-100">Address</button>
                     </a>
                 </div>
             </div>
-            <div class="container">
-                <div class="row details justify-content-center">
-                    <div class="col-sm-12 col-md-6 card px-5 pt-5 pb-3  mb-5">
 
-                        <form action="/userEdit?_method=PATCH" method="post" id="editUserForm">
-                            <input type="text" value="{{user._id}}" name="id" hidden>
-                            <input type="text" value="{{#if address}}{{address._id}}{{else}}NO Address {{/if}}"
-                                name="addressId" hidden>
+            <!-- User Details and Edit Profile Section -->
+            <div class="row g-4 mt-2">
+                <!-- User Details Card -->
+                <div class="col-md-4">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title text-center mb-3">User Details</h5>
+                            <p class="mb-2"><strong>Username:</strong> {{user.userName}}</p>
+                            <p class="mb-2"><strong>Email:</strong> {{user.email}}</p>
+                            <p class="mb-2"><strong>Mobile:</strong> {{#if address}}{{address.mobile}}{{else}}No
+                                Address{{/if}}</p>
+                            <p class="mb-2"><strong>Country:</strong> {{#if address}}{{address.country}}{{/if}}</p>
+                        </div>
+                    </div>
 
-                            <div class="mb-3">
-                                <label for="userName" class="form-label">UserName</label>
-                                <input type="text" value="{{user.userName}}" name="userName" class="input form-control"
-                                    id="userName">
-                                <div id="userNameError" class="text-danger" style="display:none;">Username is required
+                    <!-- Referral Code Card -->
+                    <div class="card shadow border-0">
+                        <div class="card-body">
+                            <h5 class="card-title text-center mb-3">Referral Code</h5>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="{{user.referralCode}}" id="referralCode"
+                                    readonly>
+                                <button class="btn btn-outline-secondary" onclick="copyReferralCode()">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Form Card -->
+                <div class="col-md-8">
+                    <div class="card shadow border-0">
+                        <div class="card-body">
+                            <h5 class="card-title text-center mb-4">Edit Profile</h5>
+                            <form action="/userEdit?_method=PATCH" method="post" id="editUserForm">
+                                <input type="text" value="{{user._id}}" name="id" hidden>
+                                <input type="text" value="{{#if address}}{{address._id}}{{else}}NO Address{{/if}}"
+                                    name="addressId" hidden>
+
+                                <div class="mb-3">
+                                    <label for="userName" class="form-label">Username</label>
+                                    <input type="text" value="{{user.userName}}" name="userName" class="form-control"
+                                        id="userName">
+                                    <div id="userNameError" class="text-danger" style="display:none;">Please enter a
+                                        valid username.</div>
                                 </div>
-                            </div>
 
-                            <div class="mb-3">
-                                <label for="mobile" class="form-label">Mobile</label>
-                                <input type="text" value="{{#if address}}{{address.mobile}}{{else}}NO Address {{/if}}"
-                                    name="mobile" class="input form-control" id="mobile">
-                                <div id="mobileError" class="text-danger" style="display:none;">A valid mobile number is
-                                    required</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" value="{{user.email}}" name="email" class="input form-control"
-                                    id="email">
-                                <div id="emailError" class="text-danger" style="display:none;">A valid email is required
+                                <div class="mb-3">
+                                    <label for="mobile" class="form-label">Mobile</label>
+                                    <input type="text"
+                                        value="{{#if address}}{{address.mobile}}{{else}}No Address{{/if}}" name="mobile"
+                                        class="form-control" id="mobile">
+                                    <div id="mobileError" class="text-danger" style="display:none;">Please enter a valid
+                                        mobile number.</div>
                                 </div>
-                            </div>
 
-                            <div class="mb-3">
-                                <label for="dropdown" class="form-label">Country</label>
-                                <select class="form-select" name="country" id="dropdown" aria-label="Select option">
-                                    <option disabled selected>{{#if address}}{{address.country}}{{/if}}</option>
-                                    <option value="India">India</option>
-                                    <option value="USA">USA</option>
-                                    <option value="UAE">UAE</option>
-                                </select>
-                                <div id="countryError" class="text-danger" style="display:none;">Please select a country
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" value="{{user.email}}" name="email" class="form-control"
+                                        id="email">
+                                    <div id="emailError" class="text-danger" style="display:none;">Please enter a valid
+                                        email.</div>
                                 </div>
-                            </div>
 
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-warning mt-4 w-100">Edit</button>
-                            </div>
-                        </form>
+                                <div class="mb-3">
+                                    <label for="country" class="form-label">Country</label>
+                                    <select class="form-select" name="country" id="country">
+                                        <option disabled selected>{{#if address}}{{address.country}}{{else}}Select
+                                            Country{{/if}}</option>
+                                        <option value="India">India</option>
+                                        <option value="USA">USA</option>
+                                        <option value="UAE">UAE</option>
+                                    </select>
+                                    <div id="countryError" class="text-danger" style="display:none;">Please select a
+                                        country.</div>
+                                </div>
 
+                                <button type="submit" class="btn btn-warning w-100">Save Changes</button>
+                            </form>
 
-
-
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <script src="/javaScript/user/editUserProfile.js"></script>

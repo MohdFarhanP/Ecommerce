@@ -36,12 +36,14 @@ const orderSchema = new mongoose.Schema({
     deliveryDate: { type: Date },
 
     createdAt: { type: Date, default: Date.now },
-
+    
     discount: { type: Number, default: 0 },
     
     couponCode: { type: String },
     
-    couponDiscount: { type: Number, default: 0 }
+    couponDiscount: { type: Number, default: 0 },
+    
+    razorpayOrderId: { type: String, unique: true },
 });
     
 module.exports = mongoose.model('Order', orderSchema);

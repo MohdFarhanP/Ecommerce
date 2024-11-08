@@ -18,9 +18,7 @@
 
                 <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
                     <div class="input-group">
-                        <form class="d-flex" action="/search" method="GET">
-                            <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
-                                aria-label="Search">
+                        <form class="d-flex" action="/ProductList" method="GET">
                             <button class="btn btn-outline" type="submit"><i
                                     class="fa-solid fa-magnifying-glass"></i></button>
                         </form>
@@ -164,13 +162,13 @@
                                 <label class="form-label">First Name:</label>
                                 <input type="text" name="firstName" class="form-control"
                                     placeholder="Please enter your First name">
-                                    <small class="error-message text-danger"></small>
+                                <small class="error-message text-danger"></small>
                             </div>
                             <div class="col">
                                 <label class="form-label">Last name:</label>
                                 <input type="text" name="lastName" class="form-control"
                                     placeholder="Please enter your Last name">
-                                    <small class="error-message text-danger"></small>
+                                <small class="error-message text-danger"></small>
                             </div>
                         </div>
                         <div class="row">
@@ -178,13 +176,13 @@
                                 <label class="form-label">Email Address:</label>
                                 <input type="text" name="email" class="form-control"
                                     placeholder="Please enter your Email Address">
-                                    <small class="error-message text-danger"></small>
+                                <small class="error-message text-danger"></small>
                             </div>
                             <div class="col">
                                 <label class="form-label">Mobail Number:</label>
                                 <input type="text" name="mobile" class="form-control"
                                     placeholder="Please enter your Mobail Number">
-                                    <small class="error-message text-danger"></small>
+                                <small class="error-message text-danger"></small>
                             </div>
                         </div>
                         <div class="row">
@@ -192,13 +190,13 @@
                                 <label class="form-label">Address:</label>
                                 <input type="text" name="addressLine" class="form-control"
                                     placeholder="Please enter your Address">
-                                    <small class="error-message text-danger"></small>
+                                <small class="error-message text-danger"></small>
                             </div>
                             <div class="col">
                                 <label class="form-label">Town/City:</label>
                                 <input type="text" name="city" class="form-control"
                                     placeholder="Please enter your City Name">
-                                    <small class="error-message text-danger"></small>
+                                <small class="error-message text-danger"></small>
                             </div>
                         </div>
                         <div class="row">
@@ -206,7 +204,7 @@
                                 <label class="form-label">Pin Code:</label>
                                 <input type="text" name="pinCode" class="form-control"
                                     placeholder="Please enter your Pin Code">
-                                    <small class="error-message text-danger"></small>
+                                <small class="error-message text-danger"></small>
                             </div>
                             <div class="col">
                                 <label for="dropdown" class="form-label">Country</label>
@@ -275,7 +273,7 @@
                             <h6 class="mt-3 mb-2"><strong>₹{{subTotal}}</strong></h6>
                             <h6 class="mb-2"><strong>₹{{shippingCharge}}</strong></h6>
                             <h6 class="mb-2" id="delivery-charge">₹{{deliveryCharge}}</h6>
-                            <!-- Display coupon discount if applied -->                          
+                            <!-- Display coupon discount if applied -->
                             {{#if appliedCouponCode}}
                             <h6 class="mb-2"><strong>{{appliedCouponCode}}</strong></h6>
                             <h6 class="mb-2"><strong>- ₹{{discountAmount}}</strong></h6>
@@ -356,5 +354,11 @@
             aria-label="Close"></button>
     </div>
 </div>
+
+<div id="custom-alert" class="alert hidden">
+    <span id="alert-message"></span>
+    <button id="alert-close" onclick="hideAlert()">X</button>
+</div>
+
 
 <script src="/javaScript/user/checkout.js"></script>

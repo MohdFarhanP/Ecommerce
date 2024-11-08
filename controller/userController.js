@@ -15,6 +15,8 @@ const easyinvoice = require('easyinvoice');
 const fs = require('fs');
 const Razorpay = require('razorpay');
 const WalletTransaction = require('../module/wlletModel');
+const Ledger = require('../module/ledgerModel');
+const crypto = require('crypto');
 
 const razorpayInstance = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -379,9 +381,39 @@ const filterProducts = async (req, res) => {
                 break;
         }
 
-        const filteredProducts = await Products.find(query).populate('category').sort(sortQuery).collation(collation);
+        const filteredProducts = await Products.find(query)
+            .populate('offersApplied')
+            .sort(sortQuery)
+            .collation(collation);
 
-        res.json(filteredProducts);
+        const productsWithDiscounts = filteredProducts.map(product => {
+            let hasDiscount = null;
+            let discountLabel = '';
+
+            if (product.offersApplied && product.offersApplied.length > 0) {
+                const activeOffer = product.offersApplied[0];
+
+                if (activeOffer.discountType && activeOffer.discountValue) {
+                    if (activeOffer.discountType === 'percentage') {
+                        hasDiscount = product.productPrice * (1 - activeOffer.discountValue / 100);
+                        discountLabel = `${activeOffer.discountValue}% off`;
+                    } else if (activeOffer.discountType === 'fixed') {
+                        hasDiscount = product.productPrice - activeOffer.discountValue;
+                        discountLabel = `₹${activeOffer.discountValue} off`;
+                    }
+                    hasDiscount = Math.max(hasDiscount, 0); // Ensure the price does not go below 0
+                }
+            }
+
+            return {
+                ...product.toObject(),
+                finalPrice: hasDiscount ? hasDiscount.toFixed(2) : product.productPrice.toFixed(2),
+                hasDiscount: hasDiscount ? hasDiscount.toFixed(2) : null,
+                discountLabel,
+            };
+        });
+
+        res.json(productsWithDiscounts);
 
     } catch (err) {
         console.error('Filter Products Error:', err);
@@ -727,10 +759,13 @@ const cancelProduct = async (req, res) => {
             return res.status(400).send('Product is already canceled');
         }
 
+        // Update product status to 'Cancelled'
         const uptOrder = await Order.updateOne(
             { _id: orderId, "products.productId": productId, 'products.status': { $in: ['Pending', 'Confirmed'] } },
             { $set: { "products.$.status": 'Cancelled' } }
         );
+
+        // Update stock and maximum quantity
         const product = await Products.findById(productId);
         const newStock = product.productStock + productToCancel.quantity;
         const newMaxQty = Math.min(Math.floor(newStock / 3), 10);
@@ -742,10 +777,9 @@ const cancelProduct = async (req, res) => {
             }
         );
 
+        // Handle refund for non-COD payments
         if (order.paymentMethod !== 'COD') {
             const refundAmount = productToCancel.price;
-
-            console.log(order.userId);
 
             const user = await User.findById(order.userId);
             user.walletBalance += refundAmount;
@@ -761,6 +795,17 @@ const cancelProduct = async (req, res) => {
             });
         }
 
+        // Create ledger entry for the canceled product
+        const ledgerEntryDescription = `Product canceled from order ${orderId} - ${product.productName}`;
+        const ledgerAmount = productToCancel.price; // You can adjust this based on how you want to track it
+        await Ledger.create({
+            description: ledgerEntryDescription,
+            amount: ledgerAmount,
+            type: 'credit', // Assuming credit for the cancellation
+            orderId: orderId // Reference to the order if needed
+        });
+
+        // Check if all products are canceled
         const updatedOrder = await Order.findById(orderId);
         const allProductsCancelled = updatedOrder.products.every(product => product.status === 'Cancelled');
 
@@ -787,6 +832,47 @@ const returnProduct = async (req, res) => {
         );
 
         if (updatedOrder.modifiedCount > 0) {
+
+            const productToReturn = await Products.findById(productId);
+            const refundAmount = productToReturn.productPrice;
+
+            await Products.updateOne(
+                { _id: productId },
+                { $inc: { productStock: 1 }, $set: { maxQtyPerPerson: Math.min(Math.floor((productToReturn.productStock + 1) / 3), 10) } } // Adjust maxQtyPerPerson if needed
+            );
+
+
+            const order = await Order.findById(orderId);
+            if (order.paymentMethod !== 'COD') {
+                const user = await User.findById(order.userId);
+                user.walletBalance += refundAmount;
+                console.log(user.walletBalance, order.userId);
+                await user.save();
+
+                await WalletTransaction.create({
+                    userId: order.userId,
+                    amount: refundAmount,
+                    transactionType: 'Credit',
+                    description: `Refund for returned product ${productToReturn.productName} from order ${orderId}`
+                });
+            }
+            const product = order.products.find(
+                item => item.productId.toString() === productToReturnId.toString()
+            );
+
+            if (product) {
+                product.status = "Returned";
+                await order.save();
+            }
+
+
+            await Ledger.create({
+                description: `Product returned from order ${orderId} - ${productToReturn.productName}`,
+                amount: refundAmount,
+                type: 'credit',
+                orderId: orderId
+            });
+
             res.redirect('/orders');
         } else {
             res.status(400).send('Return not allowed before delivery.');
@@ -844,6 +930,14 @@ const placeOrder = async (req, res) => {
                     description: `Payment for order `
                 });
 
+
+                await Ledger.create({
+                    description: `Payment received for order ${newOrder._id}`,
+                    amount: totalAmount,
+                    type: 'debit',
+                    orderId: newOrder._id
+                });
+
                 await Cart.findOneAndDelete({ user: userId });
                 delete req.session.appliedCouponCode;
 
@@ -887,6 +981,13 @@ const placeOrder = async (req, res) => {
 
             await Cart.findOneAndDelete({ user: userId });
             delete req.session.appliedCouponCode;
+
+            await Ledger.create({
+                description: `Order placed (COD) ${newOrder._id}`,
+                amount: totalAmount,
+                type: 'credit',
+                orderId: newOrder._id
+            });
             res.redirect(`/orderSuccess/${newOrder._id}`);
         }
     } catch (err) {
@@ -894,87 +995,111 @@ const placeOrder = async (req, res) => {
 
     }
 };
+// Razorpay Order Creation - Unified for initial and retry
 const createRazorpayOrder = async (req, res) => {
-    const { amount } = req.body;
-
+    const { totalAmount, products, shippingAddressId, couponCode, couponDiscount, discount } = req.body;
+    console.log(totalAmount, products, shippingAddressId, couponCode, couponDiscount, discount)
     try {
-        const order = await razorpayInstance.orders.create({
-            amount: amount * 100, // Amount in paise
+        const options = {
+            amount: totalAmount * 100,  // Amount in paise
             currency: 'INR',
-            payment_capture: 1 // Auto capture payment
-        });
+            receipt: `receipt_order_${Date.now()}`,
+        };
 
-        res.json({ success: true, order });
+        const order = await razorpayInstance.orders.create(options);
+
+        const newOrder = await Order.create({
+            userId: req.session.userId,
+            products,
+            shippingAddress: await Address.findById(shippingAddressId),
+            totalAmount,
+            paymentMethod: 'Razorpay',
+            paymentStatus: 'Pending',
+            couponCode,
+            couponDiscount,
+            discount,
+            razorpayOrderId: order.id
+        });
+        console.log("orderId: ", order.id, "key: ", process.env.RAZORPAY_KEY_ID, "amount: ", options.amount)
+        res.json({ orderId: order.id, key: process.env.RAZORPAY_KEY_ID, amount: options.amount });
     } catch (error) {
-        console.error("Error creating Razorpay order:", error);
-        res.json({ success: false, error: error.message });
+        console.log('er', error)
+        res.status(500).json({ error: 'Failed to create Razorpay order' });
+    }
+};
+// Payment Verification - Handles both first-time and retry payments
+const verifyRazorpayPayment = async (req, res) => {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    console.log('razorpayid', razorpay_order_id, 'paymentid', razorpay_payment_id, 'razsignature', razorpay_signature)
+
+    const crypto = require('crypto');
+    const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(razorpay_order_id + "|" + razorpay_payment_id)
+        .digest('hex');
+
+    if (generatedSignature === razorpay_signature) {
+        await Order.updateOne(
+            { razorpayOrderId: razorpay_order_id },
+            { paymentStatus: 'Paid', status: 'Confirmed' }
+        );
+        const order = await Order.findOne({razorpayOrderId:razorpay_order_id})
+        console.log(order._id);
+        res.json({ success: true, redirectUrl: `/orderSuccess/${order._id}` });
+    } else {
+        await Order.updateOne(
+            { razorpayOrderId: razorpay_order_id },
+            { paymentStatus: 'Failed' }
+        );
+        res.json({ success: false });
+    }
+};
+const verifyPayment = async (req, res) => {
+    const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
+    console.log(razorpayPaymentId, razorpayOrderId, razorpaySignature, orderId);
+
+    const order = await Order.findById(orderId);
+    const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+        .digest('hex');
+
+    if (generatedSignature === razorpaySignature) {
+        // Payment is verified, update order status
+        order.paymentStatus = 'Paid';
+        order.status = 'Confirmed';  // Or another status as per your logic
+        await order.save();
+
+        res.json({ success: true });
+    } else {
+        // Signature mismatch
+        res.json({ success: false });
     }
 };
 
-const verifyRazorpayPayment = async (req, res) => {
-    const userId = req.session.userId;
-    const crypto = require('crypto');
-
+const retryPayment = async (req, res) => {
     try {
-        const { order_id, payment_id, signature, selectedAddressId, paymentMethod, totalAmount, products, couponCode, couponDiscount, discount } = req.body;
-
-        // Verify Razorpay payment signature
-        const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-            .update(order_id + "|" + payment_id)
-            .digest('hex');
-
-        const shippingAddress = await Address.findById(selectedAddressId);
-
-        // Initialize the new order with a default 'Pending' payment status
-        const newOrderData = {
-            userId: req.session.userId,
-            products,
-            shippingAddress: {
-                firstName: shippingAddress.firstName || "",
-                lastName: shippingAddress.lastName,
-                email: shippingAddress.email,
-                mobile: shippingAddress.mobile,
-                addressLine: shippingAddress.addressLine,
-                city: shippingAddress.city,
-                pinCode: shippingAddress.pinCode,
-                country: shippingAddress.country,
-            },
-            totalAmount,
-            paymentMethod,
-            paymentStatus: 'Pending',
-            status: 'Pending',
-            deliveryDate: new Date(new Date().setDate(new Date().getDate() + 5)),
-            couponCode,
-            couponDiscount,
-            discount
-        };
-
-        if (generatedSignature === signature) {
-            // Payment verified, update paymentStatus to 'Paid' and order status to 'Confirmed'
-            newOrderData.paymentStatus = 'Paid';
-            newOrderData.status = 'Confirmed';
+        const orderId = req.params.orderId;
+        const order = await Order.findById(orderId);
+console.log(order)
+        if (order.paymentStatus === 'Failed') {
+            console.log('failaan mone');
+            console.log('ordernte razorpay id',order.razorpayOrderId);
+            console.log('amount',order.totalAmount * 100);
+            console.log('razid',process.env.RAZORPAY_KEY_ID)
+            // Return the Razorpay order ID and amount for the retry
+            res.json({
+                success: true,
+                orderId: order.razorpayOrderId,
+                amount: order.totalAmount * 100, // Convert to paise
+                key: process.env.RAZORPAY_KEY_ID
+            });
+        } else {
+            console.log('fail alla');
+            
+            res.json({ success: false });
         }
-
-        // Save the order, whether verified or not
-        const newOrder = new Order(newOrderData);
-        await newOrder.save();
-        console.log('Order saved with status:', newOrderData.paymentStatus);
-
-        if (newOrderData.paymentStatus === 'Paid') {
-            // If payment was successful, clear the cart
-            await Cart.findOneAndDelete({ user: userId });
-            console.log("Cart items deleted");
-            delete req.session.appliedCouponCode;
-        }
-
-        res.json({
-            success: newOrderData.paymentStatus === 'Paid',
-            message: newOrderData.paymentStatus === 'Paid' ? "Payment verified and order confirmed" : "Payment verification failed, order placed with pending payment",
-            orderId: newOrder._id
-        });
-    } catch (err) {
-        console.error("Razorpay verification error:", err);
-        res.json({ success: false, message: "An error occurred during payment verification" });
+    } catch (error) {
+        console.error('Error fetching retry payment details:', error);
+        res.status(500).json({ success: false, message: 'Error fetching retry payment details' });
     }
 };
 
@@ -1010,8 +1135,8 @@ const downloadInvoice = async (req, res) => {
             return res.status(404).send('Order not found');
         }
 
-        const logoPath = path.join(__dirname, '..', 'public', 'image', 'user', 'WATCH.png'); 
-     
+        const logoPath = path.join(__dirname, '..', 'public', 'image', 'user', 'WATCH.png');
+
 
         const data = {
             client: {
@@ -1022,10 +1147,10 @@ const downloadInvoice = async (req, res) => {
                 country: order.shippingAddress.country
             },
             sender: {
-                company: "WATCHLY", 
-                address: "Bangelore,Karnataka", 
-                zip: "4587631", 
-                city: "Bangelre city", 
+                company: "WATCHLY",
+                address: "Bangelore,Karnataka",
+                zip: "4587631",
+                city: "Bangelre city",
                 country: "India"
             },
             images: {
@@ -1039,7 +1164,7 @@ const downloadInvoice = async (req, res) => {
             products: order.products.map(item => ({
                 quantity: item.quantity,
                 description: item.productId.productName,
-                "tax-rate": 0, 
+                "tax-rate": 0,
                 price: item.price
             })),
             bottomNotice: "Thank you for shopping with WATCHLY!",
@@ -1054,13 +1179,13 @@ const downloadInvoice = async (req, res) => {
                 const filePath = path.join(tmpDir, `invoice_${req.params.orderId}.pdf`);
                 fs.writeFileSync(filePath, result.pdf, 'base64');
 
-           
+
                 res.download(filePath, 'invoice.pdf', (err) => {
                     if (err) {
                         console.error('Error downloading invoice:', err);
                         return res.status(500).send('Error downloading invoice');
                     }
-                    fs.unlinkSync(filePath); 
+                    fs.unlinkSync(filePath);
                 });
             } else {
                 console.error('Invoice creation failed:', result);
@@ -1068,7 +1193,7 @@ const downloadInvoice = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error generating invoice:', error); 
+        console.error('Error generating invoice:', error);
         res.status(500).send('Error generating invoice');
     }
 };
@@ -1614,6 +1739,8 @@ const walletpage = async (req, res) => {
         const transactions = await WalletTransaction.find({ userId });
         console.log(transactions)
         const user = await User.findById(userId)
+        const wb = user.walletBalance.toFixed(2);
+
         res.render('user/wallet', { transactions, user });
     } catch (err) {
         console.log(err)
@@ -1639,6 +1766,7 @@ module.exports = {
     demoLogin,
     blocked,
     userProfile,
+    verifyPayment,
     passwordUpdate,
     orders,
     cart,
@@ -1666,5 +1794,7 @@ module.exports = {
     verifyRazorpayPayment,
     walletpage,
     returnProduct,
-    downloadInvoice
+    downloadInvoice,
+    retryPayment,
+
 }

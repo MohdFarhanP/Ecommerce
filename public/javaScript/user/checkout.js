@@ -1,3 +1,4 @@
+
 let phone
 
 function getProductsFromDOM() {
@@ -193,104 +194,109 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+
 document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const selectedAddressId = document.getElementById('selectedAddress').value;
     if (!selectedAddressId) {
-        showError('Please select a shipping address.');
+        alert('Please select a shipping address.');
         return;
     }
 
     const userEmail = document.getElementById('userEmail').value;
-    const razorpayKey = document.getElementById('razorpayKey').value;
     const products = getProductsFromDOM();
     const couponCode = document.getElementById('couponCode')?.value || null;
     const couponDiscount = parseFloat(document.getElementById('couponDiscount')?.value) || 0;
     const discount = parseFloat(document.getElementById('discount')?.value) || 0;
 
 
-    const selectedPayment = document.querySelector('input[name="paymentOption"]:checked').value;
-    document.getElementById('selectedPaymentMethod').value = selectedPayment;
-   
+    const paymentMethod = document.querySelector('input[name="paymentOption"]:checked').value;
+    document.getElementById('selectedPaymentMethod').value = paymentMethod;
+
     const totalAmount = document.querySelector('input[name="totalAmount"]').value;
     console.log(totalAmount);
 
-    if (selectedPayment === 'COD' && totalAmount > 10000) {
-        showError('Cash on Delivery is not available for orders above ₹10000.');
-        return; // Stop form submission
-    }
+    if (paymentMethod === 'Razorpay') {
+        try {
+            const response = await fetch('/createRazorpayOrder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    totalAmount: totalAmount,
+                    products: products,
+                    shippingAddressId: selectedAddressId,
+                    couponCode: couponCode ?? '',
+                    couponDiscount: couponDiscount,
+                    discount: discount
+                })
+            });
 
-    if (selectedPayment === 'Razorpay') {
-        // Call backend to create a Razorpay order
-
-
-        const response = await fetch('/create-razorpay-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: totalAmount })
-        });
-
-        const orderData = await response.json();
-
-        if (orderData.success) {
-            // Initialize Razorpay payment
+            const { orderId, key, amount } = await response.json();
+            console.log(orderId, key, amount)
             const options = {
-                key: razorpayKey,
-                amount: orderData.order.amount,
+                key,
+                amount,
                 currency: "INR",
-                order_id: orderData.order.id,
+                order_id: orderId,
                 handler: function (response) {
-                    // Pass Razorpay response to backend for verification
-                    verifyRazorpayPayment(response, selectedAddressId, selectedPayment, totalAmount, products, couponCode, couponDiscount, discount);
+
+                    verifyRazorpayPayment(response);
                 },
                 prefill: {
                     email: userEmail,
-                    contact: phone,
+                    contact: phone
                 },
-                theme: { color: "#F37254" }
+                modal: {
+                    ondismiss: function () {
+                        window.location.href = '/orders';
+                    }
+                }
             };
 
-            const razorpay = new Razorpay(options);
-            razorpay.open();
+            const rzp = new Razorpay(options);
+            rzp.open();
+        } catch (error) {
+            console.error("Razorpay order creation failed:", error);
         }
     } else {
-        // For COD or Wallet, proceed with form submission
+        if (selectedPayment === 'COD' && totalAmount > 1000) {
+            return showError('above 1000 rupees product cant buy using cash on delevery ');
+        }
         this.submit();
     }
+    
+
+
 });
 
-async function verifyRazorpayPayment(response, selectedAddressId, paymentMethod, totalAmount, products, couponCode, couponDiscount, discount) {
-    console.log(selectedAddressId);
 
-    const verificationData = {
-        order_id: response.razorpay_order_id,
-        payment_id: response.razorpay_payment_id,
-        signature: response.razorpay_signature,
-        selectedAddressId: selectedAddressId,
-        paymentMethod: paymentMethod,
-        totalAmount: totalAmount,
-        products: products,
-        couponCode: couponCode,
-        couponDiscount: couponDiscount,
-        discount: discount
-
-    };
-
-    const verificationResponse = await fetch('/verify-razorpay-payment', {
+function verifyRazorpayPayment(response) {
+    fetch('/verifyRazorpayPayment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(verificationData)
-    });
-
-    const verificationResult = await verificationResponse.json();
-    if (verificationResult.success) {
-        window.location.href = `/orderSuccess/${verificationResult.orderId}`;
-    } else {
-        if (!verificationResult.success)
-            showError(verificationResult.message);
-    }
+        body: JSON.stringify({ ...response })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirectUrl;
+            } else {
+                if (rzp) {
+                    rzp.close();
+                }
+                window.location.href = '/orders';  // Redirect to order page for retry
+            }
+        })
+        .catch(err =>{
+            console.error("Payment verification failed:", err);
+            if (rzp) {
+                rzp.close();
+            }
+        });
 }
+
+
 
 function showError(message) {
     toastBody.textContent = message;
@@ -300,3 +306,4 @@ function showError(message) {
         toast.hide();
     }, 3000);
 }
+

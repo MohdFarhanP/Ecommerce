@@ -12,6 +12,7 @@ router.post('/logout', adminController.logoutBtn); // Logout might not need midd
 router.get('/users', adminAuth.checkSession, adminController.usersPage);
 router.patch('/unblock/:id', adminAuth.checkSession, adminController.unblockUser);
 router.patch('/block/:id', adminAuth.checkSession, adminController.blockUser);
+router.get('/dashboard',adminAuth.checkSession,adminController.dashboard)
 router.get('/category', adminAuth.checkSession, adminController.categoryPage);
 router.post('/addCategory', adminAuth.checkSession, adminController.addCategory);
 router.put('/editCategory', adminAuth.checkSession, adminController.editCategory);
@@ -23,6 +24,7 @@ router.put('/editProduct', adminAuth.checkSession, adminController.upload.any("i
 router.patch('/deleteProduct', adminAuth.checkSession, adminController.deleteProduct);
 router.patch('/activeProduct', adminAuth.checkSession, adminController.activeProduct);
 router.get('/ordersList', adminAuth.checkSession, adminController.orders);
+router.get('/order/:orderId',adminAuth.checkSession,adminController.getSingleOrder)
 router.patch('/changeOrderStatus', adminAuth.checkSession, adminController.changeOrderStatus);
 router.delete('/cancelOrder', adminAuth.checkSession, adminController.cancelOrder);
 router.get('/inventory', adminAuth.checkSession, adminController.inventory);
@@ -39,5 +41,12 @@ router.delete('/deleteOffer', adminAuth.checkSession, adminController.deleteOffe
 router.get('/salesReport', adminController.salesReport);
 router.get('/salesReport/download/pdf', adminAuth.checkSession, adminController.downloadSalesReportPdf);
 router.get('/salesReport/download/excel', adminAuth.checkSession, adminAuth.checkSession, adminController.downloadSalesReportExcel);
+router.get('/category-sales', adminAuth.checkSession,adminController.getCategorySalesData);
+router.get('/dashboard/top-selling-products',adminAuth.checkSession, adminController.getTopSellingProducts);
+router.get('/dashboard/top-selling-categories',adminAuth.checkSession, adminController.getTopSellingCategories);
+router.get('/dashboard/top-selling-brands',adminAuth.checkSession, adminController.getTopSellingBrands);
+router.get('/ledger',adminAuth.checkSession,adminController.getledger);
+
+
 
 module.exports = router;
