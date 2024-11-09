@@ -1,6 +1,5 @@
 
 const mongoose = require('mongoose');
-const { bool } = require('sharp');
 
 const userSchema = mongoose.Schema({
     userName:String,

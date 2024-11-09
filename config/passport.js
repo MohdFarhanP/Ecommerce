@@ -1,7 +1,13 @@
 const passport = require('passport');
-const User = require('../module/userModel');
+const User = require('../model/userModel');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
+
+
+
+
+const generateReferralCode = () => `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -17,7 +23,8 @@ passport.use(new GoogleStrategy({
                 const newUser = await new User({
                     googleId: profile.id,
                     userName: profile.displayName,
-                    email: profile.emails[0].value
+                    email: profile.emails[0].value,
+                    referralCode: generateReferralCode()
                 });
                 const savedUser = await newUser.save();
                 return done(null, savedUser);
@@ -46,7 +53,8 @@ passport.use(new FacebookStrategy({
                 const newUser = await new User({
                     facebookId: profile.id,
                     userName: profile.displayName,
-                    email: profile.emails ? profile.emails[0].value : 'No Public email'
+                    email: profile.emails ? profile.emails[0].value : 'No Public email',
+                    referralCode: generateReferralCode()
                 });
                 const savedUser = await newUser.save();
                 return done(null, savedUser);

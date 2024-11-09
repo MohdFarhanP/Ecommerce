@@ -1,7 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
-const Users = require('../module/userModel')
+const Users = require('../model/userModel')
 
 router.get('/google', passport.authenticate('google', { scope: ["profile", 'email'] }));
 
@@ -32,6 +32,8 @@ router.get('/facebook/callback', passport.authenticate('facebook', {
   req.session.loginMethod = 'facebook'
   res.redirect('/home');
 });
+
+
 
 
 module.exports = router;

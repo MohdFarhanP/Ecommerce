@@ -1,51 +1,92 @@
 const express = require('express');
 const router = express.Router();
-const adminController = require('../controller/adminController');
+
+const multerConfig = require('../config/multer')
 const adminAuth = require('../middleware/adminAuth');
+const usercontroller = require('../controller/admin/userController');
+const categoryController = require('../controller/admin/categoryController');
+const productController = require('../controller/admin/productController');
+const orderController = require('../controller/admin/orderController');
+const inventoryController = require('../controller/admin/inventryController');
+const couponController = require('../controller/admin/couponController');
+const offerController = require('../controller/admin/offerController');
+const salesReportController = require('../controller/admin/salesReportController');
+const dashboardController = require('../controller/admin/dashboardController');
+const ledgerController = require('../controller/admin/ledgerController');
 
-// Routes that don't require admin to be logged in
-router.get('/adminLogin', adminAuth.isLogin, adminController.loadLogin);
-router.post('/loginbtn', adminController.loginBtn);
-router.post('/logout', adminController.logoutBtn); // Logout might not need middleware, but you can add if required
 
-// Routes that require admin to be logged in
-router.get('/users', adminAuth.checkSession, adminController.usersPage);
-router.patch('/unblock/:id', adminAuth.checkSession, adminController.unblockUser);
-router.patch('/block/:id', adminAuth.checkSession, adminController.blockUser);
-router.get('/dashboard',adminAuth.checkSession,adminController.dashboard)
-router.get('/category', adminAuth.checkSession, adminController.categoryPage);
-router.post('/addCategory', adminAuth.checkSession, adminController.addCategory);
-router.put('/editCategory', adminAuth.checkSession, adminController.editCategory);
-router.patch('/deleteCategory', adminAuth.checkSession, adminController.deleteCategory);
-router.patch('/activeCategory', adminAuth.checkSession, adminController.activeCategory);
-router.get('/products', adminAuth.checkSession, adminController.productPage);
-router.post('/addProduct', adminAuth.checkSession, adminController.upload.array("images", 3), adminController.addProduct);
-router.put('/editProduct', adminAuth.checkSession, adminController.upload.any("images", 3), adminController.editProduct);
-router.patch('/deleteProduct', adminAuth.checkSession, adminController.deleteProduct);
-router.patch('/activeProduct', adminAuth.checkSession, adminController.activeProduct);
-router.get('/ordersList', adminAuth.checkSession, adminController.orders);
-router.get('/order/:orderId',adminAuth.checkSession,adminController.getSingleOrder)
-router.patch('/changeOrderStatus', adminAuth.checkSession, adminController.changeOrderStatus);
-router.delete('/cancelOrder', adminAuth.checkSession, adminController.cancelOrder);
-router.get('/inventory', adminAuth.checkSession, adminController.inventory);
-router.put('/editInventory', adminAuth.checkSession, adminController.editInventory);
-router.patch('/deleteInventory', adminAuth.checkSession, adminController.deleteInventory);
-router.patch('/updateStock', adminAuth.checkSession, adminController.updateStock);
-router.get('/coupon', adminAuth.checkSession, adminController.coupon);
-router.post('/createCoupon', adminController.upload.none(), adminAuth.checkSession, adminController.createCoupon);
-router.delete('/deleteCoupon/:id', adminAuth.checkSession, adminController.deleteCoupon);
-router.get('/offer', adminAuth.checkSession, adminController.offer);
-router.post('/createOffer', adminController.upload.none(), adminAuth.checkSession, adminController.createOffer);
-router.patch('/editOffer', adminController.upload.none(), adminAuth.checkSession, adminController.editOffer);
-router.delete('/deleteOffer', adminAuth.checkSession, adminController.deleteOffer);
-router.get('/salesReport', adminController.salesReport);
-router.get('/salesReport/download/pdf', adminAuth.checkSession, adminController.downloadSalesReportPdf);
-router.get('/salesReport/download/excel', adminAuth.checkSession, adminAuth.checkSession, adminController.downloadSalesReportExcel);
-router.get('/category-sales', adminAuth.checkSession,adminController.getCategorySalesData);
-router.get('/dashboard/top-selling-products',adminAuth.checkSession, adminController.getTopSellingProducts);
-router.get('/dashboard/top-selling-categories',adminAuth.checkSession, adminController.getTopSellingCategories);
-router.get('/dashboard/top-selling-brands',adminAuth.checkSession, adminController.getTopSellingBrands);
-router.get('/ledger',adminAuth.checkSession,adminController.getledger);
+
+
+
+router.get('/adminLogin', adminAuth.isLogin, usercontroller.loadLogin);
+router.post('/loginbtn', usercontroller.loginBtn);
+router.post('/logout', usercontroller.logoutBtn);
+
+router.get('/users', adminAuth.checkSession, usercontroller.usersPage);
+router.patch('/unblock/:id', adminAuth.checkSession, usercontroller.unblockUser);
+router.patch('/block/:id', adminAuth.checkSession, usercontroller.blockUser);
+
+
+
+router.get('/category', adminAuth.checkSession, categoryController.categoryPage);
+router.post('/addCategory', adminAuth.checkSession, categoryController.addCategory);
+router.put('/editCategory', adminAuth.checkSession, categoryController.editCategory);
+router.patch('/deleteCategory', adminAuth.checkSession, categoryController.deleteCategory);
+router.patch('/activeCategory', adminAuth.checkSession, categoryController.activeCategory);
+
+
+
+router.get('/products', adminAuth.checkSession, productController.productPage);
+router.post('/addProduct', adminAuth.checkSession, multerConfig.upload.array("images", 3), productController.addProduct);
+router.put('/editProduct', adminAuth.checkSession, multerConfig.upload.any("images", 3), productController.editProduct);
+router.patch('/deleteProduct', adminAuth.checkSession, productController.deleteProduct);
+router.patch('/activeProduct', adminAuth.checkSession, productController.activeProduct);
+
+
+
+router.get('/ordersList', adminAuth.checkSession, orderController.orders);
+router.patch('/changeOrderStatus', adminAuth.checkSession, orderController.changeOrderStatus);
+router.delete('/cancelOrder', adminAuth.checkSession, orderController.cancelOrder);
+
+
+
+router.get('/inventory', adminAuth.checkSession, inventoryController.inventory);
+router.put('/editInventory', adminAuth.checkSession, inventoryController.editInventory);
+router.patch('/deleteInventory', adminAuth.checkSession, inventoryController.deleteInventory);
+router.patch('/updateStock', adminAuth.checkSession, inventoryController.updateStock);
+
+
+
+router.get('/coupon', adminAuth.checkSession, couponController.coupon);
+router.post('/createCoupon', multerConfig.upload.none(), adminAuth.checkSession, couponController.createCoupon);
+router.delete('/deleteCoupon/:id', adminAuth.checkSession, couponController.deleteCoupon);
+
+
+
+router.get('/offer', adminAuth.checkSession, offerController.offer);
+router.post('/createOffer', multerConfig.upload.none(), adminAuth.checkSession, offerController.createOffer);
+router.patch('/editOffer', multerConfig.upload.none(), adminAuth.checkSession, offerController.editOffer);
+router.delete('/deleteOffer', adminAuth.checkSession, offerController.deleteOffer);
+
+
+
+router.get('/salesReport', salesReportController.salesReport);
+router.get('/salesReport/download/pdf', adminAuth.checkSession, salesReportController.downloadSalesReportPdf);
+router.get('/salesReport/download/excel', adminAuth.checkSession, adminAuth.checkSession, salesReportController.downloadSalesReportExcel);
+
+
+
+router.get('/dashboard',adminAuth.checkSession,dashboardController.dashboard);
+router.get('/category-sales', adminAuth.checkSession,dashboardController.getCategorySalesData);
+router.get('/dashboard/top-selling-products',adminAuth.checkSession, dashboardController.getTopSellingProducts);
+router.get('/dashboard/top-selling-categories',adminAuth.checkSession, dashboardController.getTopSellingCategories);
+router.get('/dashboard/top-selling-brands',adminAuth.checkSession, dashboardController.getTopSellingBrands);
+
+
+
+router.get('/ledger',adminAuth.checkSession,ledgerController.getledger);
+router.get('/order/:orderId',adminAuth.checkSession,ledgerController.getSingleOrder);
+
 
 
 

@@ -1,4 +1,3 @@
-// Frontend code
 document.addEventListener('DOMContentLoaded', () => {
     const retryButtons = document.querySelectorAll('#retryPaymentButton');
 
@@ -8,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(`/retryPayment/${orderId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const options = {
                         key: data.key,
@@ -18,24 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         name: 'Watchly',
                         description: 'Thank you for ordering',
                         handler: async function (response) {
-                            const paymentDetails = {
-                                razorpayPaymentId: response.razorpay_payment_id,
-                                razorpayOrderId: response.razorpay_order_id,
-                                razorpaySignature: response.razorpay_signature,
-                                orderId: orderId
-                            };
-
-                            const verificationResponse = await fetch('/verifyPayment', {
+                            const verificationResponse = await fetch('/verifyRazorpayPayment', {
                                 method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(paymentDetails)
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
                             });
 
                             const verificationData = await verificationResponse.json();
                             if (verificationData.success) {
-                                window.location.href = `/orderSuccess/${data.orderId}`;
+                                window.location.href = verificationData.redirectUrl;
                             } else {
                                 alert('Payment verification failed. Please try again.');
                                 window.location.href = `/orders`;
@@ -46,12 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             email: 'user@example.com',
                             contact: '1234567890'
                         },
-                        notes: {
-                            address: 'Your Store Address'
-                        },
-                        theme: {
-                            color: '#F37254'
-                        }
+                        theme: { color: '#F37254' }
                     };
 
                     const razorpay = new Razorpay(options);
@@ -66,30 +55,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
-// Backend code for verifyPayment
-const verifyPayment = async (req, res) => {
-    const { razorpayPaymentId, razorpayOrderId, razorpaySignature, orderId } = req.body;
-    try {
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
-        }
-        
-        const generatedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-            .update(`${razorpayOrderId}|${razorpayPaymentId}`)
-            .digest('hex');
-
-        if (generatedSignature === razorpaySignature) {
-            order.paymentStatus = 'Paid';
-            order.status = 'Confirmed';
-            await order.save();
-            res.json({ success: true });
-        } else {
-            res.json({ success: false });
-        }
-    } catch (error) {
-        console.error('Error verifying payment:', error);
-        res.status(500).json({ success: false, message: 'Error verifying payment' });
-    }
-};
