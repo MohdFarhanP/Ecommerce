@@ -1,5 +1,18 @@
-//editing the category
+// for the category filter
+function applyCategoryFilter() {
+    const filterBy = document.getElementById('categoryFilter').value;
+    const url = new URL(window.location.href);
 
+    if (filterBy) {
+        url.searchParams.set('filterBy', filterBy);
+    } else {
+        url.searchParams.delete('filterBy');
+    }
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+}
+
+// Editing the category
 function showEditCategory(brandName, displayType, bandColor, id) {
 
     const errorMessage = document.getElementById('error-message');
@@ -15,7 +28,7 @@ function showEditCategory(brandName, displayType, bandColor, id) {
     myModal.show();
 }
 
-
+// validate the Edit category form 
 function validateEditCategoryForm() {
 
     const errorFields = ['brandName', 'displayType', 'bandColor'];
@@ -23,32 +36,31 @@ function validateEditCategoryForm() {
         const inputField = document.getElementById(fieldId);
         const errorDiv = document.getElementById(`${fieldId}Error`);
         errorDiv.textContent = '';
-        inputField.classList.remove('is-invalid'); 
+        inputField.classList.remove('is-invalid');
     });
 
     let isValid = true;
 
-  
+
     errorFields.forEach(fieldId => {
         const inputField = document.getElementById(fieldId);
-        if (!inputField.value.trim()) { 
+        if (!inputField.value.trim()) {
             const errorDiv = document.getElementById(`${fieldId}Error`);
-            errorDiv.textContent = `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} is required.`; 
-            inputField.classList.add('is-invalid'); 
-            isValid = false; 
+            errorDiv.textContent = `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} is required.`;
+            inputField.classList.add('is-invalid');
+            isValid = false;
         }
     });
 
-    return isValid; 
+    return isValid;
 }
 
 
-
-
+// function for sumbmitting the Edit form
 function submitEditCategoryForm() {
-    // Validate the form before submission
+
     if (!validateEditCategoryForm()) {
-        return; // If the form is invalid, stop execution
+        return;
     }
 
     const categoryId = document.getElementById('categoryId').value;
@@ -84,8 +96,7 @@ function submitEditCategoryForm() {
 }
 
 
-
-// add the category
+// Add category Validation
 function validateAddCategoryForm() {
     const fields = [
         { id: 'addBrandName', minLength: 2, errorId: 'addBrandNameError', name: 'Brand Name' },
@@ -121,7 +132,7 @@ function validateAddCategoryForm() {
     return isValid;
 }
 
-
+// submit the add category form 
 document.getElementById("addCategoryForm").addEventListener("submit", async function (event) {
     event.preventDefault();
     if (!validateAddCategoryForm()) {

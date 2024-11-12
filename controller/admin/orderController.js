@@ -1,52 +1,37 @@
+
 const Order = require('../../model/orderModel');
 
+
+
+// Function to retrieve and display orders based on filters
 const orders = async (req, res) => {
-    const limit = 4;
-    const page = parseInt(req.query.page) || 1;
+    const { filter } = req.query;
 
     try {
-        const totalOrders = await Order.countDocuments();
-        const orders = await Order.find()
-            .populate({
-                path: 'userId',
-                select: 'userName email',
-            })
-            .populate({
-                path: 'shippingAddress',
-                select: 'addressLine city state postalCode country',
-            })
-            .populate({
-                path: 'products.productId',
-                select: 'productName',
-            })
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .exec();
+        let query = Order.find()
+            .populate('userId', 'userName')
+            .populate('shippingAddress', 'addressLine city state postalCode country')
+            .populate('products.productId', 'productName');
 
-        const totalPages = Math.ceil(totalOrders / limit);
+        if (filter === '1') {
+            query = query.sort({ createdAt: -1 });
+        } else if (filter === '2') {
+            query = query.sort({ 'userId.userName': 1 });
+        }
+
+        const orders = await query.exec();
 
         res.render('admin/order', {
             orders,
-            currentPage: page,
-            totalPages,
-            totalOrders
+            activePage: 'orders',
+            filter
         });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
     }
 };
-const changeOrderStatus = async (req, res) => {
-    const { orderId, status } = req.body;
-
-    try {
-        await Order.findByIdAndUpdate(orderId, { status });
-        res.redirect('/ordersList');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Server error');
-    }
-};
+// Function to cancel an order and delete it
 const cancelOrder = async (req, res) => {
     const { orderId } = req.body;
 
@@ -68,6 +53,5 @@ const cancelOrder = async (req, res) => {
 
 module.exports = {
     orders,
-    changeOrderStatus,
     cancelOrder
 };

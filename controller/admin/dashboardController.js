@@ -1,23 +1,24 @@
 const Products = require('../../model/products');
 const Order = require('../../model/orderModel');
 
-
+// Render the admin dashboard page
 const dashboard = (req, res) => {
-    res.render('admin/dashboard');
+    res.render('admin/dashboard', { activePage: 'dashboard' });
 };
+// Fetch category sales data, grouping by category
 const getCategorySalesData = async (req, res) => {
     try {
         const categorySales = await Products.aggregate([
             {
-                $match: { isDeleted: false } // Only count active products
+                $match: { isDeleted: false }
             },
             {
-                $unwind: "$category" // Decompose array of categories for products with multiple categories
+                $unwind: "$category"
             },
             {
                 $group: {
-                    _id: "$category", // Group by category ID
-                    totalSales: { $sum: "$popularity" } // Replace with a relevant field for sales
+                    _id: "$category",
+                    totalSales: { $sum: "$popularity" }
                 }
             },
             {
@@ -45,18 +46,20 @@ const getCategorySalesData = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+// Fetch the top 10 selling products 
 const getTopSellingProducts = async (req, res) => {
     try {
         const topProducts = await Order.aggregate([
-            { $unwind: "$products" },  // Deconstruct products array in each order
-            { $match: { "paymentStatus": "Paid" } },  // Count only orders that have been paid
+            { $unwind: "$products" },
             {
+                $match: { "paymentStatus": "Paid" }
+            }, {
                 $group: {
-                    _id: "$products.productId",  // Group by product ID
-                    totalOrders: { $sum: "$products.quantity" }  // Sum up the quantity ordered
+                    _id: "$products.productId",
+                    totalOrders: { $sum: "$products.quantity" }
                 }
             },
-            { $sort: { totalOrders: -1 } },  // Sort by order count
+            { $sort: { totalOrders: -1 } },
             { $limit: 10 },  // Limit to top 10 products
             {
                 $lookup: {  // Join with Products collection to get product details
@@ -82,6 +85,7 @@ const getTopSellingProducts = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch top-selling products" });
     }
 };
+// Fetch the top 10 selling categories 
 const getTopSellingCategories = async (req, res) => {
     try {
         const topCategories = await Order.aggregate([
@@ -128,6 +132,7 @@ const getTopSellingCategories = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch top-selling categories" });
     }
 };
+// Fetch the top 10 selling brands 
 const getTopSellingBrands = async (req, res) => {
     try {
         const topBrands = await Order.aggregate([

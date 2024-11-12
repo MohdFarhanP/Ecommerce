@@ -5,15 +5,16 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 
 
 
-
+// Function to generate a unique referral code for new users
 const generateReferralCode = () => `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
 
-
+// Google OAuth Strategy
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: '/auth/google/callback'
 },
+    // Google OAuth callback
     async (accessToken, refreshToken, profile, done) => {
         try {
             const existUser = await User.findOne({ googleId: profile.id });
@@ -35,8 +36,8 @@ passport.use(new GoogleStrategy({
         }
     }));
 
-//facebook
 
+// Facebook OAuth Strategy
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
@@ -44,6 +45,7 @@ passport.use(new FacebookStrategy({
     profileFields: ["id", "displayName", "email"],
 
 },
+    // Facebook OAuth callback
     async (accessToken, refreshToken, profile, done) => {
         try {
             const existUser = await User.findOne({ facebookId: profile.id });
@@ -64,10 +66,12 @@ passport.use(new FacebookStrategy({
         }
     }));
 
+// Serialize user instance to session
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
+// Deserialize user instance from session
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);

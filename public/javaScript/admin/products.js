@@ -1,20 +1,23 @@
-let cropper;
-let currentReplaceInput = null; // To track which image is being replaced
 
-// Function to show the product details in the modal for editing
+// Detect sorting change and reload page with sorting parameters
+document.getElementById('sortSelect').addEventListener('change', function () {
+    const [sortBy, order] = this.value.split('-');
+    window.location.href = `?sortBy=${sortBy}&order=${order}&page=1`;
+});
+
+let cropper;
+let currentReplaceInput = null;
+// function for the edit product
 function showEditProduct(productName, productStock, productPrice, description, id, category, highlights, images) {
 
-    // Populate basic fields
     document.getElementById("productName").value = productName;
     document.getElementById("productStock").value = productStock;
     document.getElementById("productPrice").value = productPrice;
     document.getElementById("productDescription").value = description;
     document.getElementById("productId").value = id;
 
-    // Set the category
     document.getElementById("productCategories").value = category;
 
-    // Set product highlights
     document.getElementById("highlightBrand").value = highlights.brand;
     document.getElementById("highlightModel").value = highlights.model;
     document.getElementById("highlightCaseMaterial").value = highlights.caseMaterial;
@@ -25,37 +28,33 @@ function showEditProduct(productName, productStock, productPrice, description, i
     document.getElementById("highlightFeatures").value = highlights.features.join(", ");
     document.getElementById("highlightWarranty").value = highlights.warranty;
 
-    // Display existing images and add replace functionality
+
     const imagePreview = document.querySelector(".product-images");
-    imagePreview.innerHTML = "";  // Clear current images
+    imagePreview.innerHTML = ""; 
 
     images.forEach((image, index) => {
         const imageContainer = document.createElement("div");
         imageContainer.classList.add("image-wrapper", "m-2");
 
-        // Display the current image
         const imgElement = document.createElement("img");
-        imgElement.src = `/uploads/${image}`;
+        imgElement.src = `${image}`;
         imgElement.width = 150;
         imgElement.height = 150;
         imgElement.classList.add("preview-image");
         imgElement.id = `preview-image-${index}`;
         imageContainer.appendChild(imgElement);
 
-        // Add file input for replacing the image (hidden)
         const replaceInput = document.createElement("input");
         replaceInput.type = "file";
         replaceInput.classList.add("replace-image-input", "d-none");
         replaceInput.name = `images[${index}]`;
 
-        // Handle file input change event
         replaceInput.addEventListener("change", (event) => {
             openCropper(event.target, index);
         });
 
         imageContainer.appendChild(replaceInput);
 
-        // Add a "Change" button to trigger the file input
         const changeButton = document.createElement("button");
         changeButton.classList.add("btn", "btn-outline-primary", "mt-2");
         changeButton.innerText = "Change Image";
@@ -71,23 +70,21 @@ function showEditProduct(productName, productStock, productPrice, description, i
     // Function to open the cropper
     function openCropper(input, index) {
         const file = input.files[0];
-        currentReplaceInput = input;  // Track which input is being updated
-
+        currentReplaceInput = input; 
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const imageToCrop = document.getElementById('imageToCrop');
                 imageToCrop.src = e.target.result;
-                imageToCrop.style.display = "block"; // Show the image
+                imageToCrop.style.display = "block"; 
 
-                // Initialize or reinitialize the cropper
                 if (cropper) cropper.destroy();
                 cropper = new Cropper(imageToCrop, {
                     aspectRatio: 1,
                     viewMode: 0,
                     autoCropArea: 1,
                     ready: () => {
-                        document.getElementById('cropper-container').style.display = 'flex'; // Show the cropper container
+                        document.getElementById('cropper-container').style.display = 'flex'; 
                     }
                 });
             };
@@ -108,12 +105,10 @@ function showEditProduct(productName, productStock, productPrice, description, i
             canvas.toBlob((blob) => {
                 const croppedFile = new File([blob], "croppedImage.png", { type: "image/png" });
 
-                // Use DataTransfer to simulate file input behavior
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(croppedFile);
                 currentReplaceInput.files = dataTransfer.files;
 
-                // Show the preview of the cropped image
                 const index = currentReplaceInput.name.match(/\d+/)[0];
                 const imgElement = document.getElementById(`preview-image-${index}`);
                 imgElement.src = URL.createObjectURL(croppedFile);
@@ -124,47 +119,42 @@ function showEditProduct(productName, productStock, productPrice, description, i
     });
 
 }
+// validate and submit the form
 document.getElementById('editForm').addEventListener('submit', function (event) {
-   
+
     clearErrors();
     let isValid = true;
 
-    // Validate Product Name
     const productName = document.getElementById('productName').value.trim();
     if (!productName) {
         showInputError('productName', 'nameError');
         isValid = false;
     }
 
-    // Validate Product Stock
     const productStock = document.getElementById('productStock').value;
     if (productStock < 0 || productStock === '') {
         showInputError('productStock', 'stockError');
         isValid = false;
     }
 
-    // Validate Product Price
     const productPrice = document.getElementById('productPrice').value;
     if (productPrice < 0 || productPrice === '') {
         showInputError('productPrice', 'priceError');
         isValid = false;
     }
 
-    // Validate Description
     const productDescription = document.getElementById('productDescription').value.trim();
     if (!productDescription) {
         showInputError('productDescription', 'descriptionError');
         isValid = false;
     }
 
-    // Validate Categories
     const productCategories = document.getElementById('productCategories').value;
     if (!productCategories) {
         showInputError('productCategories', 'categoryError');
         isValid = false;
     }
 
-    // Validate Highlights
     const highlightBrand = document.getElementById('highlightBrand').value.trim();
     if (!highlightBrand) {
         showInputError('highlightBrand', 'highlightBrandError');
@@ -220,15 +210,15 @@ document.getElementById('editForm').addEventListener('submit', function (event) 
     }
 
     if (!isValid) {
-        event.preventDefault(); 
+        event.preventDefault();
     }
 });
-
+// show error message
 function showInputError(inputId, errorId) {
     document.getElementById(inputId).classList.add('is-invalid');
     document.getElementById(errorId).style.display = 'block';
 }
-
+// clear error message
 function clearErrors() {
     const inputs = document.querySelectorAll('.form-control');
     inputs.forEach(input => {
@@ -294,12 +284,13 @@ document.getElementById('imageInput').addEventListener('change', function (event
                 fileInput.click();
 
                 fileInput.onchange = function (e) {
+                    e.preventDefault();
                     const newFile = e.target.files[0];
                     if (newFile && newFile.type.startsWith('image/')) {
                         const newReader = new FileReader();
                         newReader.onload = function (event) {
-                            img.src = event.target.result; // Replace the image source
-                            cropperInstances[index].replace(event.target.result); // Replace cropper image
+                            img.src = event.target.result;
+                            cropperInstances[index].replace(event.target.result);
                         };
                         newReader.readAsDataURL(newFile);
                     } else {
@@ -309,10 +300,8 @@ document.getElementById('imageInput').addEventListener('change', function (event
             });
             imgWrapper.appendChild(changeImageBtn);
 
-            // Append to container
             container.appendChild(imgWrapper);
 
-            // Cropper initialization
             const cropper = new Cropper(img, {
                 aspectRatio: 1,
                 viewMode: 2,
@@ -327,13 +316,13 @@ document.getElementById('imageInput').addEventListener('change', function (event
 });
 
 
-// Adding product
+// Adding product 
 document.getElementById('addProduct').addEventListener('click', function (event) {
     event.preventDefault();
-    
+
     const form = document.getElementById('form1');
     const isValid = validateProductForm(form);
-    
+
     if (isValid) {
         const formData = new FormData(form);
 
@@ -342,6 +331,7 @@ document.getElementById('addProduct').addEventListener('click', function (event)
                 cropper.getCroppedCanvas().toBlob((blob) => {
                     if (blob) {
                         formData.append('images', blob, `croppedImage${index}.png`);
+                        console.log(formData)
                     }
                     resolve();
                 });
@@ -353,25 +343,25 @@ document.getElementById('addProduct').addEventListener('click', function (event)
                 method: 'POST',
                 body: formData,
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        showError(data.errors);
-                        throw new Error('Validation errors occurred');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                window.location.href = data.redirectUrl;
-            })
-            .catch(error => {
-                console.error('Error in fetch request:', error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            showError(data.errors);
+                            throw new Error('Validation errors occurred');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    window.location.href = data.redirectUrl;
+                })
+                .catch(error => {
+                    console.error('Error in fetch request:', error);
+                });
         });
     }
 });
-
+// product form validate 
 function validateProductForm(form) {
     const fields = [
         { name: "productName", message: "Product name is required" },
@@ -387,10 +377,10 @@ function validateProductForm(form) {
         const field = fieldConfig.isSelect
             ? form.querySelector(`select[name="${fieldConfig.name}"]`)
             : form.querySelector(`input[name="${fieldConfig.name}"], textarea[name="${fieldConfig.name}"]`);
-        
+
         const errorElement = field.nextElementSibling;
         const value = field.value.trim();
-        
+
         // Reset previous error state
         errorElement.textContent = '';
         field.classList.remove('is-invalid');
@@ -432,7 +422,7 @@ function validateProductForm(form) {
     return isValid;
 }
 
-
+// show error
 function showError(message) {
     toastBody.textContent = message;
     const toast = new bootstrap.Toast(errorToast);

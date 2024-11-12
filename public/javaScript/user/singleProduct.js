@@ -1,6 +1,5 @@
-
+// wishlist icon change
 const wishlistIcons = document.querySelectorAll('.wish-icon');
-
 wishlistIcons.forEach(icon => {
   icon.addEventListener('click', function () {
     this.classList.toggle('clicked');
@@ -44,7 +43,7 @@ function addToWishlist(productId) {
     .then(response => {
       if (response.status === 400) {
         return response.json().then(data => {
-          throw new Error(data.message); // Use the server's message
+          throw new Error(data.message); 
         });
       } else if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -62,10 +61,10 @@ function addToWishlist(productId) {
     })
     .catch(err => {
       console.error('Error:', err);
-      showToast('Error', err.message || 'An error occurred while adding to wishlist.'); // Show specific error message
+      showToast('Error', err.message || 'An error occurred while adding to wishlist.'); 
     });
 }
-
+// Function to remove product to wishlist
 function removeFromWishlist(productId) {
   fetch('/wishlistRemove', {
     method: 'DELETE',
@@ -98,7 +97,6 @@ function removeFromWishlist(productId) {
 
 
 // star rating
-
 const ratingContainers = document.querySelectorAll('.star-rating');
 const ratingInput = document.getElementById('rating');
 
@@ -121,7 +119,6 @@ ratingContainers.forEach(container => {
 });
 
 // quatity 
-
 const minusBtn = document.querySelector('.minus');
 const plusBtn = document.querySelector('.plus');
 const quantityInput = document.getElementById('product-quantity');
@@ -140,7 +137,6 @@ plusBtn.addEventListener('click', () => {
 });
 
 // image zoom
-
 let isZooming = false;
 
 const zoomImage = (event) => {
@@ -152,7 +148,7 @@ const zoomImage = (event) => {
   imageZoom.style.setProperty('--zoom-x', pointer.X + '%');
   imageZoom.style.setProperty('--zoom-y', pointer.Y + '%');
 
-  isZooming = false; // reset flag
+  isZooming = false;
 };
 
 const imageZoom = document.getElementById('imageZoom');
@@ -171,7 +167,6 @@ imageZoom.addEventListener('mouseout', () => {
 });
 
 //image selection
-
 document.querySelectorAll('.thumbnail').forEach(thumbnail => {
   thumbnail.addEventListener('click', function () {
 
@@ -185,14 +180,12 @@ document.querySelectorAll('.thumbnail').forEach(thumbnail => {
 });
 
 // Review form validation 
-
 document.getElementById('reviewForm').addEventListener('submit', function (event) {
   const name = document.getElementById('customerName').value.trim();
   const email = document.getElementById('email').value.trim();
   const rating = document.getElementById('rating').value;
   const comment = document.getElementById('comment').value.trim();
 
-  // Name Validation
   if (!name) {
     event.preventDefault();
     Swal.fire({
@@ -205,7 +198,6 @@ document.getElementById('reviewForm').addEventListener('submit', function (event
     return false;
   }
 
-  // Email Validation (Optional)
   if (email && !validateEmail(email)) {
     event.preventDefault();
     Swal.fire({
@@ -218,7 +210,6 @@ document.getElementById('reviewForm').addEventListener('submit', function (event
     return false;
   }
 
-  // Rating Validation
   if (rating === "0") {
     event.preventDefault();
     Swal.fire({
@@ -230,7 +221,6 @@ document.getElementById('reviewForm').addEventListener('submit', function (event
     return false;
   }
 
-  // Comment Validation
   if (!comment) {
     event.preventDefault();
     Swal.fire({
@@ -244,7 +234,6 @@ document.getElementById('reviewForm').addEventListener('submit', function (event
   }
 });
 
-// Email validation function
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);

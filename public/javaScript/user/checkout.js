@@ -1,6 +1,6 @@
 
 let phone
-
+// get the products
 function getProductsFromDOM() {
     const products = [];
     document.querySelectorAll('[name^="products"]').forEach((input) => {
@@ -17,19 +17,18 @@ function getProductsFromDOM() {
 
 
 // selecting the defult address 
-
 function selectCard(selectedCard) {
     const cards = document.querySelectorAll('.address-card');
     cards.forEach(card => card.classList.remove('selected'));
     selectedCard.classList.add('selected');
-    // get addressId and phone number
+
     const addressId = selectedCard.getAttribute('data-address-id');
     document.getElementById('selectedAddress').value = addressId;
     const phoneNumber = selectedCard.getAttribute('data-phone');
     phone = phoneNumber;
 
 }
-// edit address
+// Edit address
 function populateEditModal(id, firstName, lastName, email, mobile, addressLine, city, pinCode, country) {
     document.querySelector('#editAddress input[name="firstName"]').value = firstName;
     document.querySelector('#editAddress input[name="lastName"]').value = lastName;
@@ -64,14 +63,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const pinCode = document.getElementById('pinCode');
     const country = document.getElementById('country');
 
-    // Helper function to show error
+    // function to show error
     function showError(input, message) {
         const errorElement = input.nextElementSibling;
         errorElement.textContent = message;
         input.classList.add('is-invalid');
     }
 
-    // Helper function to show success
+    // function to show success
     function showSuccess(input) {
         const errorElement = input.nextElementSibling;
         errorElement.textContent = '';
@@ -194,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-
+// checkout form
 document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -216,7 +215,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
 
     const totalAmount = document.querySelector('input[name="totalAmount"]').value;
     console.log(totalAmount);
-
+    // create payment using razorpay
     if (paymentMethod === 'Razorpay') {
         try {
             const response = await fetch('/createRazorpayOrder', {
@@ -260,17 +259,15 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
             console.error("Razorpay order creation failed:", error);
         }
     } else {
-        if (selectedPayment === 'COD' && totalAmount > 1000) {
+        if (paymentMethod === 'COD' && totalAmount > 1000) {
             return showError('above 1000 rupees product cant buy using cash on delevery ');
         }
         this.submit();
     }
-    
-
 
 });
 
-
+// verify razorpayment 
 function verifyRazorpayPayment(response) {
     fetch('/verifyRazorpayPayment', {
         method: 'POST',
@@ -288,7 +285,7 @@ function verifyRazorpayPayment(response) {
                 window.location.href = '/orders';  // Redirect to order page for retry
             }
         })
-        .catch(err =>{
+        .catch(err => {
             console.error("Payment verification failed:", err);
             if (rzp) {
                 rzp.close();
@@ -297,7 +294,7 @@ function verifyRazorpayPayment(response) {
 }
 
 
-
+// show error
 function showError(message) {
     toastBody.textContent = message;
     const toast = new bootstrap.Toast(errorToast);

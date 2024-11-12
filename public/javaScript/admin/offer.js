@@ -1,12 +1,11 @@
-
+// Function to display error message on the toast
 
 const errorToast = document.getElementById('errorToast');
 const toastBody = document.getElementById('toastBody');
 
-// Function to display error message on the toast
 function showToast(message, success = false) {
     toastBody.textContent = message;
-    const toast = new bootstrap.Toast(errorToast);  // use errorToast instead of toastElement
+    const toast = new bootstrap.Toast(errorToast); 
     if (!success) {
         errorToast.classList.remove('bg-success');
         errorToast.classList.add('bg-danger');
@@ -19,10 +18,8 @@ function showToast(message, success = false) {
 
 
 // Form Validation for Edit Offer
-
 const editButtons = document.querySelectorAll('.edit-offer-button');
 const editOfferForm = document.getElementById('editOfferForm');
-
 
 editOfferForm.addEventListener('submit', function (event) {
     event.preventDefault(); 
@@ -74,7 +71,6 @@ editOfferForm.addEventListener('submit', function (event) {
         });
 });
 
-
 // Populate modal with offer data
 editButtons.forEach(button => {
     button.addEventListener('click', function () {
@@ -95,7 +91,7 @@ editButtons.forEach(button => {
         editOfferModal.show();
     });
 });
-
+// form validate and submit
 document.getElementById('createOfferForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 

@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Check for error message in inline `span` and display toast if present
     const msg = document.getElementById('error').textContent.trim();
     if (msg) {
         showToast(msg);
@@ -25,12 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Function to show the Bootstrap toast
+// 
 function showToast(message) {
-    // Set the toast message content
     document.getElementById('toastMessage').textContent = message;
 
-    // Initialize the toast and show it
     const toast = new bootstrap.Toast(document.getElementById('errorToast'));
     toast.show();
 }

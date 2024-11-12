@@ -1,79 +1,15 @@
 <link rel="stylesheet" href="/styles/user/address.css">
 
-<header>
-    <nav class="navbar navbar-expand-lg  shadow-navbar">
-        <div class="container-fluid py-auto px-auto ">
-            <h3 id="head" class="m-2">WATCH <span style="color: #ffac33;">LY</span></h3>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/home">Home</a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/orders">Orders</a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/ProductList">Products</a>
-                    </li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/contactus">Contact</a>
-                    </li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/Aboutus">About us</a>
-                    </li>
-                </ul>
-
-                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-                    <div class="input-group">
-                        <form class="d-flex" action="/filterProducts" method="POST">
-                            <input class="form-control px-5" type="search" name="q" placeholder="Search products..."
-                                aria-label="Search">
-                            <button class="btn btn-outline" type="submit"><i
-                                    class="fa-solid fa-magnifying-glass"></i></button>
-                        </form>
-                    </div>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/whishList"><i
-                                class="fa-regular fa-heart"></i></a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userProfile"><i
-                                class="fa-regular fa-user"></i></a></li>
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="/cart"><i
-                                class="fa-solid fa-cart-shopping"></i></a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-</header>
+{{>header}}
 
 <div class="container mt-3">
     <div class="row mt-5 ">
         <!-- Sidebar -->
-        <div class="col-md-2">
-            <div class="container-fluid">
-                <span class="fw-bold">Account & Settings</span>
-                <hr>
-            </div>
-            <nav class="nav flex-column mt-2">
-                <a href="/userProfile" class="btn btn-outline-warning mb-2 active">User Details</a>
-                <a href="/orders" class="btn btn-outline-warning mb-2 ">Orders</a>
-                <a href="/whishList" class="btn btn-outline-warning mb-2 ">whishList</a>
-                <a href="/wallet" class="btn btn-outline-warning mb-2">wallet</a>
-                <a href="/logOut" class="btn text-warning mb-2  mt-4 px-auto"><i
-                        class="fa-solid fa-right-from-bracket me-3"></i>Log out</a>
-            </nav>
-        </div>
+        
+        {{>profileSidebar}}
 
         <div class="col-md-10 mt-4  mb-5 pb-4  pe-5 ps-5">
-            <div class="row d-flex justify-content-center mt-4">
-                <div class="col-md-3">
-                    <a href="/userProfile">
-                        <button class="btn mbtn btn-outline-warning w-100 ">Update User</button>
-                    </a>
-                </div>
-                <div class="col-md-3">
-                    <a href="/passwordUpdate">
-                        <button class="btn mbtn btn-outline-warning w-100">Password</button>
-                    </a>
-                </div>
-                <div class="col-md-3">
-                    <a href="/address">
-                        <button class="btn mbtn btn-outline-warning w-100 active">Address</button>
-                    </a>
-                </div>
-            </div>
+            {{>topNav}}
 
             <div class="container mt-5">
                 <div class="row details">
@@ -300,5 +236,8 @@
         </div>
     </div>
 </div>
+
+<!-- Footer -->
+{{>footer}}
 
 <script src="/javaScript/user/address.js"></script>

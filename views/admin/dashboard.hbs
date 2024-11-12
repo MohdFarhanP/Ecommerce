@@ -3,26 +3,8 @@
 <div class="container-fluid mt-3">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-2">
-            <div class="container-fluid m-3">
-                <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
-            </div>
-            <nav class="nav flex-column mt-5">
-                <a href="/dashboard" class="btn mbtn btn-outline-warning mb-2 active">DASHBOARD</a>
-                <a href="/users" class="btn mbtn btn-outline-warning mb-2 ">USERS</a>
-                <a href="/products" class="btn mbtn btn-outline-warning mb-2">PRODUCTS</a>
-                <a href="/category" class="btn mbtn btn-outline-warning mb-2 ">CATEGORIES</a>
-                <a href="/ordersList" class="btn mbtn btn-outline-warning mb-2 ">ORDERS</a>
-                <a href="/inventory" class="btn mbtn btn-outline-warning mb-2">INVENTORY</a>
-                <a href="/coupon" class="btn mbtn btn-outline-warning mb-2">COUPONS</a>
-                <a href="/offer" class="btn mbtn btn-outline-warning mb-2">OFFERS</a>
-                <a href="/salesReport" class="btn mbtn btn-outline-warning mb-2">SALES</a>
-                <a href="/ledger" class="btn mbtn btn-outline-warning mb-2 ">LEDGER</a>
-                <form action="/logout" method="post" class="text-center">
-                    <button class="mt-3 btn btn-outline-warning"> Logout</button>
-                </form>
-            </nav>
-        </div>
+
+        {{>sidebar}}
 
         <!-- Main Content -->
         <div class="col-md-10">

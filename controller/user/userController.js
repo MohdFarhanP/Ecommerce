@@ -1,3 +1,4 @@
+
 const bcrypt = require('bcrypt');
 const User = require("../../model/userModel");
 const Address = require('../../model/addressModel');
@@ -5,6 +6,7 @@ const WalletTransaction = require('../../model/wlletModel');
 
 
 
+// user profile page
 const userProfile = async (req, res) => {
     try {
 
@@ -13,13 +15,14 @@ const userProfile = async (req, res) => {
         const user = await User.findById(userId);
         const address = await Address.findOne({ isDefault: true, user: userId });
 
-        res.render('user/userProfile', { user, address });
+        res.render('user/userProfile', { user, address, activePage:"userProfile" });
 
     } catch (err) {
         console.log('error in userPfofile', err)
     }
 
 };
+// controller for update password
 const passwordUpdate = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -40,13 +43,14 @@ const passwordUpdate = async (req, res) => {
                 console.log('password is not matching ');
             }
         } else {
-            res.render('user/passwordUpdate', { err: 'User not exist ' });
+            res.render('user/passwordUpdate', { err: 'User not exist ',activePage:'password' });
         }
     } catch (err) {
         console.log("Error on password update", err);
         res.status(500).send('Server error');
     }
 };
+// password updating page 
 const passwordUpdatePage = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -54,17 +58,19 @@ const passwordUpdatePage = async (req, res) => {
     } catch (err) {
         console.log('on password update page')
     }
-}
+};
+// getting Address page 
 const addressPage = async (req, res) => {
     try {
         const userId = req.session.userId;
         const addresses = await Address.find({ user: userId });
-        res.render('user/address', { addresses });
+        res.render('user/address', { addresses, activePage:'address' });
     } catch (err) {
         console.log('on address page');
         res.status(500).send('Internal Server Error');
     }
 };
+// controller for Address page
 const addAddress = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -103,6 +109,7 @@ const addAddress = async (req, res) => {
         console.log("on add address", err);
     }
 };
+// controller for editAddress
 const editAddress = async (req, res) => {
     try {
         const addressId = req.params.id;
@@ -136,6 +143,7 @@ const editAddress = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+// controller for deleteAddress
 const deleteAddress = async (req, res) => {
     try {
         const addressId = req.params.id;
@@ -145,6 +153,7 @@ const deleteAddress = async (req, res) => {
         console.log(err);
     }
 };
+// controller for set defult address for the user
 const setDefaultAddress = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -163,6 +172,7 @@ const setDefaultAddress = async (req, res) => {
 
     }
 };
+// for editing the user profile 
 const editUserProfile = async (req, res) => {
     try {
         const { id, userName, email, mobile, country, addressId } = req.body;
@@ -189,6 +199,7 @@ const editUserProfile = async (req, res) => {
         console.log('error occured', err)
     }
 };
+// controller for wallet page 
 const walletPage = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -198,7 +209,7 @@ const walletPage = async (req, res) => {
         const user = await User.findById(userId)
         const Balance = user.walletBalance.toFixed(2);
 
-        res.render('user/wallet', { transactions, user, Balance });
+        res.render('user/wallet', { transactions, user, Balance, activePage: 'wallet' });
     } catch (err) {
         console.log(err)
     }

@@ -1,4 +1,5 @@
 
+// filter for custom date filter
 function toggleDateFields() {
     const filterType = document.getElementById('filterType').value;
     const startDateField = document.getElementById('custom-date-range-start');

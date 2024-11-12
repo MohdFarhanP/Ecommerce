@@ -1,0 +1,24 @@
+
+<link rel="stylesheet" href="/styles/admin/sidebar.css">
+
+
+<div class="col-md-2">
+    <div class="container-fluid m-3">
+        <h3 id="head" class="mx-auto">WATCH <span style="color: #ffac33;">LY</span></h3>
+    </div>
+    <nav class="nav flex-column mt-5">
+        <a href="/dashboard" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'dashboard')}}active{{/if}}">DASHBOARD</a>
+        <a href="/users" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'users')}}active{{/if}}">USERS</a>
+        <a href="/products" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'products')}}active{{/if}}">PRODUCTS</a>
+        <a href="/category" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'category')}}active{{/if}}">CATEGORIES</a>
+        <a href="/ordersList" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'orders')}}active{{/if}}">ORDERS</a>
+        <a href="/inventory" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'inventory')}}active{{/if}}">INVENTORY</a>
+        <a href="/coupon" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'coupon')}}active{{/if}}">COUPONS</a>
+        <a href="/offer" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'offer')}}active{{/if}}">OFFERS</a>
+        <a href="/salesReport" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'sales')}}active{{/if}}">SALES</a>
+        <a href="/ledger" class="btn mbtn btn-outline-warning mb-2 {{#if (eq activePage 'ledger')}}active{{/if}}">LEDGER</a>
+        <form action="/logout" method="post" class="text-center">
+            <button class="mt-3 btn btn-outline-warning"> Logout</button>
+        </form>
+    </nav>
+</div>

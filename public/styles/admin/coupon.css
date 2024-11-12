@@ -2,26 +2,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.sidebar {
-    background-color: #f8f9fa;
-    padding: 1rem;
-}
 
-.sidebar a {
-    background-color: #ffac33;
-    text-align: left;
-    margin-bottom: 1rem;
-}
-
-.sidebar a.active {
-    background-color: #ffac33;
-    color: #ffffff;
-}
-
-.sidebar a:hover {
-    background-color: #ffac33;
-    color: #fff;
-}
 
 .dashboard-header {
     margin-top: 1rem;

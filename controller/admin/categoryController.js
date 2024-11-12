@@ -2,14 +2,25 @@ const Category = require('../../model/categoryModel');
 
 
 
-
+// Function to display the category page with pagination and sorting
 const categoryPage = async (req, res) => {
     const limit = 7;
     const page = parseInt(req.query.page) || 1;
+    const filterBy = req.query.filterBy || 'brandName';
 
     try {
+        const sortOptions = {
+            brandName: { brandName: 1 },
+            displayType: { displayType: 1 },
+            bandColor: { bandColor: 1 },
+            isDelete: { isDelete: 1 },
+        };
+
+        const sort = sortOptions[filterBy] || { brandName: 1 }; // 
         const totalCategories = await Category.countDocuments();
+
         const categories = await Category.find({})
+            .sort(sort)
             .skip((page - 1) * limit)
             .limit(limit)
             .exec();
@@ -20,13 +31,17 @@ const categoryPage = async (req, res) => {
             category: categories,
             currentPage: page,
             totalPages,
-            totalCategories
+            totalCategories,
+            activePage: 'category',
+            selectedFilter: filterBy,
         });
+
     } catch (error) {
         console.error("Error fetching categories:", error);
         res.status(500).send("Server Error");
     }
 };
+// Function to add a new category, checking for duplicates
 const addCategory = async (req, res) => {
     const { brandName, displayType, bandColor } = req.body;
 
@@ -54,6 +69,7 @@ const addCategory = async (req, res) => {
         });
     }
 };
+// Function to edit an existing category
 const editCategory = async (req, res) => {
     try {
         const { brandName, displayType, bandColor, id } = req.body;
@@ -61,7 +77,7 @@ const editCategory = async (req, res) => {
         if (!brandName || !displayType || !bandColor) {
             return res.json({ error: 'All fields are required' });
         }
-        
+
         const existingCategory = await Category.findOne({ brandName, _id: { $ne: id } });
         if (existingCategory) {
             return res.json({ error: 'Brand name already exists. Please choose a different one.' });
@@ -75,6 +91,7 @@ const editCategory = async (req, res) => {
         res.status(500).json({ error: 'Server error. Please try again.' });
     }
 };
+// Function to delete a category by marking it as deleted
 const deleteCategory = async (req, res) => {
     try {
         const { id } = req.body;
@@ -86,6 +103,7 @@ const deleteCategory = async (req, res) => {
         console.log('error on deleting category');
     }
 };
+// Function to reactivate a previously deleted category
 const activeCategory = async (req, res) => {
     try {
         const { id } = req.body;

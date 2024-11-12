@@ -32,13 +32,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-
+// validating and submitting the form validation 
 document.getElementById('createCouponForm').addEventListener('submit', async function (e) {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault(); 
 
     const form = e.target;
 
-    // Form fields with validation messages
     const fields = [
         { element: form['code'], error: 'Coupon Code is required.' },
         { element: form['discountType'], error: 'Please select a Discount Type.' },
@@ -49,26 +48,7 @@ document.getElementById('createCouponForm').addEventListener('submit', async fun
         { element: form['description'], error: 'Description is required.' }
     ];
 
-    // Function to set error message
-    function setError(element, message) {
-        element.classList.add('is-invalid');
-        const errorDiv = element.nextElementSibling;
-        if (errorDiv) {
-            errorDiv.classList.add('invalid-feedback');
-            errorDiv.textContent = message;
-        }
-    }
 
-    // Function to clear error message
-    function clearError(element) {
-        element.classList.remove('is-invalid');
-        const errorDiv = element.nextElementSibling;
-        if (errorDiv) {
-            errorDiv.textContent = '';
-        }
-    }
-
-    // Validate each field
     let isValid = true;
     fields.forEach(({ element, error, min }) => {
         clearError(element);
@@ -79,18 +59,12 @@ document.getElementById('createCouponForm').addEventListener('submit', async fun
         }
     });
 
-    // Validate checkbox selection for products and categories
     const anyProductSelected = Array.from(document.querySelectorAll('.product-checkbox')).some(cb => cb.checked);
     const anyCategorySelected = Array.from(document.querySelectorAll('.category-checkbox')).some(cb => cb.checked);
 
-    // if (!anyProductSelected && !anyCategorySelected) {
-    //     showError("Please select at least one product or category."); 
-    //     isValid = false;
-    // }
-
     if (!isValid) return;
 
-    // Form submission 
+
     try {
         const formData = new FormData(form);
         const response = await fetch('/createCoupon', {
@@ -112,8 +86,28 @@ document.getElementById('createCouponForm').addEventListener('submit', async fun
         showError('An error occurred, please try again later.');
     }
 });
+
+
+// toast for show Error
 function showError(message) {
     toastBody.textContent = message;
     const toast = new bootstrap.Toast(errorToast);
     toast.show();
+}
+// Function to set error message
+function setError(element, message) {
+    element.classList.add('is-invalid');
+    const errorDiv = element.nextElementSibling;
+    if (errorDiv) {
+        errorDiv.classList.add('invalid-feedback');
+        errorDiv.textContent = message;
+    }
+}
+// Function to clear error message
+function clearError(element) {
+    element.classList.remove('is-invalid');
+    const errorDiv = element.nextElementSibling;
+    if (errorDiv) {
+        errorDiv.textContent = '';
+    }
 }

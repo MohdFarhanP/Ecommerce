@@ -1,8 +1,12 @@
+
+
 const Products = require('../../model/products');
 const Category = require('../../model/categoryModel');
 const Cart = require('../../model/cartModel');
 const Coupon = require('../../model/coupenModel');
 
+
+// function for checking the coupon applicability 
 async function checkCouponApplicability(cart, couponCode) {
     try {
         const coupon = await Coupon.findOne({ code: couponCode });
@@ -47,6 +51,7 @@ async function checkCouponApplicability(cart, couponCode) {
         return { valid: false, message: 'Error processing the coupon' };
     }
 };
+// function for apply coupon 
 function applyCoupon(cart, discountValue, discountType) {
     console.log(discountValue, discountType);
 
@@ -64,6 +69,7 @@ function applyCoupon(cart, discountValue, discountType) {
 
     return total;
 };
+//for removing coupon
 const removeCoupon = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -86,6 +92,7 @@ const removeCoupon = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Error removing coupon' });
     }
 };
+// controller for the coupon apply
 const couponApply = async (req, res) => {
     const userId = req.session.userId;
     const { couponCode } = req.body;
@@ -111,6 +118,7 @@ const couponApply = async (req, res) => {
         return res.status(500).json({ success: false, appliedCouponCode: couponCode, message: 'Error applying coupon' });
     }
 };
+// getting cart function
 async function getCart(userId) {
     try {
         const cart = await Cart.findOne({ user: userId }).populate({

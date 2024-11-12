@@ -1,0 +1,20 @@
+
+
+
+<div class="row d-flex justify-content-center mb-4">
+    <div class="col-md-3">
+        <a href="/userProfile">
+            <button class="btn btn-outline-warning w-100 {{#if (eq activePage 'userProfile')}}active{{/if}}">Update User</button>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="/passwordUpdate">
+            <button class="btn btn-outline-warning w-100 {{#if (eq activePage 'password')}}active{{/if}}">Password</button>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="/address">
+            <button class="btn btn-outline-warning w-100 {{#if (eq activePage 'address')}}active{{/if}}">Address</button>
+        </a>
+    </div>
+</div>

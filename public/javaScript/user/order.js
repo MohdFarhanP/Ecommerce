@@ -1,3 +1,4 @@
+// retry payment creation and verify 
 document.addEventListener('DOMContentLoaded', () => {
     const retryButtons = document.querySelectorAll('#retryPaymentButton');
 

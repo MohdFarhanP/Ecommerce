@@ -1,8 +1,9 @@
+
 const Wishlist = require('../../model/whishlistModel');
 
 
 
-
+// getting the whishlist 
 const wishlist = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -13,13 +14,14 @@ const wishlist = async (req, res) => {
 
         const whishlist = await Wishlist.findOne({ userId: userId, }).populate('products');
         const products = whishlist ? whishlist.products : [];
-        res.render('user/whishList', { products });
+        res.render('user/whishList', { products, activePage: "wishList" });
 
     } catch (error) {
 
         console.log("Whishlist Error:", error);
     }
 };
+// controller for add wishlist
 const addWishlist = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -53,6 +55,7 @@ const addWishlist = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Server error', error });
     }
 };
+//controller for remove wishlist
 const removeWishlist = async (req, res) => {
     try {
         const userId = req.session.userId;

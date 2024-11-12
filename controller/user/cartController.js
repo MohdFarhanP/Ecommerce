@@ -4,7 +4,7 @@ const Cart = require('../../model/cartModel');
 const Wishlist = require('../../model/whishlistModel');
 const Coupon = require('../../model/coupenModel');
 
-
+//load cart page
 const cart = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -65,6 +65,7 @@ const cart = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+// function for remove cart item
 const removeCartItem = async (req, res) => {
     try {
         const userId = req.session.userId;
@@ -93,6 +94,7 @@ const removeCartItem = async (req, res) => {
         res.render('error', { message: 'Error removing product from cart' });
     }
 };
+// function for add to cart
 const addToCart = async (req, res) => {
     const { productId, quantity, } = req.body;
     const userId = req.session.userId;
@@ -173,6 +175,7 @@ const addToCart = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+// for updating quatity 
 const updateCartQuantity = async (req, res) => {
     const { productId, quantity } = req.body;
     const userId = req.session.userId;

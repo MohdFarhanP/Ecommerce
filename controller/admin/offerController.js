@@ -3,6 +3,7 @@ const Products = require('../../model/products');
 const Offer = require('../../model/offerModel');
 
 
+// Fetches and displays offers
 const offer = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -29,13 +30,15 @@ const offer = async (req, res) => {
             categories,
             currentPage: page,
             totalPages,
-            totalOffers
+            totalOffers,
+            activePage: 'offer'
         });
     } catch (error) {
         console.error('Error fetching offers:', error);
         res.status(500).send('Internal Server Error');
     }
 };
+// Creates a new offer
 const createOffer = async (req, res) => {
     const { discountType, discountValue, applicableProducts, applicableCategories, expirationDate, isActive, description } = req.body;
 
@@ -111,6 +114,7 @@ const createOffer = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+// Edits an existing offer 
 const editOffer = async (req, res) => {
     try {
         const { offerId, discountType, discountValue, expirationDate, isActive, description } = req.body;
@@ -160,6 +164,7 @@ const editOffer = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error, please try again later' });
     }
 };
+// Deletes an offer
 const deleteOffer = async (req, res) => {
     try {
         const { offerId } = req.body;

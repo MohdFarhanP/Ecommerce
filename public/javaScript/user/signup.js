@@ -1,7 +1,8 @@
+// validate and submit form validation 
 document.getElementById('signupForm').addEventListener('submit', (event) => {
     event.preventDefault();
 
-    clearErrors(); // Clear previous error messages
+    clearErrors(); 
     let accept = formValidate();
     if (accept) {
         event.target.submit();
@@ -9,7 +10,6 @@ document.getElementById('signupForm').addEventListener('submit', (event) => {
 });
 
 function clearErrors() {
-    // Remove is-invalid classes and clear error messages
     document.querySelectorAll('.form-control').forEach(input => {
         input.classList.remove('is-invalid');
     });
@@ -18,7 +18,7 @@ function clearErrors() {
     document.getElementById('passwordError').textContent = '';
     document.getElementById('confirmPasswordError').textContent = '';
 }
-
+// validate form validation
 function formValidate() {
     let name = document.getElementById('name').value;
     let email = document.getElementById('email').value;

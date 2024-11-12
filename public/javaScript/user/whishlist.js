@@ -1,9 +1,8 @@
-// event delegation used for selecting each submited form 
 
+// remove whishlist form
 document.addEventListener('DOMContentLoaded', function () {
 
     const wishlistForms = document.querySelectorAll('.removeWishlistForm');
-    console.log('hai')
     if (wishlistForms.length > 0) {
         console.log(`Found ${wishlistForms.length} wishlist forms.`);
         wishlistForms.forEach(function (form) {

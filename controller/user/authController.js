@@ -5,6 +5,7 @@ const path = require('path');
 const WalletTransaction = require('../../model/wlletModel');
 let transporter;
 require('dotenv').config();
+
 // Immediately invoked function to set up nodemailer and handlebars
 (async () => {
     try {
@@ -39,12 +40,15 @@ require('dotenv').config();
     }
 })();
 
+// Renders the authentication prompt page
 const authPromptPage = (req, res) => {
     res.render('user/authPrompt')
 };
+// Renders the login page for users 
 const loginPage = (req, res) => {
     res.render('user/login');
 };
+// login verification 
 const loginBtn = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -73,9 +77,11 @@ const loginBtn = async (req, res) => {
         return res.render('user/login', { err: 'An error occurred during login' });
     }
 };
+// Renders the signup page for new users to register
 const signupPage = (req, res) => {
     res.render('user/signup')
-}
+};
+// signup  validating 
 const signupBtn = async (req, res) => {
     try {
         const { userName, email, password, referralCode } = req.body;
@@ -149,9 +155,11 @@ const signupBtn = async (req, res) => {
         return res.render('user/signup', { msg: 'An error occurred during signup' });
     }
 };
+// Renders the OTP page for user verification
 const otpPage = (req, res) => {
     res.render('user/otp')
 };
+// Verifies the OTP 
 const verifyOtp = async (req, res) => {
     try {
         const userOtp = req.body.otp;
@@ -181,6 +189,7 @@ const verifyOtp = async (req, res) => {
         return res.render('user/otp', { error: 'An error occurred during OTP verification' });
     }
 };
+//function for resending OTP
 const resendOtp = async (req, res) => {
     try {
         const otp = Math.floor(1000 + Math.random() * 9000);
@@ -214,10 +223,12 @@ const resendOtp = async (req, res) => {
         return res.render('user/otp', { error: 'An error occurred while resending the OTP' });
     }
 };
+//user logout and clears the session
 const logoutBtn = (req, res) => {
     delete req.session.userId;
     res.redirect('/login');
 };
+//demo login function
 const demoLogin = async (req, res) => {
     try {
         const demoUser = await User.findOne({ email: 'demo@yourapp.com' });
@@ -233,6 +244,7 @@ const demoLogin = async (req, res) => {
         return res.status(500).send('Internal Server Error');
     }
 };
+// page for blocked users
 const blocked = (req, res) => {
     res.render('user/blocked');
 };

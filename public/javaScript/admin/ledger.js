@@ -1,3 +1,4 @@
+// for seeing the orders on the ledger
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.order-link').forEach(link => {
         link.addEventListener('click', async (event) => {
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul>
                         ${order.products.map(product => `
                             <li>
-                                <img src="/uploads/${product.productId.images[0]}" alt="${product.productId.productName}" style="width: 50px; height: 50px; margin-right: 10px;">
+                                <img src="${product.productId.images[0]}" alt="${product.productId.productName}" style="width: 50px; height: 50px; margin-right: 10px;">
                                 ${product.productId.productName} - Quantity: ${product.quantity}
                             </li>
                         `).join('')}

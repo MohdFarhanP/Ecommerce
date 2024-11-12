@@ -1,3 +1,4 @@
+// update quatity on the cart product
 document.querySelectorAll('.quantity-btn').forEach(button => {
   button.addEventListener('click', function (e) {
     e.preventDefault();
@@ -13,7 +14,7 @@ document.querySelectorAll('.quantity-btn').forEach(button => {
       if (quantity < maxQty && quantity < stock) {
         quantity += 1;
       } else {
-        alert('You have reached the maximum allowed quantity for this product or stock limit.');
+        showError('You have reached the maximum allowed quantity for this product or stock limit.');
         return;
       }
     }
@@ -29,15 +30,13 @@ document.querySelectorAll('.quantity-btn').forEach(button => {
 
     quantityInput.value = quantity;
 
-
     updateCartQuantity(productId, quantity);
-
 
     handleButtonState(this, quantity, maxQty, stock);
   });
 });
 
-
+// for disabling the button 
 function handleButtonState(button, quantity, maxQty, stock) {
   const productId = button.getAttribute('data-product-id');
   const minusBtn = document.querySelector(`.quantity-btn.minus[data-product-id="${productId}"]`);
@@ -58,7 +57,7 @@ function handleButtonState(button, quantity, maxQty, stock) {
   }
 }
 
-
+// update the quatity on backend 
 function updateCartQuantity(productId, quantity) {
   fetch('/updateCartQuantity', {
     method: 'PATCH',
@@ -72,22 +71,20 @@ function updateCartQuantity(productId, quantity) {
       if (data.success) {
 
         const productPriceElement = document.querySelector(`#product-price-${productId}`);
-        productPriceElement.textContent = `₹${data.updatedItemPrice}`;
+        productPriceElement.textContent = `₹${data.updatedItemPrice.toFixed(2)}`;
 
-        // Update the total cart price
         const totalCartPriceElement = document.querySelector('#total-cart-price');
-        totalCartPriceElement.textContent = `₹${data.cartTotalPrice}`;
+        totalCartPriceElement.textContent = `₹${data.cartTotalPrice.toFixed(2)}`;
 
         console.log('Quantity updated successfully');
       } else {
-        alert(data.message || 'Error updating quantity');
+        showError(data.message || 'Error updating quantity');
       }
     })
     .catch(err => console.log(err));
 }
 
-// Applay coupons
-
+// coupons selcting tacke the coupon code 
 document.addEventListener('DOMContentLoaded', function () {
 
   const couponButtons = document.querySelectorAll('.apply-coupon-btn');
@@ -117,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
       showError('Please enter a coupon code!');
       return;
     }
-
+// applay coupon
     fetch('/applyCoupon', {
       method: 'POST',
       headers: {
@@ -130,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (data.success) {
 
           cartTotalElement.textContent = `₹${data.finalTotal}`;
-          alert('Coupon applied successfully!');
+          showError('Coupon applied successfully!');
           window.location.reload();
         } else {
           showError(data.message);
@@ -154,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
           if (data.success) {
             cartTotalElement.textContent = `₹${data.grandTotal}`;
-            alert('Coupon removed successfully!');
+            showError('Coupon removed successfully!');
             window.location.reload();
           } else {
             showError(data.message);

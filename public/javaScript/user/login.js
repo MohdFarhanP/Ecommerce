@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('email').classList.add('is-invalid');
     }
 });
-
+// demo login
 document.getElementById('demoLogin').addEventListener('click', function () {
     fetch('/demoLogin', {
         method: 'POST',

@@ -3,7 +3,7 @@ const Coupon = require('../../model/coupenModel');
 const Products = require('../../model/products');
 const Category = require('../../model/categoryModel');
 
-
+// Function to fetch and display the list of coupons  
 const coupon = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -29,12 +29,14 @@ const coupon = async (req, res) => {
             categories,
             currentPage: page,
             totalPages,
-            totalCoupons
+            totalCoupons,
+            activePage: 'coupon'
         });
     } catch (error) {
         console.log('Error:', error);
     }
 };
+// Function to create a new coupon, ensuring the coupon code is unique
 const createCoupon = async (req, res) => {
     const { code, discountType, discountValue, minimumCartValue, usageLimit, expiryDate, description } = req.body;
     const products = req.body.products || [];
@@ -71,6 +73,7 @@ const createCoupon = async (req, res) => {
         return res.status(500).json({ success: false, message: 'An error occurred while creating the coupon. Please try again later.' });
     }
 };
+// Function to delete an existing coupon by its ID
 const deleteCoupon = async (req, res) => {
     const couponId = req.params.id;
     try {

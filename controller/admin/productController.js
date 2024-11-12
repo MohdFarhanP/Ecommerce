@@ -1,27 +1,62 @@
 const Category = require('../../model/categoryModel');
 const Products = require('../../model/products');
-const fs = require('fs');
-const path = require('path');
-const sharp = require('sharp');
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'images',
+        allowed_formats: ['jpg', 'jpeg', 'png'],
+        transformation: [{ width: 500, height: 500, crop: 'limit' }]
+    }
+});
+
+const upload = multer({ storage: storage });
+
+// Function to display products 
 const productPage = async (req, res) => {
     try {
-
         const page = parseInt(req.query.page) || 1;
         const limit = 5;
         const skip = (page - 1) * limit;
 
-        const products = await Products.find().skip(skip).limit(limit);
+
+        const sortBy = req.query.sortBy || 'createdAt';
+        const order = req.query.order === 'asc' ? 1 : -1;
+
+        const products = await Products.find()
+            .sort({ [sortBy]: order })
+            .skip(skip)
+            .limit(limit);
+
         const totalProducts = await Products.countDocuments();
         const totalPages = Math.ceil(totalProducts / limit);
         const categories = await Category.find();
 
-        res.render('admin/products', { products, categories, currentPage: page, totalPages, totalProducts });
+        res.render('admin/products', {
+            products,
+            categories,
+            currentPage: page,
+            totalPages,
+            totalProducts,
+            activePage: 'products',
+            sortBy,
+            order
+        });
 
     } catch (err) {
         console.log("product listing error", { err });
     }
 };
+// Function to add a new product
 const addProduct = async (req, res) => {
 
     let errors = '';
@@ -34,21 +69,43 @@ const addProduct = async (req, res) => {
         if (existingProduct) {
             return res.status(400).json({ errors: "Product with the same name already exists." });
         }
+        console.log('count of the images', req.files.length)
+        console.log('images file', req.files)
 
         const images = [];
         for (const file of req.files) {
-            const newImgName = `${Date.now()}-${file.originalname}`;
-            await sharp(file.buffer)
-                .resize(500, 500)
-                .toFile(`./uploads/${newImgName}`);
-            images.push(newImgName);
+            const uploadResult = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: 'images',
+                        transformation: [
+                            { width: 500, height: 500, crop: 'limit' },
+                            { quality: 'auto' },
+                            { fetch_format: 'auto' },
+                        ]
+                    },
+                    (error, result) => {
+                        if (error) {
+                            return reject(new Error("Image upload failed"));
+                        }
+                        resolve(result);
+                    }
+                );
+
+                uploadStream.end(file.buffer);
+            });
+
+            console.log('Cloudinary result URL:', uploadResult.secure_url);
+            images.push(uploadResult.secure_url);
         }
+
+        console.log('Images array:', images);
 
         const newProduct = new Products({
             productName,
             productStock,
             productPrice,
-            images,
+            images: images,
             category,
             description,
             highlights: {
@@ -72,59 +129,69 @@ const addProduct = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+// Function to edit an existing product
 const editProduct = async (req, res) => {
-
     const { productName, productStock, productPrice, id, categories, description, highlights } = req.body;
 
     try {
-
         const product = await Products.findById(id);
         if (!product) {
             return res.status(404).send('Product not found');
         }
 
-        // Update basic product details
         product.productName = productName;
         product.productStock = productStock;
         product.productPrice = productPrice;
         product.description = description;
         product.category = categories;
         product.maxQtyPerPerson = Math.min(Math.floor(productStock / 3), 10);
-        console.log(req.files)
-        // Replace images if new files are uploaded
+
+        console.log(req.files);
+
         if (req.files && req.files.length > 0) {
+
             for (const [index, file] of req.files.entries()) {
+
+                const updatedResult = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: 'images',
+                            transformation: [
+                                { width: 500, height: 500, crop: 'limit' },
+                                { quality: 'auto' },
+                                { fetch_format: 'auto' }
+                            ]
+                        },
+                        (error, result) => {
+                            if (error) {
+                                return reject(new Error('Image upload failed'));
+                            }
+                            resolve(result);
+                        }
+                    );
+                    uploadStream.end(file.buffer);
+                });
+
                 const oldImage = product.images[index];
-                const newImageName = `${Date.now()}-${file.originalname}`;
 
-                // Resize and save the new image
-                await sharp(file.buffer)
-                    .resize(500, 500)
-                    .toFile(path.join(__dirname, '../../uploads/', newImageName));
-
-                // Replace the old image with the new one
+                const newImageName = updatedResult.secure_url;
                 if (product.images[index]) {
                     product.images[index] = newImageName;
                 } else {
                     product.images.push(newImageName);
                 }
 
-                // Delete the old image file if it exists
                 if (oldImage) {
-                    const oldImagePath = path.join(__dirname, '../../uploads/', oldImage);
-                    if (fs.existsSync(oldImagePath)) {
-                        fs.unlinkSync(oldImagePath);
-                    }
+                    const publicId = oldImage.split('/').pop().split('.')[0];
+                    await cloudinary.uploader.destroy(publicId);
                 }
             }
         }
 
-        // Ensure there are no more than 3 images
         if (product.images.length > 3) {
             product.images = product.images.slice(0, 3);
         }
 
-        // Update highlights if provided
         if (highlights) {
             const { brand, model, caseMaterial, dialColor, waterResistance, movementType, bandMaterial, features, warranty } = highlights;
             product.highlights = {
@@ -140,14 +207,14 @@ const editProduct = async (req, res) => {
             };
         }
 
-        // Save the updated product to the database
         await product.save();
         res.redirect('/products');
     } catch (err) {
-        console.error('Error on the edit products', err);
+        console.error('Error editing product:', err);
         res.status(500).send('Internal Server Error');
     }
 };
+// Function to delete a product
 const deleteProduct = async (req, res) => {
     try {
         const { id } = req.body;
@@ -158,6 +225,7 @@ const deleteProduct = async (req, res) => {
     }
 
 };
+// Function to restore a deleted product
 const activeProduct = async (req, res) => {
     try {
         const { id } = req.body;

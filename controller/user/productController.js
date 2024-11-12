@@ -1,17 +1,69 @@
-const User = require("../../model/userModel");
+
 const Products = require('../../model/products');
 const Category = require('../../model/categoryModel');
 const Review = require('../../model/reviewModel');
 
 
-const homePage = (req, res) => {
-    console.log(req.session.userId);
+// home page  
+const homePage = async (req, res) => {
+    const getProductRatingSummary = async (ProductId) => {
+        const reviews = await Review.find({ productId: ProductId });
+        const totalReviews = reviews.length;
+        const averageRating =
+            totalReviews > 0
+                ? reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews
+                : 0;
 
-    res.render('user/home');
+        await Products.findByIdAndUpdate(ProductId, { averageRating: averageRating.toFixed(1) });
+
+        return {
+            averageRating: averageRating.toFixed(1),
+            totalReviews,
+        };
+    };
+    try {
+
+        const featuredProduct = await Products.find({ isFeatured: true, isDeleted: false }).limit(4);
+        const bestSellers = await Products.find({ isDeleted: false }).sort({ popularity: -1 }).limit(3);
+        const newArrivals = await Products.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(3);
+
+        const productIds = await Review.distinct("productId");
+
+
+        for (const productId of productIds) {
+            await getProductRatingSummary(productId);
+        }
+
+
+        const bestRatedProducts = await Review.aggregate([
+            {
+                $group: {
+                    _id: "$productId",
+                    avgRating: { $avg: "$rating" },
+                },
+            },
+            { $sort: { avgRating: -1 } },
+            { $limit: 3 },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "productDetails",
+                },
+            },
+            { $unwind: "$productDetails" },
+        ]);
+
+        res.render('user/home', { featuredProduct, bestSellers, newArrivals, bestRatedProducts });
+    } catch (error) {
+        console.log(error);
+    }
 };
 const gestUser = (req, res) => {
     res.redirect('/home')
 };
+// fucntion for products list
 const productList = async (req, res) => {
     const productsPerPage = 6;
     const page = parseInt(req.query.page) || 1;
@@ -61,6 +113,7 @@ const productList = async (req, res) => {
         console.error('Error fetching product list:', err);
     }
 };
+// for filtering products
 const filterProducts = async (req, res) => {
     try {
         const { searchQuery, brands = [], displayTypes = [], colors = [], showOutOfStock, sortCriteria } = req.body;
@@ -188,6 +241,7 @@ const filterProducts = async (req, res) => {
         res.status(500).json({ message: 'Error occurred while filtering products' });
     }
 };
+// controller for single products
 const productPage = async (req, res) => {
 
     const getProductRatingSummary = async (ProductId) => {
@@ -255,6 +309,7 @@ const productPage = async (req, res) => {
         res.status(500).json({ error: "An error occurred while fetching the product details" });
     }
 };
+// controller for getting the review
 const review = async (req, res) => {
     try {
         const { customerName, email, rating, comment } = req.body;

@@ -1,4 +1,4 @@
-
+// for validating and sumbit the login
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('loginform').addEventListener('submit', (event) => {
         event.preventDefault();

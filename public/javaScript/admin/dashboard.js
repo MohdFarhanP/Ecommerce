@@ -1,8 +1,8 @@
 async function fetchCategorySalesData(filter = 'monthly') {
     const response = await fetch(`/category-sales?filter=${filter}`);
-    return response.json(); // Ensure this resolves to the expected data structure
+    return response.json(); 
 }
-
+// get the sales chart
 async function renderCategorySalesChart(filter = 'monthly') {
     const data = await fetchCategorySalesData(filter);
 
@@ -11,7 +11,6 @@ async function renderCategorySalesChart(filter = 'monthly') {
 
     const ctx = document.getElementById('categorySalesChart').getContext('2d');
 
-    // Destroy existing chart if present
     if (window.salesChart) {
         window.salesChart.destroy();
     }
@@ -40,14 +39,14 @@ async function renderCategorySalesChart(filter = 'monthly') {
         }
     });
 }
-
+// fetching top selling products
 async function fetchTopSellingData(url, tableId) {
     try {
         const response = await fetch(url);
         const data = await response.json();
 
         const tableBody = document.getElementById(tableId);
-        tableBody.innerHTML = ''; // Clear existing rows
+        tableBody.innerHTML = ''; 
 
         data.forEach(item => {
             const row = document.createElement('tr');
@@ -76,15 +75,15 @@ async function fetchTopSellingData(url, tableId) {
         console.error('Error fetching top-selling data:', error);
     }
 }
-
+// apply the function when the page loaded
 document.addEventListener('DOMContentLoaded', () => {
-    renderCategorySalesChart(); // Initial render with default filter
+    renderCategorySalesChart();
     fetchTopSellingData('/dashboard/top-selling-products', 'topProductsTable');
     fetchTopSellingData('/dashboard/top-selling-categories', 'topCategoriesTable');
     fetchTopSellingData('/dashboard/top-selling-brands', 'topBrandsTable');
 
     document.getElementById('filterDropdown').addEventListener('change', (event) => {
         const filter = event.target.value;
-        renderCategorySalesChart(filter); // Re-render chart with the new filter
+        renderCategorySalesChart(filter); 
     });
 });

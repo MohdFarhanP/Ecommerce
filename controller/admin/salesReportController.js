@@ -6,6 +6,7 @@ const pdfFonts = require('pdfmake/build/vfs_fonts');
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 const ExcelJS = require('exceljs');
 
+// function to generate and render the sales report page
 const salesReport = async (req, res) => {
     try {
         const { filterType, startDate, endDate } = req.query;
@@ -70,12 +71,14 @@ const salesReport = async (req, res) => {
             filterType,
             startDate,
             endDate,
+            activePage:'sales'
         });
     } catch (err) {
         console.log(err);
         res.status(500).send('Internal Server Error');
     }
 };
+// function to generate and download the sales report as a PDF
 const downloadSalesReportPdf = async (req, res) => {
     try {
         const { filterType, startDate, endDate } = req.query;
@@ -167,6 +170,7 @@ const downloadSalesReportPdf = async (req, res) => {
         res.status(500).send('Could not generate PDF');
     }
 };
+// function to generate and download the sales report as an Excel file
 const downloadSalesReportExcel = async (req, res) => {
     try {
         const { filterType, startDate, endDate } = req.query;
@@ -233,6 +237,7 @@ const downloadSalesReportExcel = async (req, res) => {
         res.status(500).send('Could not generate Excel file');
     }
 };
+// sales reporte by filter
 const getSalesReportData = async (filterType, startDate, endDate) => {
     let matchQuery = {};
 

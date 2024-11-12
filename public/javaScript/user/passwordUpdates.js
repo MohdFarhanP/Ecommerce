@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('passwordForm').addEventListener('submit', (event) => {
-        event.preventDefault(); // Prevent form submission for validation
+        event.preventDefault(); 
 
-        // Clear previous error messages
         clearErrorMessages();
 
         // Validate form inputs
@@ -12,14 +11,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let isValid = true;
 
-        // Validate old password
         if (!oldPassword) {
             document.getElementById('oldPasswordError').textContent = 'Old password is required.';
             document.getElementById('oldPasswordError').style.display = 'block';
             isValid = false;
         }
 
-        // Validate new password
         if (!newPassword) {
             document.getElementById('newPasswordError').textContent = 'New password is required.';
             document.getElementById('newPasswordError').style.display = 'block';
@@ -30,7 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
             isValid = false;
         }
 
-        // Validate confirm password
         if (!confirmPassword) {
             document.getElementById('confirmPasswordError').textContent = 'Please confirm your password.';
             document.getElementById('confirmPasswordError').style.display = 'block';
@@ -41,13 +37,12 @@ document.addEventListener("DOMContentLoaded", function () {
             isValid = false;
         }
 
-        // If all validations pass, submit the form
         if (isValid) {
             event.target.submit();
         }
     });
 
-    // Function to show toast messages (both error and success)
+    // show toast messages (both error and success)
     function showToast(message, type) {
         const toastBody = document.getElementById('toastBody');
         const errorToast = document.getElementById('errorToast');
@@ -69,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
             toast.hide();
         }, 3000);
     }
-    // Function to clear error messages
+    
     function clearErrorMessages() {
         document.getElementById('oldPasswordError').textContent = '';
         document.getElementById('newPasswordError').textContent = '';
@@ -80,15 +75,13 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('confirmPasswordError').style.display = 'none';
     }
 
-    // Check for backend error messages and display in toast if present
     const err = document.getElementById('editPasswordError').textContent.trim();
     if (err) {
         showToast(err, 'error');
     }
 
-    // Check for success message (if needed)
     const msg = document.getElementById('msg').value;
     if (msg) {
-        showToast(msg, 'success'); // Show success message
+        showToast(msg, 'success'); 
     }
 });

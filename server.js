@@ -13,13 +13,6 @@ const session = require('express-session');
 const passport = require('passport');
 const { format } = require('date-fns');
 const methodOverride = require('method-override');
-const Razorpay = require('razorpay');
-
-
-const razorpayInstance = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
 
 
 
@@ -48,7 +41,10 @@ app.engine('hbs', exphbs.engine({
     extname: 'hbs',
     defaultLayout: 'main',
     layoutsDir: path.join(__dirname, 'views/layouts'),
-    partialsDir: path.join(__dirname, 'views/partials'),
+    partialsDir: [
+        path.join(__dirname, 'views', 'partials', 'admin'),
+        path.join(__dirname, 'views', 'partials', 'user')
+    ],
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
         allowProtoMethodsByDefault: true,
@@ -67,10 +63,10 @@ app.engine('hbs', exphbs.engine({
         sub: (a, b) => a - b,
         formatDate: (date, formatString) => {
             if (!(date instanceof Date) || isNaN(date)) {
-                return 'Invalid Date'; 
+                return 'Invalid Date';
             }
             return format(new Date(date), formatString);
-         },
+        },
         range: (min, max) => {
             const range = [];
             for (let i = min; i <= max; i++) {
@@ -81,14 +77,23 @@ app.engine('hbs', exphbs.engine({
         isEmpty: (array) => {
             return array.length === 0;
         },
-        or:(a, b) => {
+        or: (a, b) => {
             return a || b;
         },
         isPendingRazorpay: (paymentStatus, paymentMethod, orderContext, options) => {
-            if (paymentStatus === 'Failed'|| paymentStatus === 'Pending' && paymentMethod === 'Razorpay') {
+            if (paymentStatus === 'Failed' || paymentStatus === 'Pending' && paymentMethod === 'Razorpay') {
                 return options.fn(orderContext); // Use orderContext instead of this
             }
             return options.inverse(orderContext);
+        },
+        times: function (n, block) {
+            let accum = '';
+            for (let i = 0; i < Math.round(n); ++i)
+                accum += block.fn(this);
+            return accum;
+        },
+        toFixed: (number, decimals) => {
+            return number.toFixed(decimals);
         }
     },
 }));

@@ -1,6 +1,12 @@
+
+
 const Products = require('../../model/products');
 
 
+
+
+
+// Fetches and displays inventory 
 const inventory = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 7;
@@ -18,13 +24,15 @@ const inventory = async (req, res) => {
             products,
             currentPage: page,
             totalPages,
-            totalProducts
+            totalProducts,
+            activePage: 'inventory'
         });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
     }
 };
+// Handles updating product stock in inventory
 const editInventory = async (req, res) => {
     const { id, productName, productStock, productPrice, isFeatured } = req.body;
     try {
@@ -43,6 +51,7 @@ const editInventory = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+// Handles deleting a product by marking it as deleted
 const deleteInventory = async (req, res) => {
     const { id } = req.body;
     try {
@@ -53,6 +62,7 @@ const deleteInventory = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+// Updates the stock of a product in the inventory
 const updateStock = async (req, res) => {
     const { id, productStock } = req.body;
     try {

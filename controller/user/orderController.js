@@ -1,3 +1,5 @@
+
+
 const User = require("../../model/userModel");
 const path = require('path');
 const Products = require('../../model/products');
@@ -11,6 +13,9 @@ const WalletTransaction = require('../../model/wlletModel');
 const Ledger = require('../../model/ledgerModel');
 require('dotenv').config();
 
+
+
+// controller for getting the orders
 const orders = async (req, res) => {
     const userId = req.session.userId;
     const currentPage = parseInt(req.query.page) || 1;
@@ -36,13 +41,15 @@ const orders = async (req, res) => {
         res.render('user/orders', {
             orders,
             currentPage,
-            totalPages
+            totalPages,
+            activePage: "orders",
         });
     } catch (err) {
         console.error('Error fetching orders:', err);
         res.status(500).send('Error fetching orders');
     }
 };
+// specific orderDetails 
 const orderDetails = async (req, res) => {
     try {
         const { orderId, productId } = req.params;
@@ -67,6 +74,7 @@ const orderDetails = async (req, res) => {
         res.status(500).send('Error fetching product details');
     }
 };
+// controller for cancel products
 const cancelProduct = async (req, res) => {
     try {
         const { orderId, productId } = req.body;
@@ -148,6 +156,7 @@ const cancelProduct = async (req, res) => {
         res.status(500).send('Error canceling product');
     }
 };
+// controller for return products
 const returnProduct = async (req, res) => {
     const { orderId, productId } = req.body;
 
@@ -208,6 +217,7 @@ const returnProduct = async (req, res) => {
         res.status(500).send('Could not return the product');
     }
 };
+// controller for palce order by COD and Wallet
 const placeOrder = async (req, res) => {
 
     const userId = req.session.userId;
@@ -321,6 +331,7 @@ const placeOrder = async (req, res) => {
 
     }
 };
+// order success page
 const orderSuccess = async (req, res) => {
     try {
         const orderId = req.params.orderId;
@@ -339,6 +350,7 @@ const orderSuccess = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+// controller for download invoice
 const downloadInvoice = async (req, res) => {
     try {
         console.log('Order ID:', req.params.orderId);
@@ -353,7 +365,7 @@ const downloadInvoice = async (req, res) => {
             return res.status(404).send('Order not found');
         }
 
-        const logoPath = path.join(__dirname, '..', 'public', 'image', 'user', 'WATCH.png');
+        const logoPath = path.join(__dirname, '../../', 'public', 'image', 'user', 'WATCH.png');
 
 
         const data = {
@@ -415,33 +427,54 @@ const downloadInvoice = async (req, res) => {
         res.status(500).send('Error generating invoice');
     }
 };
+// checkout page 
 const checkout = async (req, res) => {
     try {
         const userId = req.session.userId;
         const user = await User.findById(userId);
-        const cart = await Cart.findOne({ user: userId }).populate('items.product');
 
-        if (!cart || cart.items.length === 0) {
-            return res.redirect('/cart');
+        let cartItems = [];
+        let subTotal = 0;
+
+        if (req.body.buy) {
+            const productId = req.body.productId;
+            const quantity = parseInt(req.body.quantity, 10) || 1;
+
+            const product = await Products.findById(productId);
+            if (!product) {
+                return res.status(404).send('Product not found');
+            }
+
+            const productPrice = product.discountPrice || product.productPrice;
+            const itemTotal = quantity * productPrice;
+
+            cartItems = [{ product, quantity, itemTotal }];
+            subTotal = itemTotal;
+        } else {
+
+            const cart = await Cart.findOne({ user: userId }).populate('items.product');
+            if (!cart || cart.items.length === 0) {
+                return res.redirect('/cart');
+            }
+
+
+            cartItems = cart.items.map(item => {
+                const productPrice = item.product.discountPrice || item.product.productPrice;
+                return {
+                    product: item.product,
+                    quantity: item.quantity,
+                    itemTotal: item.quantity * productPrice
+                };
+            });
+
+            subTotal = cartItems.reduce((acc, item) => acc + item.itemTotal, 0);
         }
 
-        // Calculate item totals
-        const cartItems = cart.items.map(item => {
-            const productPrice = item.product.discountPrice || item.product.productPrice;
-            return {
-                product: item.product,
-                quantity: item.quantity,
-                itemTotal: item.quantity * productPrice
-            };
-        });
 
-        // Calculate cart totals
-        const subTotal = cartItems.reduce((acc, item) => acc + item.itemTotal, 0);
         const shippingCharge = 100;
         const deliveryCharge = 50;
         let grandTotal = subTotal + shippingCharge + deliveryCharge;
 
-        // Access the applied coupon code from the session
         const appliedCouponCode = req.session.appliedCouponCode || null;
         let couponDiscountAmount = 0;
 
@@ -454,19 +487,16 @@ const checkout = async (req, res) => {
             }
         }
 
-        // Apply referral discount only if it’s the first purchase
         let referralDiscountAmount = 0;
         let appliedReferralCode = req.session.appliedReferralCode || null;
 
         if (user.isFirstPurchase && appliedReferralCode) {
-            referralDiscountAmount = 30; // Set your referral discount amount here
+            referralDiscountAmount = 30;
         }
 
-        // Calculate final total after all discounts
         let finalTotal = grandTotal - couponDiscountAmount - referralDiscountAmount;
         finalTotal = Math.max(0, finalTotal);
 
-        // Fetch user addresses
         const userAddresses = await Address.find({ user: userId });
 
         res.render('user/checkout', {

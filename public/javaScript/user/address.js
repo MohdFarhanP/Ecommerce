@@ -1,6 +1,5 @@
 
 // set default address
-
 function selectCard(card, addressId) {
     document.querySelectorAll('.card').forEach((item) => {
         item.classList.remove("active")
@@ -29,8 +28,7 @@ function selectCard(card, addressId) {
 
         });
 }
-// for edit part  
-
+// for edit address
 function populateEditModal(id, firstName, lastName, email, mobile, addressLine, city, pinCode, country) {
     document.querySelector('#editAddress input[name="firstName"]').value = firstName;
     document.querySelector('#editAddress input[name="lastName"]').value = lastName;
@@ -50,6 +48,7 @@ function populateEditModal(id, firstName, lastName, email, mobile, addressLine, 
 
     document.querySelector('#editAddress form').action = `/editAddress/${id}`;
 }
+// for deleting the address
 function setDeleteAddress(addressId) {
 
     document.getElementById('deleteAddressForm').action = `/deleteAddress/${addressId}?_method=DELETE`;
@@ -57,7 +56,7 @@ function setDeleteAddress(addressId) {
 }
 
 
-
+// for submit edit Address form 
 document.getElementById('editForm').addEventListener('submit', (event) => {
     event.preventDefault();
     const isValid = validateAddressForm(event.target);
@@ -65,6 +64,7 @@ document.getElementById('editForm').addEventListener('submit', (event) => {
         event.target.submit();
     }
 });
+// for submit add Address form
 document.getElementById('addForm').addEventListener('submit', (event) => {
     event.preventDefault();
     const isValid = validateAddressForm(event.target);
@@ -73,7 +73,7 @@ document.getElementById('addForm').addEventListener('submit', (event) => {
     }
 });
 
-// Unified validation function for both forms
+// validation function for both forms
 function validateAddressForm(form) {
     const inputs = [
         { name: "firstName", message: "First name is required" },
@@ -86,19 +86,19 @@ function validateAddressForm(form) {
         { name: "country", message: "Please select a country", check: (value) => value !== "Select the Country" }
     ];
 
-    let isValid = true; // Track form validity
+    let isValid = true; 
 
     for (const input of inputs) {
         const field = form.querySelector(`input[name="${input.name}"], select[name="${input.name}"]`);
         const inputValue = field?.value.trim() || '';
         const errorElement = field?.parentElement.querySelector('.error-message');
 
-        // Reset error messages
+
         if (errorElement) errorElement.textContent = '';
 
-        // Check validation conditions
+
         if (!inputValue || (input.validate && !input.validate(inputValue)) || (input.check && !input.check(inputValue))) {
-            if (errorElement) errorElement.textContent = input.message; // Display inline error
+            if (errorElement) errorElement.textContent = input.message;
             field.focus();
             isValid = false;
         }

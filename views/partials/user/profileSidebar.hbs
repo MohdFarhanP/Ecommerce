@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="/public/styles/user/profileSidebar.css">
+
+
+<div class="col-md-2 col-12">
+    <div class="container-fluid d-md-block d-none">
+        <span class="fw-bold">Account & Settings</span>
+        <hr>
+    </div>
+
+    <button class="btn btn-warning w-100 d-md-none mb-3" type="button" data-bs-toggle="collapse"
+        data-bs-target="#sidebarMenu" aria-expanded="false" aria-controls="sidebarMenu">
+        Account & Settings
+    </button>
+
+    <div class="collapse d-md-block" id="sidebarMenu">
+        <nav class="nav flex-column mt-2">
+            <a href="/userProfile"
+                class="btn btn-outline-warning mb-2 {{#if (eq activePage 'userProfile')}}active{{/if}}">User Details</a>
+            <a href="/orders"
+                class="btn btn-outline-warning mb-2 {{#if (eq activePage 'orders')}}active{{/if}}">Orders</a>
+            <a href="/whishList"
+                class="btn btn-outline-warning mb-2 {{#if (eq activePage 'wishList')}}active{{/if}}">Wishlist</a>
+            <a href="/wallet"
+                class="btn btn-outline-warning mb-2 {{#if (eq activePage 'wallet')}}active{{/if}}">Wallet</a>
+            <a href="/logOut" class="btn text-warning mb-2 mt-4 px-auto"><i
+                    class="fa-solid fa-right-from-bracket me-3"></i>Log out</a>
+        </nav>
+    </div>
+</div>
