@@ -12,7 +12,7 @@ const generateReferralCode = () => `REF${Math.random().toString(36).substr(2, 8)
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
+    callbackURL: 'https://watchly.ddns.net/auth/google/callback'
 },
     // Google OAuth callback
     async (accessToken, refreshToken, profile, done) => {
@@ -41,7 +41,7 @@ passport.use(new GoogleStrategy({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: '/auth/facebook/callback',
+    callbackURL: 'https://watchly.ddns.net/auth/facebook/callback',
     profileFields: ["id", "displayName", "email"],
 
 },
