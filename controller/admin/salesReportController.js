@@ -71,7 +71,7 @@ const salesReport = async (req, res) => {
             filterType,
             startDate,
             endDate,
-            activePage:'sales'
+            activePage: 'sales'
         });
     } catch (err) {
         console.log(err);
@@ -84,17 +84,16 @@ const downloadSalesReportPdf = async (req, res) => {
         const { filterType, startDate, endDate } = req.query;
         const salesReportData = await getSalesReportData(filterType, startDate, endDate);
 
-        // Log sales report data to inspect the values
         console.log('Sales Report Data:', salesReportData);
 
-        const logoPath = path.join(__dirname,'../../', 'public', 'image', 'admin', 'WATCH.png');
+        const logoPath = path.join(__dirname, '../../', 'public', 'image', 'admin', 'WATCH.png');
         const imageBuffer = fs.readFileSync(logoPath);
         const logoBase64 = imageBuffer.toString('base64');
         const logoDataUrl = `data:image/png;base64,${logoBase64}`;
 
         const docDefinition = {
             content: [
-                // Logo and Site Details
+
                 {
                     stack: [
                         { image: logoDataUrl, width: 100, margin: [0, 0, 0, 10] },
@@ -156,7 +155,7 @@ const downloadSalesReportPdf = async (req, res) => {
         };
 
         const pdfDoc = pdfMake.createPdf(docDefinition);
-        const filePath = 'C:/Users/hp/Downloads/SalesReport.pdf';
+        const filePath = path.join(__dirname, '../../output');
 
         pdfDoc.getBuffer((buffer) => {
             fs.writeFileSync(filePath, buffer);
@@ -179,31 +178,27 @@ const downloadSalesReportExcel = async (req, res) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
 
-        // Site Details
-        worksheet.mergeCells('A1:D2'); // Merge cells for the site name
-        worksheet.getCell('A1').value = 'WATCHLY'; // Site name
-        worksheet.getCell('A3').value = 'Email: watchlysupport@gmail.com'; // Site email
-        worksheet.getCell('A4').value = 'Website: www.WATCHLY.com'; // Website URL
 
-        // Style site details
-        worksheet.getCell('A1').font = { bold: true, size: 14 }; // Site name bold and larger
-        worksheet.getCell('A3').font = { size: 12 }; // Email style
-        worksheet.getCell('A4').font = { size: 12 }; // Website style
+        worksheet.mergeCells('A1:D2');
+        worksheet.getCell('A1').value = 'WATCHLY';
+        worksheet.getCell('A3').value = 'Email: watchlysupport@gmail.com';
+        worksheet.getCell('A4').value = 'Website: www.WATCHLY.com';
 
-        // Sales Report Heading
-        worksheet.mergeCells('A6:D6'); // Merge cells for the heading
-        worksheet.getCell('A6').value = 'Sales Report'; // Sales report heading
-        worksheet.getCell('A6').font = { bold: true, size: 16 }; // Heading style
-        worksheet.getCell('A6').alignment = { vertical: 'middle', horizontal: 'center' }; // Center alignment
 
-        // Adding a little bit of space after the heading
-        worksheet.getCell('A7').value = ''; // Empty row for spacing
+        worksheet.getCell('A1').font = { bold: true, size: 14 };
+        worksheet.getCell('A3').font = { size: 12 };
+        worksheet.getCell('A4').font = { size: 12 };
 
-        // Add column headers starting from row 8
+        worksheet.mergeCells('A6:D6');
+        worksheet.getCell('A6').value = 'Sales Report';
+        worksheet.getCell('A6').font = { bold: true, size: 16 };
+        worksheet.getCell('A6').alignment = { vertical: 'middle', horizontal: 'center' };
+
+        worksheet.getCell('A7').value = '';
+
         worksheet.addRow(['Total Sales', 'Order Count', 'Total Discount', 'Coupon Discount']);
-        worksheet.getRow(8).font = { bold: true }; // Make header row bold
+        worksheet.getRow(8).font = { bold: true };
 
-        // Set the widths of the columns
         worksheet.columns = [
             { header: 'Total Sales', key: 'totalSales', width: 15 },
             { header: 'Order Count', key: 'orderCount', width: 15 },
@@ -211,7 +206,6 @@ const downloadSalesReportExcel = async (req, res) => {
             { header: 'Coupon Discount', key: 'totalCouponDiscount', width: 20 }
         ];
 
-        // Add rows with sales data starting from row 9
         salesReportData.forEach(data => {
             worksheet.addRow({
                 totalSales: data.totalSales,
@@ -221,16 +215,14 @@ const downloadSalesReportExcel = async (req, res) => {
             });
         });
 
-        // File path
-        const filePath = 'C:/Users/hp/Downloads/salesReport.xlsx';
+        const filePath = path.join(__dirname, '../../output');
 
-        // Write to file and send download response
         await workbook.xlsx.writeFile(filePath);
         res.download(filePath, 'salesReport.xlsx', err => {
             if (err) {
                 console.error(err);
             }
-            fs.unlinkSync(filePath); // Delete file after download
+            fs.unlinkSync(filePath);
         });
     } catch (err) {
         console.log(err);
@@ -256,21 +248,21 @@ const getSalesReportData = async (filterType, startDate, endDate) => {
     }
 
     return await Order.aggregate([
-        { $match: matchQuery },  // Match based on the given filter
-        { $unwind: "$products" },  // Unwind the products array to handle each product separately
+        { $match: matchQuery },
+        { $unwind: "$products" },
         {
             $group: {
-                _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Group by date
+                _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
                 totalSales: { $sum: '$totalAmount' },
                 totalDiscount: { $sum: '$discount' },
                 totalCouponDiscount: { $sum: '$couponDiscount' },
                 orderCount: { $sum: 1 },
-                totalItemsSold: { $sum: '$products.quantity' }  // Sum the quantity of products
+                totalItemsSold: { $sum: '$products.quantity' }
             }
         },
-        { $sort: { _id: -1 } } // Sort by date in descending order
+        { $sort: { _id: -1 } }
     ]);
-    
+
 };
 
 module.exports = {

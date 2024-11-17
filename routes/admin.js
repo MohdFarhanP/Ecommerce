@@ -70,9 +70,9 @@ router.delete('/deleteOffer', adminAuth.checkSession, offerController.deleteOffe
 
 
 // Sales report routes
-router.get('/salesReport', salesReportController.salesReport);
+router.get('/salesReport', adminAuth.checkSession, salesReportController.salesReport);
 router.get('/salesReport/download/pdf', adminAuth.checkSession, salesReportController.downloadSalesReportPdf);
-router.get('/salesReport/download/excel', adminAuth.checkSession, adminAuth.checkSession, salesReportController.downloadSalesReportExcel);
+router.get('/salesReport/download/excel', adminAuth.checkSession,salesReportController.downloadSalesReportExcel);
 
 
 // Dashboard routes
