@@ -1,4 +1,4 @@
-
+document.addEventListener('DOMContentLoaded', () => {updateWishlistListeners();});
 
 // error toast 
 function showToast(title, message) {
@@ -14,7 +14,7 @@ function showToast(title, message) {
 }
 
 
-// Function to add product to wishlist
+// Add to wishlist
 function addToWishlist(productId) {
   fetch('/wishlistAdd', {
     method: 'POST',
@@ -24,13 +24,16 @@ function addToWishlist(productId) {
     body: JSON.stringify({ productId })
   })
     .then(response => {
-      if (response.status === 400) {
-        return response.json().then(data => {
-          throw new Error(data.message); 
-        });
-      } else if (!response.ok) {
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("text/html")) {
+        throw new Error("Please log in first");
+      }
+
+      if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
       return response.json();
     })
     .then(data => {
@@ -38,16 +41,17 @@ function addToWishlist(productId) {
         console.log('Product added to wishlist successfully!');
         showToast('Success', data.message);
       } else {
-        console.error('Failed to add product to wishlist');
         showToast('Error', data.message);
       }
     })
     .catch(err => {
       console.error('Error:', err);
-      showToast('Error', err.message || 'An error occurred while adding to wishlist.'); 
+      showToast('Error', err.message || 'An error occurred while adding to wishlist.');
     });
 }
-// Function to remove product from wishlist
+
+
+// Remove from wishlist
 function removeFromWishlist(productId) {
   fetch('/wishlistRemove', {
     method: 'DELETE',
@@ -57,10 +61,16 @@ function removeFromWishlist(productId) {
     body: JSON.stringify({ productId })
   })
     .then(response => {
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("text/html")) {
+        throw new Error("Please log in first");
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
       return response.json();
     })
     .then(data => {
@@ -68,15 +78,15 @@ function removeFromWishlist(productId) {
         console.log('Product removed from wishlist successfully!');
         showToast('Success', data.message);
       } else {
-        console.error('Failed to remove product from wishlist');
         showToast('Error', data.message);
       }
     })
     .catch(err => {
       console.error('Error:', err);
-      showToast('Error', 'An error occurred while removing from wishlist.');
+      showToast('Error', err.message || 'An error occurred while removing from wishlist.');
     });
 }
+
 // whish icon
 function updateWishlistListeners() {
   const wishlistIcons = document.querySelectorAll('.wish-icon');
@@ -194,7 +204,7 @@ function renderProducts(products) {
 </div>
 
         `;
-  }).join(''); 
+  }).join('');
 
   productContainer.innerHTML = productHTML;
 }

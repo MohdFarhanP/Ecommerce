@@ -43,7 +43,7 @@ const orderSchema = new mongoose.Schema({
     
     couponDiscount: { type: Number, default: 0 },
     
-    razorpayOrderId: { type: String, unique: true },
+    razorpayOrderId: { type: String, unique: true ,default: ''},
 });
     
 module.exports = mongoose.model('Order', orderSchema);

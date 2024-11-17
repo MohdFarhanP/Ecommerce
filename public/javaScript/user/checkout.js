@@ -52,6 +52,12 @@ function populateEditModal(id, firstName, lastName, email, mobile, addressLine, 
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    if (error) {
+        customError(decodeURIComponent(error)); 
+    }
+
     // Edit Address validation 
     const form = document.getElementById('editAddressForm');
     const firstName = document.getElementById('firstName');
@@ -199,7 +205,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
 
     const selectedAddressId = document.getElementById('selectedAddress').value;
     if (!selectedAddressId) {
-        alert('Please select a shipping address.');
+        customError('Please select a shipping address.');
         return;
     }
 
@@ -260,7 +266,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
         }
     } else {
         if (paymentMethod === 'COD' && totalAmount > 1000) {
-            return showError('above 1000 rupees product cant buy using cash on delevery ');
+            return customError('above 1000 rupees product cant buy using cash on delevery ');
         }
         this.submit();
     }
@@ -295,7 +301,7 @@ function verifyRazorpayPayment(response) {
 
 
 // show error
-function showError(message) {
+function customError(message) {
     toastBody.textContent = message;
     const toast = new bootstrap.Toast(errorToast);
     toast.show();

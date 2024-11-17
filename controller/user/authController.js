@@ -3,8 +3,9 @@ const User = require("../../model/userModel");
 const nodemailer = require('nodemailer');
 const path = require('path');
 const WalletTransaction = require('../../model/wlletModel');
-let transporter;
 require('dotenv').config();
+
+let transporter;
 
 // Immediately invoked function to set up nodemailer and handlebars
 (async () => {
@@ -23,11 +24,11 @@ require('dotenv').config();
         const handlebarOptions = {
             viewEngine: {
                 extname: '.hbs',
-                partialsDir: path.join(__dirname, '../views/partials'),
+                partialsDir: path.join(__dirname, '../../views/partials'),
                 layoutsDir: path.join(__dirname, '../views/layouts'),
                 defaultLayout: false,
             },
-            viewPath: path.join(__dirname, '../views/user'),
+            viewPath: path.join(__dirname, '../../views/user'),
             extName: '.hbs',
         };
 
@@ -84,6 +85,7 @@ const signupPage = (req, res) => {
 // signup  validating 
 const signupBtn = async (req, res) => {
     try {
+        
         const { userName, email, password, referralCode } = req.body;
         const exist = await User.findOne({ email });
         if (exist) {
@@ -96,7 +98,6 @@ const signupBtn = async (req, res) => {
 
         let referredByUser = null;
         if (referralCode) {
-            // Check if the referral code is valid
             referredByUser = await User.findOne({ referralCode });
             if (!referredByUser) {
                 return res.render('user/signup', { msg: 'Invalid referral code' });
@@ -112,7 +113,6 @@ const signupBtn = async (req, res) => {
             referredBy: referredByUser ? referredByUser._id : null,
         });
         await newUser.save();
-
         if (referredByUser) {
             const walletTransaction = new WalletTransaction({
                 userId: referredByUser._id,
@@ -128,7 +128,6 @@ const signupBtn = async (req, res) => {
 
 
         req.session.userId = newUser._id;
-
         const otp = Math.floor(1000 + Math.random() * 9000);
         req.session.otp = otp;
         req.session.email = email;
@@ -138,21 +137,23 @@ const signupBtn = async (req, res) => {
             from: process.env.EMAIL,
             to: email,
             subject: 'Your OTP for Sign up',
-            template: 'email-otp',
+            template: '/email-otp',
             context: {
                 otp: req.session.otp,
+                userName: newUser.userName
             },
         };
 
         // Send email asynchronously and wait for the response
         await transporter.sendMail(mailOptions);
-        console.log("OTP email sent");
         const remainTime = 60;
         res.render('user/otp', { remainTime, id: req.session.userId });
 
     } catch (error) {
+        await User.findByIdAndDelete(req.session.userId);
+        req.session.userId = null;
         console.error('Signup error:', error);
-        return res.render('user/signup', { msg: 'An error occurred during signup' });
+        return res.redirect('/signup');
     }
 };
 // Renders the OTP page for user verification
@@ -166,14 +167,14 @@ const verifyOtp = async (req, res) => {
         const otpAge = Date.now() - req.session.otpTimestamp;
         const otpExp = 1 * 60 * 1000;
 
-        console.log('verifiying otp');
+     
 
         if (otpAge > otpExp) {
             return res.render('user/otp', { error: "OTP expired, please request a new one." });
         }
 
         const remainTime = Math.floor(Math.max(0, otpExp - otpAge) / 1000);
-        console.log(remainTime)
+ 
         if (req.session.otp) {
             const existOtp = req.session.otp.toString();
             if (userOtp === existOtp) {
@@ -196,7 +197,7 @@ const resendOtp = async (req, res) => {
         req.session.otp = otp;
         req.session.otpTimestamp = Date.now();
 
-        console.log("Resend Generated OTP:", otp);
+       
 
         const id = req.session.userId;
         if (!id) {
@@ -215,7 +216,6 @@ const resendOtp = async (req, res) => {
 
         // Send email asynchronously
         await transporter.sendMail(mailOptions);
-        console.log("Resend OTP sent");
         const remainTime = 60;
         return res.render('user/otp', { remainTime, id });
     } catch (error) {

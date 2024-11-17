@@ -69,9 +69,7 @@ const addProduct = async (req, res) => {
         if (existingProduct) {
             return res.status(400).json({ errors: "Product with the same name already exists." });
         }
-        console.log('count of the images', req.files.length)
-        console.log('images file', req.files)
-
+  
         const images = [];
         for (const file of req.files) {
             const uploadResult = await new Promise((resolve, reject) => {

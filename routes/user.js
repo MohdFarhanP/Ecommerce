@@ -13,9 +13,9 @@ const paymentController = require('../controller/user/paymentController');
 
 
 // Authentication and Authorization Routes
-router.get('/login', userAuth.isLogin, authController.loginPage);
-router.post('/login', userAuth.isLogin, authController.loginBtn);
-router.get('/signup', userAuth.isLogin, authController.signupPage);
+router.get('/login', authController.loginPage);
+router.post('/login', authController.loginBtn);
+router.get('/signup', authController.signupPage);
 router.post('/sent-otp', authController.signupBtn);
 router.get('/otp', authController.otpPage);
 router.post('/verifyOtp', authController.verifyOtp);

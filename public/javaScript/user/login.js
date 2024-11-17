@@ -51,25 +51,3 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('email').classList.add('is-invalid');
     }
 });
-// demo login
-document.getElementById('demoLogin').addEventListener('click', function () {
-    fetch('/demoLogin', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-        .then(response => {
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                return response.text();
-            }
-        })
-        .then(data => {
-            console.error('Error during demo login:', data);
-        })
-        .catch(error => {
-            console.error('Error during demo login:', error);
-        });
-});

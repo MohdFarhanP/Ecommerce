@@ -63,7 +63,7 @@
                     {{/each}}
 
                     {{#if (eq this.paymentStatus 'Paid')}}
-                    <form action="/downloadInvoice/{{this._id}}" method="get">
+                    <form action="/downloadInvoice/{{this._id}}" method="GET">
                         <button type="submit" class="btn btn-primary text-center">Download Invoice</button>
                     </form>
                     {{/if}}

@@ -28,6 +28,7 @@ const addWishlist = async (req, res) => {
         const { productId } = req.body;
 
         if (!userId) {
+            console.log('please login')
             return res.status(401).json({ success: false, message: 'Please log in first' });
         }
 
@@ -64,6 +65,7 @@ const removeWishlist = async (req, res) => {
         console.log('userid :', userId, "productid :", productId);
 
         if (!userId) {
+            console.log("please login")
             return res.status(401).json({ success: false, message: 'Please log in first' });
         }
 

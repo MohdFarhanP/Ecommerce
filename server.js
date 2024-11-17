@@ -93,6 +93,9 @@ app.engine('hbs', exphbs.engine({
             return accum;
         },
         toFixed: (number, decimals) => {
+            if (typeof number !== 'number' || isNaN(number)) {
+                return '';
+            }
             return number.toFixed(decimals);
         }
     },

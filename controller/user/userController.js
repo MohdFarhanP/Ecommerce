@@ -205,7 +205,6 @@ const walletPage = async (req, res) => {
         const userId = req.session.userId;
 
         const transactions = await WalletTransaction.find({ userId });
-        console.log(transactions)
         const user = await User.findById(userId)
         const Balance = user.walletBalance.toFixed(2);
 

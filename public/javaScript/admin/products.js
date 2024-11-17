@@ -413,8 +413,8 @@ function validateProductForm(form) {
     const imageErrorElement = imageInput.nextElementSibling;
     imageErrorElement.textContent = '';
     imageInput.classList.remove('is-invalid');
-    if (imageInput.files.length === 0) {
-        imageErrorElement.textContent = "Please upload at least one image";
+    if (imageInput.files.length < 3) {
+        imageErrorElement.textContent = "Please upload at least 3 images";
         imageInput.classList.add('is-invalid');
         isValid = false;
     }

@@ -20,7 +20,7 @@
                         <h5 class="text-right">Signup</h5>
                     </a>
                 </div>
-                <span id="msg" hidden>{{msg}}</span>
+                <span id="ErrorMsg" hidden>{{msg}}</span>
                 <div class="card-body mt-2">
                     <form class="signup" id="signupForm" action="/sent-otp" method="post">
                         <div class="mb-3">
@@ -54,4 +54,15 @@
         </div>
     </div>
 </div>
+
+<div class="toast align-items-center text-white bg-danger border-0" id="errorToast" role="alert" aria-live="assertive"
+    aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1100; min-width: 250px;">
+    <div class="d-flex">
+        <div class="toast-body" id="toastBody">
+          
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close" onclick="hideToast()"></button>
+    </div>
+</div>
+
 <script src="/javaScript/user/signup.js"></script>

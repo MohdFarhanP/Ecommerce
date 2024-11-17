@@ -11,6 +11,8 @@ const easyinvoice = require('easyinvoice');
 const fs = require('fs');
 const WalletTransaction = require('../../model/wlletModel');
 const Ledger = require('../../model/ledgerModel');
+const pdfmake = require('pdfmake');
+const pdfMakePrinter = require('pdfmake/src/printer');
 require('dotenv').config();
 
 
@@ -225,7 +227,6 @@ const placeOrder = async (req, res) => {
 
     try {
         if (paymentMethod === 'Wallet') {
-
             const user = await User.findById(userId);
 
             if (user.walletBalance >= totalAmount) {
@@ -281,7 +282,7 @@ const placeOrder = async (req, res) => {
 
             } else {
 
-                res.status(400).send("Insufficient Wallet Balance");
+                return res.redirect(`/checkout?error=Insufficient%20Wallet%20Balance`);
             }
         } else {
 
@@ -350,7 +351,6 @@ const orderSuccess = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
-// controller for download invoice
 const downloadInvoice = async (req, res) => {
     try {
         console.log('Order ID:', req.params.orderId);
@@ -404,24 +404,25 @@ const downloadInvoice = async (req, res) => {
         };
 
 
-        easyinvoice.createInvoice(data, (result) => {
+        await easyinvoice.createInvoice(data, (result) => {
             if (result.pdf) {
                 const filePath = path.join(tmpDir, `invoice_${req.params.orderId}.pdf`);
                 fs.writeFileSync(filePath, result.pdf, 'base64');
 
-
-                res.download(filePath, 'invoice.pdf', (err) => {
+                return res.download(filePath, 'invoice.pdf', (err) => {
                     if (err) {
                         console.error('Error downloading invoice:', err);
-                        return res.status(500).send('Error downloading invoice');
                     }
                     fs.unlinkSync(filePath);
                 });
             } else {
                 console.error('Invoice creation failed:', result);
-                res.status(500).send('Error generating invoice');
+                if (!res.headersSent) {
+                    return res.status(500).send('Error generating invoice');
+                }
             }
         });
+
     } catch (error) {
         console.error('Error generating invoice:', error);
         res.status(500).send('Error generating invoice');

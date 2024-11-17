@@ -46,7 +46,7 @@ function populateEditModal(id, firstName, lastName, email, mobile, addressLine, 
         }
     }
 
-    document.querySelector('#editAddress form').action = `/editAddress/${id}`;
+    document.querySelector('#editAddress form').action = `/editAddress/${id}?_method=PUT`;
 }
 // for deleting the address
 function setDeleteAddress(addressId) {

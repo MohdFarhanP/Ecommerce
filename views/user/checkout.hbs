@@ -48,7 +48,7 @@
                         <div class="modal-body">
                             <div class=" row mt-2">
                                 <div class="col-md-12 me-2 ">
-                                    <form id="editAddressForm" action="/editAddress" method="post">
+                                    <form id="editAddressForm" action="/editAddress?_method=PUT" method="POST">
                                         <input type="hidden" name="source" value="checkout">
                                         <div class="row">
                                             <div class="col">
@@ -244,7 +244,7 @@
                             <!-- Display coupon discount if applied -->
                             {{#if appliedCouponCode}}
                             <h6 class="mb-2"><strong>{{appliedCouponCode}}</strong></h6>
-                            <h6 class="mb-2"><strong>- ₹{{couponDiscountAmountm}}</strong></h6>
+                            <h6 class="mb-2"><strong>- ₹{{couponDiscountAmount}}</strong></h6>
                             {{/if}}
                             <!-- Display referral discount if applied -->
                             {{#if appliedReferralCode}}

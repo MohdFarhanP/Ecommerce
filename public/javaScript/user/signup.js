@@ -69,3 +69,20 @@ function formValidate() {
 
     return isValid;
 }
+function showError(message) {
+    const toastElement = document.getElementById("errorToast");
+    const toastBody = document.getElementById("toastBody");
+
+    toastBody.textContent = message;
+    toastElement.classList.add("show");
+    setTimeout(() => {
+        toastElement.classList.remove("show");
+    }, 3000);
+}
+
+
+ const ErrorMsg = document.getElementById('ErrorMsg').textContent
+ console.log(ErrorMsg)
+  if(ErrorMsg){
+    showError(ErrorMsg)
+  }
