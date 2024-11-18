@@ -11,8 +11,6 @@ const easyinvoice = require('easyinvoice');
 const fs = require('fs');
 const WalletTransaction = require('../../model/wlletModel');
 const Ledger = require('../../model/ledgerModel');
-const pdfmake = require('pdfmake');
-const pdfMakePrinter = require('pdfmake/src/printer');
 require('dotenv').config();
 
 

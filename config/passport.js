@@ -2,7 +2,7 @@ const passport = require('passport');
 const User = require('../model/userModel');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
-
+require('dotenv').config();
 
 
 // Function to generate a unique referral code for new users
