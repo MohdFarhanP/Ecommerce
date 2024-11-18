@@ -2,8 +2,6 @@ const Order = require('../../model/orderModel');
 const fs = require('fs');
 const path = require('path');
 const pdfMake = require('pdfmake/build/pdfmake');
-const pdfFonts = require('pdfmake/build/vfs_fonts');
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
 const ExcelJS = require('exceljs');
 
 // function to generate and render the sales report page
