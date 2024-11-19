@@ -85,16 +85,20 @@ const signupPage = (req, res) => {
 // signup  validating 
 const signupBtn = async (req, res) => {
     try {
-        
         const { userName, email, password, referralCode } = req.body;
+
         const exist = await User.findOne({ email });
         if (exist) {
             return res.render('user/signup', { msg: 'User already exists' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        req.session.userSignupData = {
+            userName,
+            email,
+            password,
+            referralCode,
+        };
 
-        const generateReferralCode = () => `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
 
         let referredByUser = null;
         if (referralCode) {
@@ -102,37 +106,13 @@ const signupBtn = async (req, res) => {
             if (!referredByUser) {
                 return res.render('user/signup', { msg: 'Invalid referral code' });
             }
-            req.session.appliedReferralCode = referralCode
+            req.session.appliedReferralCode = referralCode;
         }
 
-        const newUser = new User({
-            userName,
-            email,
-            password: hashedPassword,
-            referralCode: generateReferralCode(),
-            referredBy: referredByUser ? referredByUser._id : null,
-        });
-        await newUser.save();
-        if (referredByUser) {
-            const walletTransaction = new WalletTransaction({
-                userId: referredByUser._id,
-                amount: 50,
-                transactionType: 'Credit',
-                description: 'Referral bonus for new signup',
-            });
-            await walletTransaction.save();
-            // Update the referring user's wallet balance
-            referredByUser.walletBalance += 50;
-            await referredByUser.save();
-        }
-
-
-        req.session.userId = newUser._id;
         const otp = Math.floor(1000 + Math.random() * 9000);
         req.session.otp = otp;
-        req.session.email = email;
         req.session.otpTimestamp = Date.now();
-
+        
         const mailOptions = {
             from: process.env.EMAIL,
             to: email,
@@ -140,23 +120,22 @@ const signupBtn = async (req, res) => {
             template: '/email-otp',
             context: {
                 otp: req.session.otp,
-                userName: newUser.userName
+                userName,
             },
         };
 
-        // Send email asynchronously and wait for the response
         await transporter.sendMail(mailOptions);
+
+        req.session.referredByUser = referredByUser ? referredByUser._id : null;
+
         const remainTime = 60;
         res.render('user/otp', { remainTime, id: req.session.userId });
 
     } catch (error) {
-        await User.findByIdAndDelete(req.session.userId);
-        req.session.userId = null;
         console.error('Signup error:', error);
         return res.redirect('/signup');
     }
 };
-// Renders the OTP page for user verification
 const otpPage = (req, res) => {
     res.render('user/otp')
 };
@@ -167,20 +146,48 @@ const verifyOtp = async (req, res) => {
         const otpAge = Date.now() - req.session.otpTimestamp;
         const otpExp = 1 * 60 * 1000;
 
-     
-
         if (otpAge > otpExp) {
             return res.render('user/otp', { error: "OTP expired, please request a new one." });
         }
 
         const remainTime = Math.floor(Math.max(0, otpExp - otpAge) / 1000);
- 
+
         if (req.session.otp) {
             const existOtp = req.session.otp.toString();
             if (userOtp === existOtp) {
 
-                req.session.userId = req.session.userId;
-                return res.render('user/home');
+                const { userName, email, password, referralCode } = req.session.userSignupData;
+
+                const hashedPassword = await bcrypt.hash(password, 10);
+                const generateReferralCode = () => `REF${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+
+                let referredByUser = req.session.referredByUser ? await User.findById(req.session.referredByUser) : null;
+
+                const newUser = new User({
+                    userName,
+                    email,
+                    password: hashedPassword,
+                    referralCode: generateReferralCode(),
+                    referredBy: referredByUser ? referredByUser._id : null,
+                });
+
+                await newUser.save();
+
+                if (referredByUser) {
+                    const walletTransaction = new WalletTransaction({
+                        userId: referredByUser._id,
+                        amount: 50,
+                        transactionType: 'Credit',
+                        description: 'Referral bonus for new signup',
+                    });
+                    await walletTransaction.save();
+                    referredByUser.walletBalance += 50;
+                    await referredByUser.save();
+                }
+
+                req.session.userId = newUser._id;
+                return res.render('user/home');  
+
             } else {
                 return res.render('user/otp', { error: "Invalid OTP, please try again.", remainTime });
             }
@@ -197,12 +204,6 @@ const resendOtp = async (req, res) => {
         req.session.otp = otp;
         req.session.otpTimestamp = Date.now();
 
-       
-
-        const id = req.session.userId;
-        if (!id) {
-            return res.status(400).send("User ID not found in session");
-        }
 
         const mailOptions = {
             from: process.env.EMAIL,

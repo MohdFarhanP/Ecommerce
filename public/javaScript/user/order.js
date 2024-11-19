@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
 
                     const razorpay = new Razorpay(options);
+                    razorpay.on('payment.failed', function (response) {
+                        console.log("Payment failed:", response.error);
+                        window.location.href = '/orders';  
+                    });
                     razorpay.open();
                 } else {
                     alert('Failed to fetch payment details. Please try again.');

@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('resendOtpForm').hidden = false;
 
                 showToast('OTP expired. Please request a new one.');
+                document.getElementById('resendOtpForm').hidden = false;
             }
         }, 1000);
     }

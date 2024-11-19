@@ -80,8 +80,11 @@ app.engine('hbs', exphbs.engine({
         or: (a, b) => {
             return a || b;
         },
+        and:(a,b) =>{
+            return a && b;
+        },
         isPendingRazorpay: (paymentStatus, paymentMethod, orderContext, options) => {
-            if (paymentStatus === 'Failed' || paymentStatus === 'Pending' && paymentMethod === 'Razorpay') {
+            if (paymentStatus === 'Failed' && paymentMethod === 'Razorpay') {
                 return options.fn(orderContext); // Use orderContext instead of this
             }
             return options.inverse(orderContext);

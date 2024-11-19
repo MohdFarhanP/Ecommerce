@@ -27,6 +27,12 @@ document.addEventListener("DOMContentLoaded", function () {
             isValid = false;
         }
 
+        if (oldPassword === newPassword ) {
+            document.getElementById('newPasswordError').textContent = 'Existing password is not allowed';
+            document.getElementById('newPasswordError').style.display = 'block';
+            isValid = false;
+        }
+
         if (!confirmPassword) {
             document.getElementById('confirmPasswordError').textContent = 'Please confirm your password.';
             document.getElementById('confirmPasswordError').style.display = 'block';

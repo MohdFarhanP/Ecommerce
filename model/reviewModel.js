@@ -13,7 +13,7 @@ const reviewSchema = new mongoose.Schema({
     email: {
       type: String,
       match: [/.+\@.+\..+/, 'Please enter a valid email address'],
-      required: false // Email is now optional
+      required: false 
     },
     rating: {
       type: Number,

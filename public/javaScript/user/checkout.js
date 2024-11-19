@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const urlParams = new URLSearchParams(window.location.search);
     const error = urlParams.get('error');
     if (error) {
-        customError(decodeURIComponent(error)); 
+        customError(decodeURIComponent(error));
     }
 
     // Edit Address validation 
@@ -221,7 +221,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
 
     const totalAmount = document.querySelector('input[name="totalAmount"]').value;
     console.log(totalAmount);
-    // create payment using razorpay
+
     if (paymentMethod === 'Razorpay') {
         try {
             const response = await fetch('/createRazorpayOrder', {
@@ -236,16 +236,16 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
                     discount: discount
                 })
             });
-
+    
             const { orderId, key, amount } = await response.json();
-            console.log(orderId, key, amount)
+            console.log(orderId, key, amount);
+            
             const options = {
                 key,
                 amount,
                 currency: "INR",
                 order_id: orderId,
                 handler: function (response) {
-
                     verifyRazorpayPayment(response);
                 },
                 prefill: {
@@ -254,23 +254,30 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
                 },
                 modal: {
                     ondismiss: function () {
-                        window.location.href = '/orders';
+                        window.location.href = '/orders'; 
                     }
                 }
             };
-
+    
             const rzp = new Razorpay(options);
+            
+            rzp.on('payment.failed', function (response) {
+                console.log("Payment failed:", response.error);
+                window.location.href = '/orders'; 
+            });
+
             rzp.open();
+    
         } catch (error) {
             console.error("Razorpay order creation failed:", error);
         }
     } else {
         if (paymentMethod === 'COD' && totalAmount > 1000) {
-            return customError('above 1000 rupees product cant buy using cash on delevery ');
+            return customError('above 1000 rupees product cant buy using cash on delivery');
         }
         this.submit();
     }
-
+    
 });
 
 // verify razorpayment 
@@ -288,7 +295,7 @@ function verifyRazorpayPayment(response) {
                 if (rzp) {
                     rzp.close();
                 }
-                window.location.href = '/orders';  // Redirect to order page for retry
+                window.location.href = '/orders';  
             }
         })
         .catch(err => {

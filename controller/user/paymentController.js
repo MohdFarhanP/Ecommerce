@@ -30,7 +30,7 @@ const createRazorpayOrder = async (req, res) => {
             shippingAddress: await Address.findById(shippingAddressId),
             totalAmount,
             paymentMethod: 'Razorpay',
-            paymentStatus: 'Pending',
+            paymentStatus: 'Failed',
             couponCode,
             couponDiscount,
             discount,

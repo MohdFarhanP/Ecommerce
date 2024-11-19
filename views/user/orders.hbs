@@ -5,7 +5,7 @@
 <div class="container mt-5">
     <div class="row">
         <!-- Sidebar -->
-        
+
         {{>profileSidebar}}
 
         <!-- Orders Section -->
@@ -32,7 +32,7 @@
                                     <a href="/orderDetails/{{../_id}}/{{this.productId._id}}"
                                         class="btn btn-warning me-2">View Details</a>
 
-                                    {{#if (or (eq this.status 'Pending') (eq this.status 'Confirmed'))}}
+                                    {{#if (and (or (eq this.status 'Pending') (eq this.status 'Confirmed')) (neq ../paymentStatus 'Failed'))}}
                                     <form action="/cancelProduct?_method=PATCH" method="post"
                                         onsubmit="return confirm('Are you sure you want to cancel this product?');">
                                         <input type="hidden" name="orderId" value="{{../_id}}">
@@ -69,7 +69,8 @@
                     {{/if}}
 
                     {{#isPendingRazorpay this.paymentStatus this.paymentMethod this}}
-                    <button id="retryPaymentButton" class="btn btn-primary" data-order-id="{{this._id}}">Retry Payment</button>
+                    <button id="retryPaymentButton" class="btn btn-primary" data-order-id="{{this._id}}">Retry
+                        Payment</button>
                     {{/isPendingRazorpay}}
                 </div>
             </div>

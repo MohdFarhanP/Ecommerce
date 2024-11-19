@@ -31,8 +31,8 @@ function formValidate() {
         document.getElementById('nameError').textContent = 'Username is required';
         document.getElementById('name').classList.add('is-invalid');
         isValid = false;
-    } else if (!/^[a-zA-Z0-9_]{5,20}$/.test(name)) {
-        document.getElementById('nameError').textContent = 'Username must be 5-20 characters long and contain only letters, numbers, and underscores.';
+    } else if (!/^[a-zA-Z0-9]{5,20}$/.test(name)) {
+        document.getElementById('nameError').textContent = 'Username must be 5-20 characters long ,only letters ,numbers.';
         document.getElementById('name').classList.add('is-invalid');
         isValid = false;
     }
@@ -42,7 +42,7 @@ function formValidate() {
         document.getElementById('email').classList.add('is-invalid');
         isValid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        document.getElementById('emailError').textContent = 'Please enter a valid email. e.g., example@domain.com';
+        document.getElementById('emailError').textContent = 'Enter a valid email. e.g., example@domain.com';
         document.getElementById('email').classList.add('is-invalid');
         isValid = false;
     }
@@ -52,7 +52,7 @@ function formValidate() {
         document.getElementById('password').classList.add('is-invalid');
         isValid = false;
     } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
-        document.getElementById('passwordError').textContent = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number';
+        document.getElementById('passwordError').textContent = 'At least 8 characters ,one uppercase and lowercase letter, one number';
         document.getElementById('password').classList.add('is-invalid');
         isValid = false;
     }
